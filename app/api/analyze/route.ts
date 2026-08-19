@@ -32,9 +32,10 @@ const MODEL =
 /**
  * DeepSeek V3.2 的输出硬上限是 8,000 tokens —— 15 篇 × 9 格根本装不下，
  * 实测会在半路截断成非法 JSON。所以按 BATCH 篇一组分批并行发出，
- * 每组输出约 2,500 tokens，既不会截断，墙钟时间也只等最慢的一组。
+ * 4 篇一组实测仍会触发 finish_reason=length，所以收到 2 篇一组，
+ * 单组输出约 1,300 tokens，留足余量；组数变多但全部并行，墙钟时间反而更短。
  */
-const BATCH = 4;
+const BATCH = 2;
 const MAX_ATTEMPTS = 3;
 const MAX_NOTES = 60;
 const MAX_TOKENS = 7500;
@@ -115,6 +116,27 @@ async function generate<T>(
 }
 
 /**
+ * 模型常常不听话地多套一层（{"analysis": {...}} 或 {"notes": {...}}），
+ * 与其重试不如直接解开。判据是：顶层只有一个键，且它的值是对象，
+ * 而这个键不像笔记标题（笔记标题一定在本批的名单里）。
+ */
+function unwrap(raw: unknown, titles: string[]): Record<string, NoteAnalysis> {
+  if (!raw || typeof raw !== 'object') return {};
+  const obj = raw as Record<string, unknown>;
+  if (titles.some((t) => t in obj)) return obj as Record<string, NoteAnalysis>;
+  for (const k of ['analysis', 'notes', 'data', 'result', '诊断']) {
+    const v = obj[k];
+    if (v && typeof v === 'object' && !Array.isArray(v)) return v as Record<string, NoteAnalysis>;
+  }
+  const keys = Object.keys(obj);
+  if (keys.length === 1) {
+    const v = obj[keys[0]];
+    if (v && typeof v === 'object' && !Array.isArray(v)) return v as Record<string, NoteAnalysis>;
+  }
+  return obj as Record<string, NoteAnalysis>;
+}
+
+/**
  * 逐篇诊断。关键在于 **通过的篇目立刻锁定，只把没过的重新问一遍** ——
  * 之前整批全有或全无，一批 4 篇里 1 篇有问题就把另外 3 篇的好内容一起丢掉，
  * 实测四批各因不同原因失败时覆盖率会掉到 0。
@@ -143,7 +165,7 @@ async function generateNotes(
       const text = await callModel(messages, signal);
       if (attempt === MAX_ATTEMPTS) console.error(`[analyze] 末次响应开头：${text.slice(0, 200)}`);
       parsed = repairFixPrefixes(
-        normalizeSpacing(extractJson(text)) as Record<string, NoteAnalysis>,
+        unwrap(normalizeSpacing(extractJson(text)), pending.map((n) => n.title)),
         pending,
       );
     } catch (e) {
@@ -218,7 +240,11 @@ export async function POST(req: NextRequest) {
       generate(
         SYSTEM_SUGGESTIONS,
         buildSuggestionsPrompt(report),
-        (p) => (p as { suggestions?: Suggestion[] }).suggestions ?? [],
+        (p) => {
+          const o = p as Record<string, unknown>;
+          const v = o?.suggestions ?? o?.建议 ?? (Array.isArray(p) ? p : []);
+          return (Array.isArray(v) ? v : []) as Suggestion[];
+        },
         validateSuggestions,
         controller.signal,
       ).then((r) => ({ kind: 'sugs' as const, r })),
