@@ -28,7 +28,7 @@ export default function Home() {
             </p>
           </Link>
 
-          <a className="tool" href="/macro-dashboard?lang=zh">
+          <a className="tool" href="/macro-dashboard/zh">
             <h3>宏观影响看板</h3>
             <p>
               美股、现金、黄金、加密四类资产，在当下的宏观环境里是看多还是看跌。

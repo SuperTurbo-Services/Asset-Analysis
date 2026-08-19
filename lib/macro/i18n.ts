@@ -256,7 +256,7 @@ export function localizeTemplate(parts: TemplateParts, lang: Lang): TemplatePart
   }
 
   const other: Lang = lang === 'zh' ? 'en' : 'zh';
-  const href = other === 'zh' ? '/macro-dashboard?lang=zh' : '/macro-dashboard';
+  const href = other === 'zh' ? '/macro-dashboard/zh' : '/macro-dashboard';
   const button = `<a class="themebtn" href="${href}" hreflang="${other}" style="text-decoration:none">${S.switchTo[lang]}</a>`;
   const anchor = '<button class="themebtn" id="themebtn"';
   if (!body.includes(anchor)) {

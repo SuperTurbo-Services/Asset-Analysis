@@ -139,24 +139,31 @@ MIT
 每天自动重建一次，回答一个问题：当下的宏观环境，对美股、现金、黄金、加密这四类资产
 是看多还是看跌。来源是 `macro-dashboard` 这个 skill，把它变成了不需要人来跑的网站。
 
-中英双语。`/macro-dashboard` 是英文，`/macro-dashboard?lang=zh` 是中文，右上角切换，
-在深色模式按钮旁边。首页的卡片直接指向中文版。
+中英双语，两个独立的静态路径：`/macro-dashboard` 英文，`/macro-dashboard/zh` 中文，
+右上角切换，在深色模式按钮旁边。首页的卡片直接指向中文版。老的 `?lang=zh` 链接
+由 `next.config.ts` 里的 redirect 接住。
 
 ## 它怎么跑
 
+页面是**纯静态**的，只负责显示 `data/macro-dashboard.json` 里的内容，请求里不生成
+任何东西，也不调模型。所以打开是毫秒级，运行时不需要任何 key。
+
+内容是离线更新的，想更新的时候在本地跑一次：
+
 ```
-  每天一次的 cron
+  npm run macro:refresh          ← 需要 AI_GATEWAY_API_KEY
         │
-        ▼
-  1. 抓数据      FRED + 行情，不需要 key，约 2 秒
-  2. 算派生量    实际利率、现金实际收益、均线、同比
-  3. 打分        一次模型调用，框架在 lib/macro/prompt.ts
-  4. 校验        净分与结论是否一致、连字符、每个数字能否回溯到数据
-  5. 存起来      只有校验通过才覆盖，失败的一次跑不会把页面弄坏
+        ├─ 1. 抓数据      FRED + 行情，不需要 key，约 2 秒
+        ├─ 2. 算派生量    实际利率、现金实际收益、均线、同比
+        ├─ 3. 打分        一次模型调用，框架在 lib/macro/prompt.ts
+        ├─ 4. 翻译        再一次模型调用，只有散文过界
+        ├─ 5. 校验        净分与结论是否一致、连字符、每个数字能否回溯到数据
+        └─ 6. 写文件      data/macro-dashboard.json
         │
-        ▼
-  访客读到的是已经生成好的静态文档
+  git commit && git push  →  Vercel 重新构建  →  页面是新的
 ```
+
+校验不过就不写文件，所以线上那份永远是通过校验的那一版。
 
 **模型不查任何数字。** 所有数据先抓好，作为 facts bundle 交给它，它只负责给因子打分和
 写判断。`lib/macro/validate.ts` 会把任何回溯不到数据的数字判为错误并让模型重写一次。
@@ -188,38 +195,28 @@ MIT
 
 ## 环境变量
 
-| 变量 | 需要吗 | 说明 |
-|---|---|---|
-| `AI_GATEWAY_API_KEY` | 已经有了 | 和小红书那个工具共用同一把 |
-| `CRON_SECRET` | 强烈建议 | Vercel 调 cron 时带上它。不设的话，任何人找到 `/api/macro-dashboard/refresh` 都能烧你的额度 |
-| `AI_GATEWAY_MODEL` | 否 | 默认 `anthropic/claude-sonnet-5` |
-| `BLOB_READ_WRITE_TOKEN` | 否，但建议 | 建好 Blob store 后 Vercel 自动注入 |
+**运行时一个都不需要。** 页面是静态的，线上不调模型。
 
-## 存哪儿
+只有跑 `npm run macro:refresh` 的那台机器需要 `AI_GATEWAY_API_KEY`，放在 `.env.local`。
+换模型改 `AI_GATEWAY_MODEL`，默认 `anthropic/claude-sonnet-5`。小红书那个工具看的是
+`AI_MODEL`，两个变量各管一个工具，不要合并。
 
-生成好的看板要活到下一个访客手里。
+注意：Vercel 里那把 key 标了 **Sensitive**，所以 `vercel env pull` 拿不回来，
+它只会写一个 `[SENSITIVE]` 占位符。要在本地跑就去
+vercel.com/dashboard/ai-gateway/api-keys 取一把，或者新建一把。
+`macro:refresh` 会检查占位符并直接报错，不会让你在网关那边收到一个看不懂的 401。
 
-- **有 Blob store**（Storage 里建一个就行）：cron 写进去，页面读出来。推荐这个。失败的一次
-  跑不会让站点空掉，旧的那份还在。
-- **没有**：缓存过期后第一个访客会触发一次即时生成，能用，但那个人要等约三十秒，
-  而且比需要的多花钱。
-- **本地开发**：`.cache/macro-dashboard.json`。
+没有 cron，没有 Blob store，也没有对外的重建端点，这三样以前都有，现在都不需要了。
 
 ## 命令
 
 | 命令 | 做什么 |
 |---|---|
 | `npm run macro:selftest` | 抓真实数据跑完整条链路，中英两份都出，文案用占位符。**不需要 key，不花钱**，改完代码先跑这个 |
-| `npm run macro:refresh` | 真跑一次，写 `.cache/macro-dashboard.json` 和可以直接打开的 `.cache/macro-preview.html` |
+| `npm run macro:refresh` | 真跑一次，写 `data/macro-dashboard.json`，另外写两份可以直接打开的 `.cache/macro-preview-en.html` 和 `-zh.html`。跑完记得 commit |
 | `npm run macro:models -- sonnet` | 列出 gateway 上能用的模型 |
 
-线上手动重建：
-
-```bash
-curl -H "Authorization: Bearer $CRON_SECRET" https://superturbo.app/api/macro-dashboard/refresh
-```
-
-`/api/macro-dashboard/dashboard` 返回当前这一版的原始数据。
+`/api/macro-dashboard/dashboard` 返回当前这一版的原始数据，中英两份，也是静态的。
 
 ## 数据来源
 
@@ -244,7 +241,8 @@ FRED SP500，VIX 到 FRED VIXCLS，美元到 FRED DTWEXBGS，比特币到 CoinGe
 
 ## 成本
 
-一天一次，大约 3k 输入 3k 输出，几美分。访客读的是存好的页面，不花钱。
+访客不花钱，读的是静态文件。只有你跑 `macro:refresh` 时花钱，两次模型调用，
+大约 3k 输入 3k 输出，几美分。
 
 ## 免责
 

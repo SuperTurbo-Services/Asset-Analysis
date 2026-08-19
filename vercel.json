@@ -3,15 +3,6 @@
   "functions": {
     "app/api/analyze/route.ts": {
       "maxDuration": 300
-    },
-    "app/api/macro-dashboard/refresh/route.ts": {
-      "maxDuration": 300
     }
-  },
-  "crons": [
-    {
-      "path": "/api/macro-dashboard/refresh",
-      "schedule": "20 21 * * *"
-    }
-  ]
+  }
 }
