@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   SYSTEM_NOTES, SYSTEM_SUGGESTIONS, buildNotesPrompt, buildSuggestionsPrompt,
 } from '@/lib/prompt';
-import { extractJson, normalizeSpacing, validateNotes, validateSuggestions, type Issue } from '@/lib/validate';
+import {
+  extractJson, normalizeSpacing, repairFixPrefixes, validateNotes, validateSuggestions, type Issue,
+} from '@/lib/validate';
 import type { Note, NoteAnalysis, Report, Suggestion } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -150,7 +152,7 @@ export async function POST(req: NextRequest) {
         generate(
           SYSTEM_NOTES,
           buildNotesPrompt(report, b),
-          (p) => p as Record<string, NoteAnalysis>,
+          (p) => repairFixPrefixes(p as Record<string, NoteAnalysis>, b),
           (v) => validateNotes(v, b),
           controller.signal,
         ).then((r) => ({ kind: 'notes' as const, r })),

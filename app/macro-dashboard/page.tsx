@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { generateDashboard } from '@/lib/macro/generate';
 import { readDashboard, writeDashboard } from '@/lib/macro/store';
 import { embedPayload, templateParts } from '@/lib/macro/template';
 import type { Dashboard } from '@/lib/macro/types';
+import MacroRender from './render';
 
 export const metadata: Metadata = {
   title: 'Macro Impact Dashboard · SuperTurbo',
@@ -66,11 +66,7 @@ export default async function MacroDashboardPage() {
         type="application/json"
         dangerouslySetInnerHTML={{ __html: embedPayload(result.dashboard) }}
       />
-      <Script
-        id="macro-dashboard-render"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: script }}
-      />
+      <MacroRender source={script} />
     </div>
   );
 }

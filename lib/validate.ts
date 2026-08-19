@@ -174,6 +174,48 @@ export function normalizeSpacing<T>(v: T): T {
   return walk(v) as T;
 }
 
+/**
+ * 修复 *Fix 的前缀。前缀由分数唯一决定，属于机械格式而非判断，
+ * 能自己补就不该占用重试 —— 实测让它进校验会白白丢掉三分之一的篇目。
+ *
+ * 只做三件安全的事，不改写任何语义：
+ *  1. 整条漏了前缀 → 补上分数要求的那个
+ *  2. 分数 < 40 却写了「保持：」→ 该维度没有值得保持的，换成「修改：」
+ *  3. 分数 ≥ 40 但正确前缀的条目不在首位 → 提到首位
+ */
+export function repairFixPrefixes(
+  analysis: Record<string, NoteAnalysis>,
+  batch: Note[],
+): Record<string, NoteAnalysis> {
+  const byTitle = new Map(batch.map((n) => [n.title, n]));
+  for (const [title, cell] of Object.entries(analysis)) {
+    const n = byTitle.get(title);
+    if (!n || !cell) continue;
+    for (const d of [['fan', 'fanS'], ['cov', 'covS'], ['con', 'conS']] as const) {
+      const rec = cell as unknown as Record<string, string[]>;
+      const arr = rec[`${d[0]}Fix`];
+      if (!Array.isArray(arr)) continue;
+      const want = n[d[1]] >= 40 ? '保持：' : '修改：';
+
+      let fixed = arr.map((b) => {
+        if (typeof b !== 'string') return b;
+        const t = b.trim();
+        if (!t.startsWith('保持：') && !t.startsWith('修改：')) return want + t;
+        if (want === '修改：' && t.startsWith('保持：')) return '修改：' + t.slice(3);
+        return t;
+      });
+
+      if (want === '保持：') {
+        const i = fixed.findIndex((b) => b.startsWith('保持：'));
+        if (i > 0) fixed = [fixed[i], ...fixed.filter((_, j) => j !== i)];
+        else if (i < 0 && fixed.length) fixed[0] = '保持：' + fixed[0].replace(/^修改：/, '');
+      }
+      rec[`${d[0]}Fix`] = fixed;
+    }
+  }
+  return analysis;
+}
+
 /** 模型有时会用 ```json 包裹，或在 JSON 前后带解释，这里做宽容提取 */
 export function extractJson(text: string): unknown {
   const t = text.trim();

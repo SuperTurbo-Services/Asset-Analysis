@@ -1,0 +1,603 @@
+{
+  "title": "Macro Impact Dashboard",
+  "stamp": "As of Wednesday, August 19, 2026.",
+  "regime": "restrictive drift",
+  "banner": "A placeholder banner for the self test, with the 10 year at **4.71%**.",
+  "assets": [
+    {
+      "emoji": "\ud83d\udcca",
+      "name": "US Stocks",
+      "verdict": "BULLISH",
+      "dir": "bull",
+      "cap": "",
+      "one": "Self test placeholder text, not a real read.",
+      "qual": "self test placeholder",
+      "factors": [
+        {
+          "s": "up",
+          "h": "Credit is calm",
+          "b": "High yield spreads sit at **275 bp**."
+        },
+        {
+          "s": "up",
+          "h": "Volatility is contained",
+          "b": "The VIX is at **14.89**."
+        },
+        {
+          "s": "down",
+          "h": "Real yields still restrictive (offset)",
+          "b": "The 10 year real yield is **2.41%**."
+        }
+      ]
+    },
+    {
+      "emoji": "\ud83d\udcb5",
+      "name": "US Cash",
+      "verdict": "BULLISH",
+      "dir": "bull",
+      "cap": "",
+      "one": "Self test placeholder text, not a real read.",
+      "qual": "self test placeholder",
+      "factors": [
+        {
+          "s": "up",
+          "h": "Credit is calm",
+          "b": "High yield spreads sit at **275 bp**."
+        },
+        {
+          "s": "up",
+          "h": "Volatility is contained",
+          "b": "The VIX is at **14.89**."
+        },
+        {
+          "s": "down",
+          "h": "Real yields still restrictive (offset)",
+          "b": "The 10 year real yield is **2.41%**."
+        }
+      ]
+    },
+    {
+      "emoji": "\ud83e\udd47",
+      "name": "Gold",
+      "verdict": "BULLISH",
+      "dir": "bull",
+      "cap": "",
+      "one": "Self test placeholder text, not a real read.",
+      "qual": "self test placeholder",
+      "factors": [
+        {
+          "s": "up",
+          "h": "Credit is calm",
+          "b": "High yield spreads sit at **275 bp**."
+        },
+        {
+          "s": "up",
+          "h": "Volatility is contained",
+          "b": "The VIX is at **14.89**."
+        },
+        {
+          "s": "down",
+          "h": "Real yields still restrictive (offset)",
+          "b": "The 10 year real yield is **2.41%**."
+        }
+      ]
+    },
+    {
+      "emoji": "\u20bf",
+      "name": "Crypto",
+      "verdict": "BULLISH",
+      "dir": "bull",
+      "cap": "",
+      "one": "Self test placeholder text, not a real read.",
+      "qual": "self test placeholder",
+      "factors": [
+        {
+          "s": "up",
+          "h": "Credit is calm",
+          "b": "High yield spreads sit at **275 bp**."
+        },
+        {
+          "s": "up",
+          "h": "Volatility is contained",
+          "b": "The VIX is at **14.89**."
+        },
+        {
+          "s": "down",
+          "h": "Real yields still restrictive (offset)",
+          "b": "The 10 year real yield is **2.41%**."
+        }
+      ]
+    }
+  ],
+  "matrix": [
+    {
+      "f": "Growth",
+      "r": "1.1%",
+      "c": [
+        "p",
+        "z",
+        "z",
+        "z"
+      ]
+    },
+    {
+      "f": "Credit spreads",
+      "r": "275 bp",
+      "c": [
+        "p",
+        "z",
+        "z",
+        "p"
+      ]
+    },
+    {
+      "f": "Volatility",
+      "r": "14.89",
+      "c": [
+        "p",
+        "n",
+        "z",
+        "z"
+      ]
+    },
+    {
+      "f": "Real yields",
+      "r": "2.41%",
+      "c": [
+        "z",
+        "p",
+        "n",
+        "n"
+      ]
+    },
+    {
+      "f": "Real carry on cash",
+      "r": "1.39 percent",
+      "c": [
+        "z",
+        "p",
+        "z",
+        "z"
+      ]
+    },
+    {
+      "f": "Dollar",
+      "r": "98.79",
+      "c": [
+        "z",
+        "z",
+        "p",
+        "p"
+      ]
+    },
+    {
+      "f": "Inflation expectations",
+      "r": "2.30%",
+      "c": [
+        "z",
+        "z",
+        "p",
+        "z"
+      ]
+    },
+    {
+      "f": "Trend",
+      "r": "1.1 percent above",
+      "c": [
+        "z",
+        "z",
+        "p",
+        "p"
+      ]
+    }
+  ],
+  "tiles": [
+    {
+      "lab": "10 year real yield",
+      "val": "2.41%",
+      "src": "FRED DFII10, August 18",
+      "lo": 0,
+      "hi": 3.5,
+      "v": 2.41,
+      "mark": 2,
+      "markLab": "2.00",
+      "spark": [
+        2.42,
+        2.39,
+        2.41,
+        2.44,
+        2.41
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "10 year nominal yield",
+      "val": "4.71%",
+      "src": "FRED DGS10, August 18",
+      "lo": 3,
+      "hi": 6,
+      "v": 4.71,
+      "mark": 4.5,
+      "markLab": "4.50",
+      "spark": [
+        4.68,
+        4.63,
+        4.68,
+        4.72,
+        4.71
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "10 year breakeven",
+      "val": "2.30%",
+      "src": "FRED T10YIE, August 19",
+      "lo": 1.5,
+      "hi": 3,
+      "v": 2.3,
+      "mark": 2,
+      "markLab": "target",
+      "spark": [
+        2.24,
+        2.27,
+        2.28,
+        2.3,
+        2.3
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "High yield OAS",
+      "val": "275 bp",
+      "src": "FRED BAMLH0A0HYM2, August 18",
+      "lo": 250,
+      "hi": 600,
+      "v": 275,
+      "mark": 400,
+      "markLab": "400 bp",
+      "spark": [
+        271,
+        271,
+        267,
+        270,
+        275
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "3 month T bill",
+      "val": "3.86%",
+      "src": "FRED DGS3MO, August 18",
+      "lo": 0,
+      "hi": 6,
+      "v": 3.86,
+      "mark": 2.47,
+      "markLab": "core CPI",
+      "spark": [
+        3.87,
+        3.87,
+        3.86,
+        3.87,
+        3.86
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "Fed funds effective",
+      "val": "3.63%",
+      "src": "FRED DFF, August 18",
+      "lo": 0,
+      "hi": 6,
+      "v": 3.63,
+      "mark": 2.47,
+      "markLab": "core CPI",
+      "spark": [
+        3.63,
+        3.63,
+        3.63,
+        3.63,
+        3.63
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "VIX",
+      "val": "14.89",
+      "src": "Yahoo Finance, ^VIX, August 19",
+      "lo": 10,
+      "hi": 40,
+      "v": 14.89,
+      "mark": 20,
+      "markLab": "20",
+      "spark": [
+        14.63,
+        14.25,
+        15.19,
+        15.84,
+        14.89
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "S&P 500",
+      "val": "7,708",
+      "src": "Yahoo Finance, ^GSPC, August 19",
+      "lo": 6340,
+      "hi": 7820,
+      "v": 7707.98,
+      "mark": 7816.7,
+      "markLab": "52 week high",
+      "spark": [
+        7798.99,
+        7785.76,
+        7745.06,
+        7691.76,
+        7707.98
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "Bitcoin",
+      "val": "$69,746",
+      "src": "Yahoo Finance, BTC USD, August 19",
+      "lo": 58500,
+      "hi": 97000,
+      "v": 69745.77,
+      "mark": 68997.47,
+      "markLab": "200d",
+      "spark": [
+        63024.32,
+        62818.65,
+        64506.25,
+        64680.71,
+        69745.77
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "Gold",
+      "val": "$4,581",
+      "src": "Yahoo Finance, COMEX front month, August 19",
+      "lo": 3310,
+      "hi": 5320,
+      "v": 4580.7,
+      "mark": 4493.34,
+      "markLab": "200d",
+      "spark": [
+        4363.6,
+        4380.4,
+        4417.8,
+        4366,
+        4580.7
+      ],
+      "read": "Self test placeholder read."
+    },
+    {
+      "lab": "Dollar index",
+      "val": "98.79",
+      "src": "Yahoo Finance, DX Y.NYB, August 19",
+      "lo": 96,
+      "hi": 102,
+      "v": 98.79,
+      "mark": 99.19,
+      "markLab": "200d",
+      "spark": [
+        99.96,
+        99.67,
+        99.64,
+        99.65,
+        98.79
+      ],
+      "read": "Self test placeholder read."
+    }
+  ],
+  "calcs": [
+    {
+      "lab": "10 year real yield, from the nominal and the breakeven",
+      "left": "4.71",
+      "op": "minus",
+      "right": "2.30",
+      "res": "2.41 percent",
+      "note": "Matches FRED DFII10, which prints the same yield at 2.41 percent."
+    },
+    {
+      "lab": "Real carry on cash, against core CPI",
+      "left": "3.86",
+      "op": "minus",
+      "right": "2.5",
+      "res": "1.39 percent",
+      "note": "What a 3 month T bill pays after core inflation, for taking no duration and no credit risk. Core CPI is the July print."
+    },
+    {
+      "lab": "Real carry on cash, against headline CPI",
+      "left": "3.86",
+      "op": "minus",
+      "right": "3.3",
+      "res": "0.56 percent",
+      "note": "Headline includes food and energy, so this is the number a household actually feels."
+    },
+    {
+      "lab": "Bitcoin against its 200 day average",
+      "left": "$69,746",
+      "op": "against",
+      "right": "$68,997",
+      "res": "1.1 percent above",
+      "note": "The 200 day line is the trend filter the framework uses for crypto."
+    },
+    {
+      "lab": "Gold against its 200 day average",
+      "left": "$4,581",
+      "op": "against",
+      "right": "$4,493",
+      "res": "1.9 percent above",
+      "note": "Gold rejecting or reclaiming this line has capped every advance this cycle."
+    }
+  ],
+  "barChart": {
+    "title": "Five session change, by asset",
+    "sub": "Percent change over the last five sessions. The zero line separates what is working from what is not.",
+    "unit": "",
+    "min": -2.5,
+    "max": 12.5,
+    "ticks": [
+      12.5,
+      10,
+      7.5,
+      5,
+      2.5,
+      0,
+      -2.5
+    ],
+    "note": "The 10 year nominal yield sits at 4.71% over the same window.",
+    "itemHeader": "Asset",
+    "valueHeader": "Change, percent",
+    "data": [
+      {
+        "label": "S&P 500",
+        "value": -0.5
+      },
+      {
+        "label": "Gold",
+        "value": 3.9
+      },
+      {
+        "label": "Bitcoin",
+        "value": 10.8
+      },
+      {
+        "label": "Dollar index",
+        "value": -1.2
+      }
+    ]
+  },
+  "lineChart": {
+    "title": "Core CPI, year over year, last 12 months",
+    "sub": "The latest print is 2.5 percent. The line at 2 is the Federal Reserve's target.",
+    "seriesName": "Core CPI, year over year",
+    "min": 2,
+    "max": 3.5,
+    "ticks": [
+      2,
+      2.5,
+      3,
+      3.5
+    ],
+    "refLine": 2,
+    "refLabel": "2, the target",
+    "itemHeader": "Month",
+    "valueHeader": "Percent",
+    "data": [
+      {
+        "label": "Jul 25",
+        "value": 3.05
+      },
+      {
+        "label": "Aug",
+        "value": 3.11
+      },
+      {
+        "label": "Sep",
+        "value": 3.02
+      },
+      {
+        "label": "Nov",
+        "value": 2.6
+      },
+      {
+        "label": "Dec",
+        "value": 2.65
+      },
+      {
+        "label": "Jan 26",
+        "value": 2.51
+      },
+      {
+        "label": "Feb",
+        "value": 2.47
+      },
+      {
+        "label": "Mar",
+        "value": 2.6
+      },
+      {
+        "label": "Apr",
+        "value": 2.74
+      },
+      {
+        "label": "May",
+        "value": 2.82
+      },
+      {
+        "label": "Jun",
+        "value": 2.57
+      },
+      {
+        "label": "Jul",
+        "value": 2.47
+      }
+    ]
+  },
+  "sources": [
+    [
+      "FRED DFII10",
+      "https://fred.stlouisfed.org/series/DFII10"
+    ],
+    [
+      "FRED DGS10",
+      "https://fred.stlouisfed.org/series/DGS10"
+    ],
+    [
+      "FRED T10YIE",
+      "https://fred.stlouisfed.org/series/T10YIE"
+    ],
+    [
+      "FRED BAMLH0A0HYM2",
+      "https://fred.stlouisfed.org/series/BAMLH0A0HYM2"
+    ],
+    [
+      "FRED DGS3MO",
+      "https://fred.stlouisfed.org/series/DGS3MO"
+    ],
+    [
+      "FRED DFF",
+      "https://fred.stlouisfed.org/series/DFF"
+    ],
+    [
+      "FRED CPILFESL",
+      "https://fred.stlouisfed.org/series/CPILFESL"
+    ],
+    [
+      "FRED CPIAUCSL",
+      "https://fred.stlouisfed.org/series/CPIAUCSL"
+    ],
+    [
+      "FRED INDPRO",
+      "https://fred.stlouisfed.org/series/INDPRO"
+    ],
+    [
+      "Yahoo Finance, ^GSPC",
+      "https://finance.yahoo.com/quote/%5EGSPC/"
+    ],
+    [
+      "Yahoo Finance, ^VIX",
+      "https://finance.yahoo.com/quote/%5EVIX/"
+    ],
+    [
+      "Yahoo Finance, BTC USD",
+      "https://finance.yahoo.com/quote/BTC-USD/"
+    ],
+    [
+      "Yahoo Finance, COMEX front month",
+      "https://finance.yahoo.com/quote/GC%3DF/"
+    ],
+    [
+      "Yahoo Finance, DX Y.NYB",
+      "https://finance.yahoo.com/quote/DX-Y.NYB/"
+    ]
+  ],
+  "meta": {
+    "generatedAt": "2026-08-19T21:58:08.934Z",
+    "model": "selftest",
+    "missing": []
+  }
+}
