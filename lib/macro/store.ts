@@ -9,7 +9,6 @@ const KEY = "macro-dashboard.json";
 const LOCAL = ".cache/macro-dashboard.json";
 
 const hasBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-const isServerless = () => Boolean(process.env.VERCEL);
 
 const isBundle = (v: unknown): v is Bundle =>
   Boolean(v && typeof v === "object" && "en" in (v as object) && "zh" in (v as object));
@@ -29,7 +28,10 @@ export async function readDashboard(): Promise<Bundle | null> {
       return null;
     }
   }
-  if (isServerless()) return null;
+  // No blob store, so fall back to a file. On Vercel the filesystem is read
+  // only and this simply misses, which is the intended behaviour. Do not gate
+  // this on process.env.VERCEL: `vercel env pull` writes VERCEL=1 into
+  // .env.local, so that check is true on a laptop too.
   try {
     const { readFile } = await import("node:fs/promises");
     const parsed = JSON.parse(await readFile(LOCAL, "utf8"));
@@ -51,9 +53,12 @@ export async function writeDashboard(d: Bundle): Promise<string> {
     });
     return res.url;
   }
-  if (isServerless()) return "not stored, no blob store is configured";
-  const { mkdir, writeFile } = await import("node:fs/promises");
-  await mkdir(".cache", { recursive: true });
-  await writeFile(LOCAL, JSON.stringify(d, null, 2));
-  return LOCAL;
+  try {
+    const { mkdir, writeFile } = await import("node:fs/promises");
+    await mkdir(".cache", { recursive: true });
+    await writeFile(LOCAL, JSON.stringify(d, null, 2));
+    return LOCAL;
+  } catch {
+    return "not stored, there is no blob store and the filesystem is read only";
+  }
 }

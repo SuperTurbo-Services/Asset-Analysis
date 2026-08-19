@@ -1,5 +1,5 @@
 import { gateway } from '@ai-sdk/gateway';
-import { generateObject } from 'ai';
+import { NoObjectGeneratedError, generateObject } from 'ai';
 import { gatherFacts, type Facts } from './facts';
 import type { Lang } from './i18n';
 import { assemble } from './payload';
@@ -16,8 +16,46 @@ export const MODEL = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-5'
 
 function keyReads(raw: RawJudgment): Judgment {
   const reads: Record<string, string> = {};
-  for (const r of raw.reads) reads[r.key] = r.text;
-  return { ...raw, reads };
+  for (const r of raw.reads ?? []) reads[r.key] = r.text;
+  return {
+    ...raw,
+    stampNote: raw.stampNote ?? '',
+    assets: raw.assets.map((a) => ({ ...a, cap: a.cap ?? '' })),
+    reads,
+  };
+}
+
+/**
+ * Thinking tokens count against the output budget, so a tight cap truncates the
+ * JSON and surfaces as a schema mismatch rather than as a length error.
+ */
+const MAX_OUTPUT_TOKENS = 32_000;
+
+/**
+ * A schema mismatch throws instead of returning an object, which would end the
+ * run with nothing to retry on. This turns it into a normal failed attempt and
+ * keeps the detail worth having: why it stopped, and what it actually wrote.
+ */
+async function tryObject(args: Parameters<typeof generateObject>[0]) {
+  try {
+    const { object } = await generateObject(args);
+    return { ok: true as const, object };
+  } catch (err) {
+    if (!NoObjectGeneratedError.isInstance(err)) throw err;
+    const finish = err.finishReason ?? 'unknown';
+    const wrote = err.text ? `${err.text.length} characters` : 'nothing';
+    const detail =
+      `the model returned an object that did not match the schema. ` +
+      `Finish reason ${finish}, it wrote ${wrote}` +
+      (err.usage?.outputTokens ? `, ${err.usage.outputTokens} output tokens` : '') +
+      '.';
+    console.error('macro generate: no object', {
+      finishReason: finish,
+      usage: err.usage,
+      textTail: err.text?.slice(-400),
+    });
+    return { ok: false as const, detail };
+  }
 }
 
 export type Bundle = { en: Dashboard; zh: Dashboard };
@@ -35,17 +73,22 @@ async function score(facts: Facts, maxAttempts: number) {
   let lastErrors: string[] = [];
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const { object } = await generateObject({
+    const got = await tryObject({
       model: gateway(MODEL),
       schema: judgmentSchema,
       system: SYSTEM,
       prompt,
-      maxOutputTokens: 8000,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
       // No temperature or top_p on purpose. Current Claude models reject
       // sampling parameters outright.
     });
+    if (!got.ok) {
+      lastErrors = [got.detail];
+      prompt = `${base}\n\nYour previous attempt failed: ${got.detail} Return the whole object again, complete and matching the schema.`;
+      continue;
+    }
 
-    const judgment = keyReads(object);
+    const judgment = keyReads(got.object as RawJudgment);
     const dashboard = assemble(facts, judgment, MODEL, 'en');
     const { errors, warnings } = validate(dashboard, facts);
     if (errors.length === 0) return { judgment, dashboard, attempts: attempt, warnings };
@@ -56,7 +99,7 @@ async function score(facts: Facts, maxAttempts: number) {
       errors.map((e) => `  ${e}`).join('\n');
   }
 
-  throw new Error(`Validation failed after ${maxAttempts} attempts:\n${lastErrors.join('\n')}`);
+  throw new Error(`Scoring failed after ${maxAttempts} attempts:\n${lastErrors.join('\n')}`);
 }
 
 /**
@@ -66,11 +109,11 @@ async function score(facts: Facts, maxAttempts: number) {
  */
 function graft(en: Judgment, zh: RawJudgment): Judgment {
   const zhReads: Record<string, string> = {};
-  for (const r of zh.reads) zhReads[r.key] = r.text;
+  for (const r of zh.reads ?? []) zhReads[r.key] = r.text;
 
   return {
     regime: zh.regime || en.regime,
-    stampNote: zh.stampNote ?? '',
+    stampNote: zh.stampNote ?? en.stampNote ?? '',
     banner: zh.banner || en.banner,
     assets: en.assets.map((a, i) => {
       const t = zh.assets[i];
@@ -112,15 +155,20 @@ async function translate(facts: Facts, en: Judgment, maxAttempts: number) {
   let lastErrors: string[] = [];
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const { object } = await generateObject({
+    const got = await tryObject({
       model: gateway(MODEL),
       schema: judgmentSchema,
       system: TRANSLATE_SYSTEM,
       prompt: `Translate this object into Simplified Chinese.\n\n${payload}${extra}`,
-      maxOutputTokens: 8000,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
     });
+    if (!got.ok) {
+      lastErrors = [got.detail];
+      extra = `\n\nYour previous attempt failed: ${got.detail} Return the whole object again, complete and matching the schema.`;
+      continue;
+    }
 
-    const dashboard = assemble(facts, graft(en, object), MODEL, 'zh');
+    const dashboard = assemble(facts, graft(en, got.object as RawJudgment), MODEL, 'zh');
     const { errors, warnings } = validate(dashboard, facts);
     if (errors.length === 0) return { dashboard, attempts: attempt, warnings };
 

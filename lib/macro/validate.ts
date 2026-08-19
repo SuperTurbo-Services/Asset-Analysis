@@ -73,6 +73,15 @@ export function validate(d: Dashboard, f: Facts): Report {
   const n = d.assets.length;
 
   if (n !== 4) errors.push(`expected 4 assets, got ${n}`);
+  // the schema is permissive on purpose, so the real floor lives here
+  if (d.matrix.length < 6) {
+    errors.push(`the factor grid has ${d.matrix.length} rows, the framework asks for at least 6`);
+  }
+  for (const a of d.assets) {
+    if (!["", "capped", "bottoming"].includes(a.cap)) {
+      errors.push(`${a.name}: cap must be empty, capped or bottoming, got ${JSON.stringify(a.cap)}`);
+    }
+  }
 
   const net = new Array(n).fill(0);
   d.matrix.forEach((row, i) => {
