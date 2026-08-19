@@ -54,5 +54,5 @@ export type Dashboard = {
   lineChart?: LineChart;
   sources: [string, string][];
   /** Not rendered. Kept so the page can show how old the run is. */
-  meta: { generatedAt: string; model: string; missing: string[] };
+  meta: { generatedAt: string; model: string; missing: string[]; lang: string };
 };

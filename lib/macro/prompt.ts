@@ -1,4 +1,5 @@
 import type { Facts } from "./facts";
+import { formatDate, formatStamp } from "./i18n";
 
 /**
  * The scoring framework, lifted from the macro-dashboard skill. The model does
@@ -60,11 +61,11 @@ WRITING RULES, ENFORCED BY A VALIDATOR
 export function userPrompt(f: Facts): string {
   const lines: string[] = [];
   lines.push("FACTS BUNDLE. Every number you may use is here.");
-  lines.push(`Today is ${f.stampDate} in New York.`);
+  lines.push(`Today in New York: ${formatStamp(f.stampParts, "en")}`);
   lines.push("");
   lines.push("Current levels:");
   for (const [key, m] of Object.entries(f.metrics)) {
-    lines.push(`  ${key}: ${m.label} = ${m.fmt} (observation ${m.date}, ${m.source})` +
+    lines.push(`  ${key}: ${m.label} = ${m.fmt} (observation ${formatDate(m.iso, m.monthly, "en")}, ${m.source})` +
       (m.spark.length ? `, last five observations ${m.spark.join(", ")}` : ""));
   }
   lines.push("");
@@ -89,3 +90,26 @@ export function userPrompt(f: Facts): string {
   lines.push("Write the judgment now. Also write one sentence for each signal tile listed in the reads field, saying what that level means right now.");
   return lines.join("\n");
 }
+
+/**
+ * The Chinese page is a translation of the English judgment, not a second
+ * independent read. Only the prose crosses over: the verdicts, the grid cells
+ * and every number are grafted back from the English object, so the two
+ * languages cannot disagree about what the dashboard says.
+ */
+export const TRANSLATE_SYSTEM = `You translate a finished macro dashboard from English into Simplified Chinese.
+
+You are given a JSON object. Return the same object with every piece of prose translated, and everything else left exactly as it is.
+
+TRANSLATE: regime, stampNote, banner, each asset's one and qual, each factor's h and b, each matrix row's f and r, and each tile read.
+
+DO NOT CHANGE: any number, any percentage, any ticker, any series name such as DFII10 or CPILFESL, the verdict values, the cap values, the s values, and the c arrays. Copy those through untouched.
+
+RULES
+1. Keep every number exactly as written, including the double asterisks around it. **2.41%** stays **2.41%**.
+2. No hyphen character anywhere in your output. A hyphen fails the build. This applies to the Chinese text too.
+3. Put a space between a number and the Chinese text on either side of it, and between Latin script and Chinese. Write 10 年期实际利率, not 10年期实际利率.
+4. Keep the offset marker. An English headline ending in " (offset)" ends in "（反向）" in Chinese.
+5. Financial register, plain and declarative. This is a professional macro read, not marketing copy. No exclamation marks, no hedging, no advice.
+6. Translate the meaning, not the words. "Credit is not flashing stress" is 信用市场没有发出压力信号, not a literal gloss.
+7. Standard mainland terminology: 实际利率, 盈亏平衡通胀, 利差, 国库券, 联邦基金利率, 波动率, 均线, 风险偏好, 避险.`;

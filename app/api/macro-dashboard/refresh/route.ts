@@ -23,15 +23,15 @@ export async function GET(req: Request) {
 
   const started = Date.now();
   try {
-    const { dashboard, attempts, warnings } = await generateDashboard();
-    const stored = await writeDashboard(dashboard);
+    const { bundle, attempts, warnings } = await generateDashboard();
+    const stored = await writeDashboard(bundle);
     return NextResponse.json({
       ok: true,
       attempts,
       warnings,
       stored,
       seconds: Math.round((Date.now() - started) / 1000),
-      verdicts: dashboard.assets.map((a) => `${a.name} ${a.verdict}`),
+      verdicts: bundle.en.assets.map((a) => `${a.name} ${a.verdict}`),
     });
   } catch (err) {
     console.error('macro refresh failed', err);

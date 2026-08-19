@@ -3,6 +3,7 @@ import type {
   BarChart, Calc, Dashboard, LineChart, MatrixRow, Tile,
 } from "./types";
 import type { Judgment } from "./schema";
+import { formatDate, formatStamp, S, type Lang } from "./i18n";
 
 /** Fixed order, and it is not negotiable. It is the order the framework scores in. */
 export const ASSETS = ["US Stocks", "US Cash", "Gold", "Crypto"] as const;
@@ -59,25 +60,26 @@ function niceBand(lo: number, hi: number): [number, number] {
 }
 
 type TileSpec = {
-  key: string; lo?: number; hi?: number; mark: number | null; markLab: string;
+  key: string; lo?: number; hi?: number; mark: number | null;
+  markLab: keyof typeof S.marks | string;
 };
 
-function buildTiles(f: Facts, reads: Record<string, string>): Tile[] {
+function buildTiles(f: Facts, reads: Record<string, string>, lang: Lang): Tile[] {
   const m = f.metrics;
   const core = m.coreCpi?.value ?? 2;
 
   const specs: TileSpec[] = [
     { key: "real10", lo: 0, hi: 3.5, mark: 2, markLab: "2.00" },
     { key: "nom10", lo: 3, hi: 6, mark: 4.5, markLab: "4.50" },
-    { key: "be10", lo: 1.5, hi: 3, mark: 2, markLab: "target" },
-    { key: "hyoas", lo: 250, hi: 600, mark: 400, markLab: "400 bp" },
-    { key: "bill3m", lo: 0, hi: 6, mark: core, markLab: "core CPI" },
-    { key: "ffr", lo: 0, hi: 6, mark: core, markLab: "core CPI" },
+    { key: "be10", lo: 1.5, hi: 3, mark: 2, markLab: S.marks.target[lang] },
+    { key: "hyoas", lo: 250, hi: 600, mark: 400, markLab: S.marks.bp400[lang] },
+    { key: "bill3m", lo: 0, hi: 6, mark: core, markLab: S.marks.coreCpi[lang] },
+    { key: "ffr", lo: 0, hi: 6, mark: core, markLab: S.marks.coreCpi[lang] },
     { key: "vix", lo: 10, hi: 40, mark: 20, markLab: "20" },
-    { key: "spx", mark: f.derived.spx52wHigh?.value ?? null, markLab: "52 week high" },
-    { key: "btc", mark: f.derived.btcMa200?.value ?? null, markLab: "200d" },
-    { key: "gold", mark: f.derived.goldMa200?.value ?? null, markLab: "200d" },
-    { key: "dxy", mark: f.derived.dxyMa200?.value ?? null, markLab: "200d" },
+    { key: "spx", mark: f.derived.spx52wHigh?.value ?? null, markLab: S.marks.high52[lang] },
+    { key: "btc", mark: f.derived.btcMa200?.value ?? null, markLab: S.marks.ma200[lang] },
+    { key: "gold", mark: f.derived.goldMa200?.value ?? null, markLab: S.marks.ma200[lang] },
+    { key: "dxy", mark: f.derived.dxyMa200?.value ?? null, markLab: S.marks.ma200[lang] },
   ];
 
   const tiles: Tile[] = [];
@@ -93,10 +95,11 @@ function buildTiles(f: Facts, reads: Record<string, string>): Tile[] {
     hi = Math.max(hi, ...marks);
     if (lo >= hi) hi = lo + 1;
     const [blo, bhi] = niceBand(lo, hi);
+    const sep = lang === "zh" ? "，" : ", ";
     tiles.push({
-      lab: met.label,
+      lab: S.metrics[s.key]?.[lang] ?? met.label,
       val: met.fmt,
-      src: `${met.source}, ${met.date}`,
+      src: `${met.source}${sep}${formatDate(met.iso, met.monthly, lang)}`,
       lo: blo, hi: bhi, v: met.value,
       mark: s.mark ?? Number(((blo + bhi) / 2).toFixed(2)),
       markLab: s.markLab,
@@ -107,72 +110,82 @@ function buildTiles(f: Facts, reads: Record<string, string>): Tile[] {
   return tiles;
 }
 
-function buildCalcs(f: Facts): Calc[] {
+function buildCalcs(f: Facts, lang: Lang): Calc[] {
   const m = f.metrics, d = f.derived, out: Calc[] = [];
 
   if (m.nom10 && m.be10 && d.real10Calc) {
     const gap = Math.abs(d.real10Calc.value - (m.real10?.value ?? d.real10Calc.value));
     out.push({
-      lab: "10 year real yield, from the nominal and the breakeven",
-      left: m.nom10.value.toFixed(2), op: "minus", right: m.be10.value.toFixed(2),
-      res: d.real10Calc.fmt,
+      lab: S.calcs.real10[lang],
+      left: m.nom10.value.toFixed(2), op: S.calcs.minus[lang],
+      right: m.be10.value.toFixed(2),
+      res: S.calcs.percent[lang](d.real10Calc.value.toFixed(2)),
       note: !m.real10
-        ? "FRED DFII10 was unavailable this run, so there is no cross check."
+        ? S.calcs.noCross[lang]
         : Math.round(gap * 100) === 0
-          ? `Matches FRED DFII10, which prints the same yield at ${m.real10.value.toFixed(2)} percent.`
-          : `Cross checks against FRED DFII10 at ${m.real10.value.toFixed(2)} percent, a gap of ${Math.round(gap * 100)} basis points from the different observation dates.`,
+          ? S.calcs.matches[lang](m.real10.value.toFixed(2))
+          : S.calcs.crossCheck[lang](m.real10.value.toFixed(2), Math.round(gap * 100)),
     });
   }
   if (m.bill3m && m.coreCpi && d.realCarryCore) {
     out.push({
-      lab: "Real carry on cash, against core CPI",
-      left: m.bill3m.value.toFixed(2), op: "minus", right: m.coreCpi.value.toFixed(1),
-      res: d.realCarryCore.fmt,
-      note: `What a 3 month T bill pays after core inflation, for taking no duration and no credit risk. Core CPI is the ${m.coreCpi.date} print.`,
+      lab: S.calcs.carryCore[lang],
+      left: m.bill3m.value.toFixed(2), op: S.calcs.minus[lang],
+      right: m.coreCpi.value.toFixed(1),
+      res: S.calcs.percent[lang](d.realCarryCore.value.toFixed(2)),
+      note: S.calcs.carryCoreNote[lang](
+        formatDate(m.coreCpi.iso, m.coreCpi.monthly, lang),
+      ),
     });
   }
   if (m.bill3m && m.headlineCpi && d.realCarryHeadline) {
     out.push({
-      lab: "Real carry on cash, against headline CPI",
-      left: m.bill3m.value.toFixed(2), op: "minus", right: m.headlineCpi.value.toFixed(1),
-      res: d.realCarryHeadline.fmt,
-      note: "Headline includes food and energy, so this is the number a household actually feels.",
+      lab: S.calcs.carryHeadline[lang],
+      left: m.bill3m.value.toFixed(2), op: S.calcs.minus[lang],
+      right: m.headlineCpi.value.toFixed(1),
+      res: S.calcs.percent[lang](d.realCarryHeadline.value.toFixed(2)),
+      note: S.calcs.carryHeadlineNote[lang],
     });
   }
   if (m.btc && d.btcMa200 && d.btcVs200) {
     out.push({
-      lab: "Bitcoin against its 200 day average",
-      left: m.btc.fmt, op: "against", right: d.btcMa200.fmt,
-      res: d.btcVs200.fmt,
-      note: "The 200 day line is the trend filter the framework uses for crypto.",
+      lab: S.calcs.btc200[lang],
+      left: m.btc.fmt, op: S.calcs.against[lang], right: d.btcMa200.fmt,
+      res: S.calcs.pctAboveBelow[lang](
+        Math.abs(d.btcVs200.value).toFixed(1), d.btcVs200.value >= 0,
+      ),
+      note: S.calcs.btc200Note[lang],
     });
   }
   if (m.gold && d.goldMa200 && d.goldVs200) {
     out.push({
-      lab: "Gold against its 200 day average",
-      left: m.gold.fmt, op: "against", right: d.goldMa200.fmt,
-      res: d.goldVs200.fmt,
-      note: "Gold rejecting or reclaiming this line has capped every advance this cycle.",
+      lab: S.calcs.gold200[lang],
+      left: m.gold.fmt, op: S.calcs.against[lang], right: d.goldMa200.fmt,
+      res: S.calcs.pctAboveBelow[lang](
+        Math.abs(d.goldVs200.value).toFixed(1), d.goldVs200.value >= 0,
+      ),
+      note: S.calcs.gold200Note[lang],
     });
   }
   return out;
 }
 
-function buildCharts(f: Facts): { barChart?: BarChart; lineChart?: LineChart } {
+function buildCharts(f: Facts, lang: Lang): { barChart?: BarChart; lineChart?: LineChart } {
   const out: { barChart?: BarChart; lineChart?: LineChart } = {};
 
   if (f.fiveDay.length) {
     const a = axis(f.fiveDay.map((p) => p.value));
-    const yieldNote = f.metrics.nom10
-      ? `The 10 year nominal yield sits at ${f.metrics.nom10.fmt} over the same window.`
-      : "";
     out.barChart = {
-      title: "Five session change, by asset",
-      sub: "Percent change over the last five sessions. The zero line separates what is working from what is not.",
+      title: S.charts.barTitle[lang],
+      sub: S.charts.barSub[lang],
       unit: "", ...a,
-      note: yieldNote,
-      itemHeader: "Asset", valueHeader: "Change, percent",
-      data: f.fiveDay,
+      note: f.metrics.nom10 ? S.charts.barNote[lang](f.metrics.nom10.fmt) : "",
+      itemHeader: S.charts.barItem[lang],
+      valueHeader: S.charts.barValue[lang],
+      data: f.fiveDay.map((p) => ({
+        label: S.metrics[SERIES_METRIC[p.label]]?.[lang] ?? p.label,
+        value: p.value,
+      })),
     };
   }
 
@@ -184,12 +197,16 @@ function buildCharts(f: Facts): { barChart?: BarChart; lineChart?: LineChart } {
     for (let t = lo; t <= hi + 1e-9; t += 0.5) ticks.push(Number(t.toFixed(1)));
     const last = f.coreCpiSeries[f.coreCpiSeries.length - 1];
     out.lineChart = {
-      title: "Core CPI, year over year, last 12 months",
-      sub: `The latest print is ${last.value.toFixed(1)} percent. The line at 2 is the Federal Reserve's target.`,
-      seriesName: "Core CPI, year over year",
-      min: lo, max: hi, ticks, refLine: 2, refLabel: "2, the target",
-      itemHeader: "Month", valueHeader: "Percent",
-      data: f.coreCpiSeries,
+      title: S.charts.lineTitle[lang],
+      sub: S.charts.lineSub[lang](last.value.toFixed(1)),
+      seriesName: S.charts.lineSeries[lang],
+      min: lo, max: hi, ticks, refLine: 2,
+      refLabel: S.charts.lineRef[lang],
+      itemHeader: S.charts.lineItem[lang],
+      valueHeader: S.charts.lineValue[lang],
+      data: f.coreCpiSeries.map((p) => ({
+        label: S.charts.months[lang](p.label), value: p.value,
+      })),
     };
   }
   return out;
@@ -207,13 +224,23 @@ function buildSources(f: Facts): [string, string][] {
  * Deterministic scaffolding plus the model's judgment, assembled into the
  * payload the template renders. Everything numeric here comes from `facts`.
  */
-export function assemble(f: Facts, j: Judgment, model: string): Dashboard {
+/**
+ * The bar chart plots price series, not asset classes, so it takes its labels
+ * from the metric names rather than the verdict names.
+ */
+const SERIES_METRIC: Record<string, string> = {
+  "S&P 500": "spx", Gold: "gold", Bitcoin: "btc", "Dollar index": "dxy",
+};
+
+export function assemble(
+  f: Facts, j: Judgment, model: string, lang: Lang = "en",
+): Dashboard {
   const order = new Map(j.assets.map((a) => [a.name, a]));
   const assets = ASSETS.map((name) => {
     const a = order.get(name)!;
     return {
       emoji: EMOJI[name],
-      name,
+      name: S.assets[name]?.[lang] ?? name,
       verdict: a.verdict,
       // derived, never stated by the model, so the two can never disagree
       dir: (a.verdict === "BULLISH" ? "bull" : "bear") as "bull" | "bear",
@@ -225,21 +252,20 @@ export function assemble(f: Facts, j: Judgment, model: string): Dashboard {
   });
 
   const matrix: MatrixRow[] = j.matrix.map((r) => ({ f: r.f, r: r.r, c: r.c }));
-  const stamp = j.stampNote
-    ? `As of ${f.stampDate}. ${j.stampNote}`
-    : `As of ${f.stampDate}.`;
+  const stampBase = formatStamp(f.stampParts, lang);
+  const stamp = j.stampNote ? `${stampBase} ${j.stampNote}` : stampBase;
 
   return {
-    title: "Macro Impact Dashboard",
+    title: S.title[lang],
     stamp,
     regime: j.regime,
     banner: j.banner,
     assets,
     matrix,
-    tiles: buildTiles(f, j.reads),
-    calcs: buildCalcs(f),
-    ...buildCharts(f),
+    tiles: buildTiles(f, j.reads, lang),
+    calcs: buildCalcs(f, lang),
+    ...buildCharts(f, lang),
     sources: buildSources(f),
-    meta: { generatedAt: f.generatedAt, model, missing: f.missing },
+    meta: { generatedAt: f.generatedAt, model, missing: f.missing, lang },
   };
 }

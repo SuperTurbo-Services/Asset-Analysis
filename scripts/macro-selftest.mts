@@ -9,6 +9,7 @@ import { gatherFacts } from "../lib/macro/facts";
 import { assemble, ASSETS } from "../lib/macro/payload";
 import { TILE_KEYS } from "../lib/macro/schema";
 import { embedPayload, templateParts } from "../lib/macro/template";
+import { localizeTemplate, type Lang } from "../lib/macro/i18n";
 import type { Judgment } from "../lib/macro/schema";
 import { validate } from "../lib/macro/validate";
 
@@ -71,26 +72,49 @@ nets.forEach((n, i) => {
   judgment.matrix.push(row("Self test balancing row", m.real10.fmt, c));
 });
 
-const dashboard = assemble(facts, judgment, "selftest");
-const { errors, warnings } = validate(dashboard, facts);
+const zhJudgment: Judgment = {
+  ...judgment,
+  regime: "限制性漂移",
+  banner: `自检用的占位文字，10 年期名义利率在 **${m.nom10.fmt}**。`,
+  assets: judgment.assets.map((a) => ({
+    ...a,
+    one: "自检占位文字，不是真实判断。",
+    qual: "自检占位",
+    factors: a.factors.map((f, i) => ({
+      ...f,
+      h: ["信用平稳", "波动率受控", "实际利率仍偏紧（反向）"][i],
+      b: f.b,
+    })),
+  })),
+  reads: Object.fromEntries(Object.keys(judgment.reads).map((k) => [k, "自检占位读数。"])),
+};
 
-for (const w of warnings) console.log(`  WARN  ${w}`);
-for (const e of errors) console.log(`  ERROR ${e}`);
-
-const { css, body, script } = await templateParts();
+const { css: cssEn, body: bodyEn, script: scriptEn } = await templateParts();
 await mkdir(".cache", { recursive: true });
-await writeFile(".cache/macro-selftest.html", `<!DOCTYPE html>
-<html lang="en" data-theme="light">
+
+let failures = 0;
+for (const [lang, j] of [["en", judgment], ["zh", zhJudgment]] as [Lang, Judgment][]) {
+  const dashboard = assemble(facts, j, "selftest", lang);
+  const { errors, warnings } = validate(dashboard, facts);
+  for (const w of warnings) console.log(`  WARN  ${lang} ${w}`);
+  for (const e of errors) console.log(`  ERROR ${lang} ${e}`);
+  failures += errors.length;
+
+  const parts = localizeTemplate({ css: cssEn, body: bodyEn, script: scriptEn }, lang);
+  const file = lang === "en" ? ".cache/macro-selftest.html" : ".cache/macro-selftest-zh.html";
+  await writeFile(file, `<!DOCTYPE html>
+<html lang="${lang === "zh" ? "zh-CN" : "en"}" data-theme="light">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${dashboard.title}</title>
-<style>${css}</style></head>
-<body>${body}
+<style>${parts.css}</style></head>
+<body>${parts.body}
 <script id="payload" type="application/json">${embedPayload(dashboard)}</script>
-<script>${script}</script>
+<script>${parts.script}</script>
 </body></html>`);
 
-console.log(`  ..    ${dashboard.tiles.length} tiles, ${dashboard.calcs.length} calcs, ${dashboard.matrix.length} matrix rows, ${dashboard.sources.length} sources`);
-console.log(`  ..    charts: ${dashboard.barChart ? "bar" : "no bar"}, ${dashboard.lineChart ? "line" : "no line"}`);
-console.log(errors.length ? `  FAIL  ${errors.length} error(s)` : "  OK    payload passes validation");
-console.log("  wrote .cache/macro-selftest.html");
-process.exit(errors.length ? 1 : 0);
+  console.log(`  ..    ${lang}: ${dashboard.tiles.length} tiles, ${dashboard.calcs.length} calcs, ${dashboard.matrix.length} matrix rows, ${dashboard.sources.length} sources, charts ${dashboard.barChart ? "bar" : "no bar"} and ${dashboard.lineChart ? "line" : "no line"}`);
+  console.log(`  wrote ${file}`);
+}
+
+console.log(failures ? `  FAIL  ${failures} error(s)` : "  OK    both languages pass validation");
+process.exit(failures ? 1 : 0);

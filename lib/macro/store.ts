@@ -1,4 +1,4 @@
-import type { Dashboard } from "./types";
+import type { Bundle } from "./generate";
 
 /**
  * Where the finished dashboard lives between the daily cron run and the next
@@ -11,7 +11,10 @@ const LOCAL = ".cache/macro-dashboard.json";
 const hasBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 const isServerless = () => Boolean(process.env.VERCEL);
 
-export async function readDashboard(): Promise<Dashboard | null> {
+const isBundle = (v: unknown): v is Bundle =>
+  Boolean(v && typeof v === "object" && "en" in (v as object) && "zh" in (v as object));
+
+export async function readDashboard(): Promise<Bundle | null> {
   if (hasBlob()) {
     try {
       const { list } = await import("@vercel/blob");
@@ -19,7 +22,8 @@ export async function readDashboard(): Promise<Dashboard | null> {
       if (!blobs.length) return null;
       const res = await fetch(blobs[0].url, { cache: "no-store" });
       if (!res.ok) return null;
-      return (await res.json()) as Dashboard;
+      const parsed = await res.json();
+      return isBundle(parsed) ? parsed : null;
     } catch (err) {
       console.error("blob read failed", err);
       return null;
@@ -28,13 +32,14 @@ export async function readDashboard(): Promise<Dashboard | null> {
   if (isServerless()) return null;
   try {
     const { readFile } = await import("node:fs/promises");
-    return JSON.parse(await readFile(LOCAL, "utf8")) as Dashboard;
+    const parsed = JSON.parse(await readFile(LOCAL, "utf8"));
+    return isBundle(parsed) ? parsed : null;
   } catch {
     return null;
   }
 }
 
-export async function writeDashboard(d: Dashboard): Promise<string> {
+export async function writeDashboard(d: Bundle): Promise<string> {
   if (hasBlob()) {
     const { put } = await import("@vercel/blob");
     const res = await put(KEY, JSON.stringify(d), {

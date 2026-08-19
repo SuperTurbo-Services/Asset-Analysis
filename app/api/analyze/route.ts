@@ -122,13 +122,14 @@ async function generate<T>(
  */
 function unwrap(raw: unknown, titles: string[]): Record<string, NoteAnalysis> {
   const out = unwrapLayer(raw, titles);
-  // 模型会把标题里的英文和中文之间也加上空格（「别吹ai杀死saas了」→「别吹 ai 杀死 saas 了」），
-  // 于是键对不上整篇作废。去掉全部空格再匹配一次。
-  const canon = new Map(titles.map((t) => [t.replace(/\s+/g, '').toLowerCase(), t]));
+  // 模型会照抄提示词里的装饰形式，把《书名号》一起当成键，也会在中英之间补空格。
+  // 键对不上就整篇作废，所以剥掉装饰再匹配一次。
+  const key = (t: string) =>
+    t.replace(/[《》「」『』"'“”‘’\s]/g, '').toLowerCase();
+  const canon = new Map(titles.map((t) => [key(t), t]));
   const remapped: Record<string, NoteAnalysis> = {};
   for (const [k, v] of Object.entries(out)) {
-    const real = canon.get(k.replace(/\s+/g, '').toLowerCase());
-    remapped[real ?? k] = v as NoteAnalysis;
+    remapped[canon.get(key(k)) ?? k] = v as NoteAnalysis;
   }
   return remapped;
 }
