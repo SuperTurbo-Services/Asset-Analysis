@@ -12,8 +12,21 @@ export const maxDuration = 300;
  *  - 客户端只发送算好的指标，不发原始导出文件
  * 换服务商只要改 DEEPSEEK_BASE_URL / DEEPSEEK_MODEL 两个环境变量。
  */
-const BASE_URL = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
-const MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
+/**
+ * 凭证解析。优先走 Vercel AI Gateway —— 一把 key 能到 DeepSeek、Qwen、GLM、
+ * Kimi 和 Claude，换模型只改 AI_MODEL 一个变量，且预算上限在 Vercel 后台统一管。
+ * 没有 Gateway key 时回落到 DeepSeek 官方直连。
+ */
+const GATEWAY = process.env.AI_GATEWAY_API_KEY;
+const API_KEY = GATEWAY || process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY;
+const BASE_URL =
+  process.env.AI_BASE_URL ||
+  process.env.DEEPSEEK_BASE_URL ||
+  (GATEWAY ? 'https://ai-gateway.vercel.sh/v1' : 'https://api.deepseek.com');
+const MODEL =
+  process.env.AI_MODEL ||
+  process.env.DEEPSEEK_MODEL ||
+  (GATEWAY ? 'deepseek/deepseek-v3.2' : 'deepseek-chat');
 const MAX_ATTEMPTS = 3;
 const MAX_NOTES = 60;
 
@@ -23,14 +36,13 @@ interface ChatResponse {
 }
 
 async function callModel(messages: { role: string; content: string }[], signal: AbortSignal) {
-  const key = process.env.DEEPSEEK_API_KEY;
-  if (!key) throw new Error('MISSING_KEY');
+  if (!API_KEY) throw new Error('MISSING_KEY');
 
   const res = await fetch(`${BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${key}`,
+      Authorization: `Bearer ${API_KEY}`,
     },
     body: JSON.stringify({
       model: MODEL,

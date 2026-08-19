@@ -87,15 +87,25 @@ npm run dev
 
 ## 环境变量
 
-| 变量 | 必需 | 说明 |
-|---|---|---|
-| `DEEPSEEK_API_KEY` | 是（仅 AI 解读需要） | 服务端专用。**绝不能加 `NEXT_PUBLIC_` 前缀**，那会把它内联进浏览器包 |
-| `DEEPSEEK_BASE_URL` | 否 | 默认 `https://api.deepseek.com`，换成任何 OpenAI 兼容端点即可切服务商 |
-| `DEEPSEEK_MODEL` | 否 | 默认 `deepseek-chat` |
+推荐走 Vercel AI Gateway：**只需要设一个变量**，默认调 `deepseek/deepseek-v3.2`，
+而且一把 key 能到 DeepSeek、Qwen、GLM、Kimi、Claude 等 400+ 个模型，换模型只改 `AI_MODEL`。
 
-key 只在 `app/api/analyze/route.ts` 里读取，不会出现在返回体、日志或错误信息中；上游报错只透出状态码，不回传服务商的响应体。
+| 变量 | 说明 |
+|---|---|
+| `AI_GATEWAY_API_KEY` | Vercel AI Gateway 的 key。设了它就够了 |
+| `AI_MODEL` | 可选，默认 `deepseek/deepseek-v3.2` |
+| `AI_BASE_URL` | 可选，默认 `https://ai-gateway.vercel.sh/v1` |
 
-没有配置 key 时，基础报告照常工作，只有「生成 AI 解读」会返回 503。
+不走 Gateway 时的直连备选：`DEEPSEEK_API_KEY` + 可选的 `DEEPSEEK_MODEL`（默认 `deepseek-chat`）。
+
+**key 的处理方式：**
+
+- 只在 `app/api/analyze/route.ts` 一处读取，不会出现在返回体、日志或错误信息中
+- 上游报错只透出状态码，不回传服务商的响应体（可能带请求回显）
+- **绝不能加 `NEXT_PUBLIC_` 前缀** —— 那会把它内联进浏览器包
+- 线上用 `vercel env add <名字> production --sensitive`，加密存储且在后台看不回来
+
+没有配置任何凭证时，基础报告照常工作，只有「生成 AI 解读」返回 503。
 
 ## 数据来源与免责
 
