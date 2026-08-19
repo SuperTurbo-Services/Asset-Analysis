@@ -185,12 +185,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (failures.length) {
+      console.error(`[analyze] 部分失败 ${Object.keys(analysis).length}/${scored.length}：${failures.slice(0, 30).join(' ｜ ')}`);
+    }
+
     return NextResponse.json({
       analysis,
       suggestions,
       partial: failures.length > 0,
       covered: Object.keys(analysis).length,
       total: scored.length,
+      issues: failures.slice(0, 30),
     });
   } catch (e) {
     if (e instanceof Error && e.message === 'MISSING_KEY') {
