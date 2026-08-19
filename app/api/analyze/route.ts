@@ -49,13 +49,15 @@ async function callModel(messages: { role: string; content: string }[], signal: 
       messages,
       temperature: 0.6,
       max_tokens: 8192,
-      response_format: { type: 'json_object' },
     }),
     signal,
   });
 
   if (!res.ok) {
-    // 只透出状态码，绝不回传服务商的响应体（可能带请求回显）
+    // 上游错误只记在服务端日志里供排查，绝不回传给客户端
+    // （响应体可能带请求回显；日志仅本账号可见，且不含 Authorization 头）
+    const detail = await res.text().catch(() => '');
+    console.error(`[analyze] upstream ${res.status} model=${MODEL} base=${BASE_URL} body=${detail.slice(0, 500)}`);
     throw new Error(`UPSTREAM_${res.status}`);
   }
   const json = (await res.json()) as ChatResponse;
