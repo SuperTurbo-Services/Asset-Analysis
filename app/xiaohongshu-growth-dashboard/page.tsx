@@ -16,6 +16,7 @@ export default function Page() {
   const [exportDate, setExportDate] = useState('');
   const [report, setReport] = useState<Report | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [aiMeta, setAiMeta] = useState<{ covered: number; total: number; partial: boolean } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [aiErr, setAiErr] = useState<string | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
@@ -82,6 +83,7 @@ export default function Page() {
         setAiErr(data?.error || `请求失败（${res.status}）`);
       } else {
         setAnalysis(data as Analysis);
+        setAiMeta({ covered: data.covered ?? 0, total: data.total ?? 0, partial: !!data.partial });
       }
     } catch {
       setAiErr('网络请求失败，稍后再试。基础报告不受影响。');
@@ -205,9 +207,19 @@ export default function Page() {
               <div className="aibar">
                 <div className="txt">
                   {analysis ? (
-                    <>
-                      <b>AI 解读已生成。</b>逐篇分析的三个维度标签和综合建议已经填好。
-                    </>
+                    aiMeta?.partial ? (
+                      <>
+                        <b>AI 解读已生成 {aiMeta.covered} / {aiMeta.total} 篇。</b>
+                        其余 {aiMeta.total - aiMeta.covered} 篇没通过质量校验（编造看不到的封面正文、
+                        条数超限、两个视角雷同等），宁可留白也不给不合规范的诊断——
+                        那几篇的诊断格会显示「需要 AI 解读」。再点一次通常能补上一部分。
+                      </>
+                    ) : (
+                      <>
+                        <b>AI 解读已生成，{aiMeta?.covered ?? 0} 篇全部通过校验。</b>
+                        逐篇分析的三个维度标签和综合建议已经填好。
+                      </>
+                    )
                   ) : (
                     <>
                       <b>下面的数字、评分和分类都算好了，不需要模型。</b>
@@ -215,9 +227,9 @@ export default function Page() {
                     </>
                   )}
                 </div>
-                {!analysis && (
+                {(!analysis || aiMeta?.partial) && (
                   <button className="go" onClick={runAi} disabled={aiBusy}>
-                    {aiBusy ? <><span className="spin" />生成中…</> : '生成 AI 解读'}
+                    {aiBusy ? <><span className="spin" />生成中…</> : analysis ? '补齐剩余篇目' : '生成 AI 解读'}
                   </button>
                 )}
                 <button
