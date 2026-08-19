@@ -89,6 +89,37 @@ export function validateNotes(
         }
       }
 
+      // 前缀只属于 *Fix，出现在诊断格里说明模型串了格式
+      for (const [kind, arr] of [['Algo', algo], ['Blog', blog]] as const) {
+        if (!Array.isArray(arr)) continue;
+        for (const b of arr) {
+          if (b.startsWith('保持：') || b.startsWith('修改：')) {
+            issues.push({ where: `${title}.${d.pre}${kind}`, what: '「保持：」「修改：」只能用在综合建议格，诊断格不要带前缀' });
+          }
+        }
+      }
+
+      // 我们既没有封面图也没有正文，任何断言它们「现在是什么样」的话都是编造
+      for (const [kind, arr] of [['Algo', algo], ['Blog', blog], ['Fix', fix]] as const) {
+        if (!Array.isArray(arr)) continue;
+        for (const b of arr) {
+          const m = /(封面|正文|首图)(使用|采用|是|为|用了|做成了|已经)/.exec(b);
+          if (m) {
+            issues.push({ where: `${title}.${d.pre}${kind}`, what: `不要断言${m[1]}现在是什么样（看不到图和正文），只能说该改成什么样` });
+          }
+        }
+      }
+
+      // 中文与数字之间要有空格
+      for (const [kind, arr] of [['Algo', algo], ['Blog', blog], ['Fix', fix]] as const) {
+        if (!Array.isArray(arr)) continue;
+        for (const b of arr) {
+          if (/[\u4e00-\u9fa5]\d|\d[\u4e00-\u9fa5]/.test(b.replace(/\d+(\.\d+)?%/g, '%').replace(/第\d+/g, ''))) {
+            issues.push({ where: `${title}.${d.pre}${kind}`, what: '中文与数字之间要加一个空格（如「涨粉 7 人」）' });
+          }
+        }
+      }
+
       // *Algo 整格必须有真实数字（样本不足的除外）
       if (Array.isArray(algo)) {
         const joined = algo.join('');
