@@ -104,13 +104,34 @@ export function parseAccountTrend(buf: ArrayBuffer): AccountTrend {
   return { totals, daily, unsettledDate };
 }
 
-/** 从笔记表推断导出日期：取最新一篇的发布日与今天里较晚的那个 */
-export function inferExportDate(raws: RawNote[]): string {
+/**
+ * 推断导出日期。这个值直接决定成熟度闸门是否生效，不能想当然用「今天」——
+ * 一份 8/15 导出的表在 8/19 打开，里面 8/14 发的笔记仍然只有 1 天的数据，
+ * 却会被算成 5 天龄而绕过闸门。
+ *
+ * 优先级：xlsx 内部的文档属性 → 文件在磁盘上的修改时间 → 今天。
+ * 三者都可能不准，所以界面上必须让用户能改。
+ */
+export function inferExportDate(buf: ArrayBuffer, fileLastModified?: number): string {
   const today = new Date().toISOString().slice(0, 10);
-  let latest = '';
-  for (const r of raws) {
-    const d = parseCnDate(r.dt);
-    if (d && d.date > latest) latest = d.date;
+  const clamp = (d: string) => (d && d <= today ? d : today);
+
+  try {
+    const wb = XLSX.read(buf, { type: 'array', bookProps: true });
+    const p = wb.Props as { ModifiedDate?: Date; CreatedDate?: Date } | undefined;
+    const d = p?.ModifiedDate || p?.CreatedDate;
+    if (d instanceof Date && !Number.isNaN(d.getTime())) {
+      return clamp(new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10));
+    }
+  } catch {
+    /* 属性读不到就往下走 */
   }
-  return latest && latest > today ? latest : today;
+
+  if (fileLastModified) {
+    const d = new Date(fileLastModified);
+    if (!Number.isNaN(d.getTime())) {
+      return clamp(new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10));
+    }
+  }
+  return today;
 }

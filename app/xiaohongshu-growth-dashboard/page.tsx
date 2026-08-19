@@ -13,6 +13,7 @@ export default function Page() {
   const [notesFile, setNotesFile] = useState<File | null>(null);
   const [trendFile, setTrendFile] = useState<File | null>(null);
   const [windowDays, setWindowDays] = useState(30);
+  const [exportDate, setExportDate] = useState('');
   const [report, setReport] = useState<Report | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -21,6 +22,17 @@ export default function Page() {
 
   const notesInput = useRef<HTMLInputElement>(null);
   const trendInput = useRef<HTMLInputElement>(null);
+
+  async function pickNotes(f: File | null) {
+    setNotesFile(f);
+    setErr(null);
+    if (!f) { setExportDate(''); return; }
+    try {
+      setExportDate(inferExportDate(await f.arrayBuffer(), f.lastModified));
+    } catch {
+      setExportDate(new Date().toISOString().slice(0, 10));
+    }
+  }
 
   async function build() {
     setErr(null);
@@ -36,7 +48,6 @@ export default function Page() {
           trend = null;
         }
       }
-      const exportDate = inferExportDate(raws);
       const r = buildReport(raws, { exportDate, windowDays }, trend);
       if (!r.notes.length) {
         setErr(`最近 ${windowDays} 天里没有笔记。把统计窗口放宽再试。`);
@@ -139,7 +150,7 @@ export default function Page() {
 
             <div className="drops">
               <Drop
-                file={notesFile} onPick={setNotesFile} inputRef={notesInput} must
+                file={notesFile} onPick={pickNotes} inputRef={notesInput} must
                 title="笔记列表明细表.xlsx"
                 desc="创作者中心 → 数据中心 → 笔记数据 → 导出。点击选择或拖进来。"
               />
@@ -160,11 +171,25 @@ export default function Page() {
                   <option value={90}>最近 90 天</option>
                 </select>
               </div>
-              <button className="go" onClick={build} disabled={!notesFile}>
+              <div className="field">
+                <label htmlFor="exp">导出日期</label>
+                <input
+                  id="exp" type="date" value={exportDate} max={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => setExportDate(e.target.value)}
+                />
+              </div>
+              <button className="go" onClick={build} disabled={!notesFile || !exportDate}>
                 生成报告
               </button>
             </div>
 
+            {notesFile && (
+              <p className="privacy" style={{ marginTop: 14 }}>
+                <b>导出日期已自动读出，如果不对请改。</b>
+                它决定每篇笔记的「龄」——曝光的结算比观看慢，发布不足 3
+                天的笔记数据还没落定，会被放进观察区不打分。填成今天会让旧导出里的新笔记被误判为已成熟。
+              </p>
+            )}
             {err && <div className="err">{err}</div>}
 
             <p className="privacy">
