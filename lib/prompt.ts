@@ -8,7 +8,7 @@ import type { Note, Report } from './types';
  * 这段是全部用户共用的稳定前缀 —— 换到支持 prompt caching 的服务商时，
  * 缓存断点就打在这段的末尾。
  */
-export const SYSTEM = `你是一个把小红书创作者后台数据变成涨粉诊断的分析师。你要同时扮演两个角色：算法专家和专业博主。
+const KNOWLEDGE = `你是一个把小红书创作者后台数据变成涨粉诊断的分析师。你要同时扮演两个角色：算法专家和专业博主。
 
 ## 一、算法机制（写「算法专家诊断」的依据）
 
@@ -93,67 +93,92 @@ CES 综合评分 = 点赞 × 1 + 收藏 × 1 + 评论 × 4 + 关注 × 8。一�
   正确示例：每篇末屏写一句下期预告，主页简介改成带数字的承诺
 - t：触发它的看板数字，一到两句，关键值用 <b></b> 包住。
 - p：2 到 4 条具体做法，每条一句，句末带句号。
-- s：依据，固定句式「算法依据：……。实操依据：……。」只引用上面两节里有的结论，不要写任何 URL 或链接标签。
+- s：依据，固定句式「算法依据：……。实操依据：……。」只引用上面两节里有的结论，不要写任何 URL 或链接标签。`;
 
-## 五、输出格式
+/** 逐篇诊断任务：只输出 analysis，篇数由调用方分批控制，避开模型 8K 输出上限 */
+export const SYSTEM_NOTES = `${KNOWLEDGE}
 
-只输出一个 JSON 对象，不要有任何解释文字，不要用 markdown 代码块包裹。结构：
+## 五、本次任务
+
+只为下面列出的笔记写诊断，一篇都不能少，也不要写没列出的。
+
+只输出一个 JSON 对象，不要有任何解释文字，不要用 markdown 代码块包裹：
 
 {
-  "analysis": {
-    "<与输入完全一致的笔记标题>": {
-      "fanAlgo": [], "fanBlog": [], "fanFix": [],
-      "covAlgo": [], "covBlog": [], "covFix": [],
-      "conAlgo": [], "conBlog": [], "conFix": []
-    }
-  },
-  "suggestions": [
-    { "h": "", "t": "", "p": [], "s": "" }
-  ]
+  "<与输入完全一致的笔记标题>": {
+    "fanAlgo": [], "fanBlog": [], "fanFix": [],
+    "covAlgo": [], "covBlog": [], "covFix": [],
+    "conAlgo": [], "conBlog": [], "conFix": []
+  }
 }
 
-analysis 的键必须与输入里每篇笔记的 title 逐字一致，一篇都不能少，也不要多。`;
+顶层的键就是笔记标题，必须逐字一致。不要再套一层 analysis。`;
 
-/** 把算好的指标压成给模型看的紧凑表格，比塞整个 JSON 省一半 token */
-export function buildUserPrompt(report: Report): string {
+/** 总建议任务：只输出 suggestions */
+export const SYSTEM_SUGGESTIONS = `${KNOWLEDGE}
+
+## 五、本次任务
+
+只写总建议，不要写逐篇诊断。
+
+只输出一个 JSON 对象，不要有任何解释文字，不要用 markdown 代码块包裹：
+
+{ "suggestions": [ { "h": "", "t": "", "p": [], "s": "" } ] }`;
+
+/** 把一篇笔记压成一行紧凑数据，比塞整个 JSON 省一半 token */
+function line(n: Note): string {
+  const ia = n.views ? ((n.like + n.cmt + n.save + n.shr) / n.views) * 100 : 0;
+  const sr = n.views ? (n.save / n.views) * 100 : 0;
+  const sl = n.like ? (n.save / n.like) * 100 : 0;
+  const ces = n.like + n.save + n.cmt * 4 + n.fol * 8;
+  const cek = n.imp ? (ces / n.imp) * 1000 : 0;
+  let gate = '全过';
+  if (n.covR < 5) gate = '①封面标题';
+  else if (n.fmt === '图文' && n.dwell < 8) gate = '②内容留人';
+  else if (ia < 3) gate = '③内容价值';
+  else if (n.conR < 0.5) gate = '④关注转化';
+  return [
+    `《${n.title}》`,
+    `${n.date} ${n.fmt} 龄${n.age}天`,
+    `曝光${n.imp} 观看${n.views} 涨粉${n.fol}`,
+    `平台点击率${n.covR}% 转粉率${n.conR}% 粉丝转化率${n.fanR}%`,
+    `得分 标题封面${n.covS} 内容吸引${n.conS} 粉丝转化${n.fanS}`,
+    `赞${n.like} 评${n.cmt} 藏${n.save} 享${n.shr} 停留${n.dwell}秒`,
+    `互动率${ia.toFixed(2)}% 收藏率${sr.toFixed(2)}% 藏赞比${sl.toFixed(1)}% CES${ces} CES千曝${cek.toFixed(2)}`,
+    `流量结构${n.struct}(比值${n.ratio} 点击${n.clicks} 缺口${n.gap})`,
+    `卡在${gate}`,
+  ].join(' | ');
+}
+
+function accSummary(report: Report): string {
   const { acc, meta } = report;
   const scored = report.notes.filter((n) => n.structK !== 'pending');
-
-  const line = (n: Note) => {
-    const ia = n.views ? ((n.like + n.cmt + n.save + n.shr) / n.views) * 100 : 0;
-    const sr = n.views ? (n.save / n.views) * 100 : 0;
-    const sl = n.like ? (n.save / n.like) * 100 : 0;
-    const ces = n.like + n.save + n.cmt * 4 + n.fol * 8;
-    const cek = n.imp ? (ces / n.imp) * 1000 : 0;
-    let gate = '全过';
-    if (n.covR < 5) gate = '①封面标题';
-    else if (n.fmt === '图文' && n.dwell < 8) gate = '②内容留人';
-    else if (ia < 3) gate = '③内容价值';
-    else if (n.conR < 0.5) gate = '④关注转化';
-    return [
-      `《${n.title}》`,
-      `${n.date} ${n.fmt} 龄${n.age}天`,
-      `曝光${n.imp} 观看${n.views} 涨粉${n.fol}`,
-      `平台点击率${n.covR}% 转粉率${n.conR}% 粉丝转化率${n.fanR}%`,
-      `得分 标题封面${n.covS} 内容吸引${n.conS} 粉丝转化${n.fanS}`,
-      `赞${n.like} 评${n.cmt} 藏${n.save} 享${n.shr} 停留${n.dwell}秒`,
-      `互动率${ia.toFixed(2)}% 收藏率${sr.toFixed(2)}% 藏赞比${sl.toFixed(1)}% CES${ces} CES千曝${cek.toFixed(2)}`,
-      `流量结构${n.struct}(比值${n.ratio} 点击${n.clicks} 缺口${n.gap})`,
-      `卡在${gate}`,
-    ].join(' | ');
-  };
-
-  return `统计窗口 ${meta.start} 至 ${meta.end}，导出于 ${meta.exportDate}。计分 ${meta.nScored} 篇，观察区 ${meta.nPending} 篇（不写诊断），剔除无标题 ${meta.nDropped} 篇。
-
+  return `统计窗口 ${meta.start} 至 ${meta.end}。计分 ${meta.nScored} 篇，观察区 ${meta.nPending} 篇，剔除无标题 ${meta.nDropped} 篇。
 账号级：曝光 ${acc.imp} 点击 ${acc.clicks} 观看 ${acc.views} 涨粉 ${acc.fol}
 平台封面点击率 ${acc.covR}% → ${acc.covS} 分（${acc.covB}）
 内容吸引力 ${acc.conR}% → ${acc.conS} 分（${acc.conB}）
 粉丝转化率 ${acc.fanR}% → ${acc.fanS} 分（${acc.fanB}）
 每 ${acc.viewPerFol} 次观看换 1 个关注。${meta.nScored} 篇里 ${scored.filter((n) => n.fol > 0).length} 篇涨到过粉，${scored.filter((n) => n.fol === 0).length} 篇为 0。
-流量类型分布：${Object.entries(report.agg).map(([k, v]) => `${k}=${v}`).join(' ')}
+流量类型分布：${Object.entries(report.agg).map(([k, v]) => `${k}=${v}`).join(' ')}`;
+}
 
-逐篇数据（共 ${scored.length} 篇，全部都要写）：
+/** 一批笔记的诊断请求。分批是为了绕开模型 8K 的输出上限 */
+export function buildNotesPrompt(report: Report, batch: Note[]): string {
+  return `${accSummary(report)}
+
+这一批共 ${batch.length} 篇，每篇都要写满 9 个格子：
+${batch.map(line).join('\n')}
+
+只输出 JSON，顶层键是上面这 ${batch.length} 个笔记标题。`;
+}
+
+/** 总建议请求。带全部笔记的摘要，但不要求逐篇文字 */
+export function buildSuggestionsPrompt(report: Report): string {
+  const scored = report.notes.filter((n) => n.structK !== 'pending');
+  return `${accSummary(report)}
+
+全部计分笔记：
 ${scored.map(line).join('\n')}
 
-请为上面每一篇写 9 个格子，再写 3 到 5 条总建议。只输出 JSON。`;
+请写 3 到 5 条总建议，按杠杆从大到小。只输出 JSON。`;
 }

@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SYSTEM, buildUserPrompt } from '@/lib/prompt';
-import { extractJson, validate } from '@/lib/validate';
-import type { Analysis, Report } from '@/lib/types';
+import {
+  SYSTEM_NOTES, SYSTEM_SUGGESTIONS, buildNotesPrompt, buildSuggestionsPrompt,
+} from '@/lib/prompt';
+import { extractJson, validateNotes, validateSuggestions, type Issue } from '@/lib/validate';
+import type { Note, NoteAnalysis, Report, Suggestion } from '@/lib/types';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 /**
  * AI 解读。API key 只存在于这个文件运行的服务端进程里：
- *  - 从环境变量读取，永远不会出现在返回体、日志或错误信息里
+ *  - 从环境变量读取，永远不会出现在返回体或客户端可见的错误信息里
  *  - 客户端只发送算好的指标，不发原始导出文件
- * 换服务商只要改 DEEPSEEK_BASE_URL / DEEPSEEK_MODEL 两个环境变量。
- */
-/**
- * 凭证解析。优先走 Vercel AI Gateway —— 一把 key 能到 DeepSeek、Qwen、GLM、
- * Kimi 和 Claude，换模型只改 AI_MODEL 一个变量，且预算上限在 Vercel 后台统一管。
- * 没有 Gateway key 时回落到 DeepSeek 官方直连。
+ *
+ * 凭证解析优先走 Vercel AI Gateway —— 一把 key 能到 DeepSeek、Qwen、GLM、
+ * Kimi 和 Claude，换模型只改 AI_MODEL 一个变量，预算上限在 Vercel 后台统一管。
  */
 const GATEWAY = process.env.AI_GATEWAY_API_KEY;
 const API_KEY = GATEWAY || process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY;
@@ -27,43 +26,90 @@ const MODEL =
   process.env.AI_MODEL ||
   process.env.DEEPSEEK_MODEL ||
   (GATEWAY ? 'deepseek/deepseek-v3.2' : 'deepseek-chat');
+
+/**
+ * DeepSeek V3.2 的输出硬上限是 8,000 tokens —— 15 篇 × 9 格根本装不下，
+ * 实测会在半路截断成非法 JSON。所以按 BATCH 篇一组分批并行发出，
+ * 每组输出约 2,500 tokens，既不会截断，墙钟时间也只等最慢的一组。
+ */
+const BATCH = 4;
 const MAX_ATTEMPTS = 3;
 const MAX_NOTES = 60;
+const MAX_TOKENS = 7500;
 
 interface ChatResponse {
-  choices?: { message?: { content?: string } }[];
-  usage?: { prompt_tokens?: number; completion_tokens?: number };
+  choices?: { message?: { content?: string }; finish_reason?: string }[];
 }
 
-async function callModel(messages: { role: string; content: string }[], signal: AbortSignal) {
+type Msg = { role: string; content: string };
+
+async function callModel(messages: Msg[], signal: AbortSignal): Promise<string> {
   if (!API_KEY) throw new Error('MISSING_KEY');
 
   const res = await fetch(`${BASE_URL}/chat/completions`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages,
-      temperature: 0.6,
-      max_tokens: 8192,
-    }),
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${API_KEY}` },
+    body: JSON.stringify({ model: MODEL, messages, temperature: 0.6, max_tokens: MAX_TOKENS }),
     signal,
   });
 
   if (!res.ok) {
-    // 上游错误只记在服务端日志里供排查，绝不回传给客户端
-    // （响应体可能带请求回显；日志仅本账号可见，且不含 Authorization 头）
+    // 上游错误只记进服务端日志供排查，绝不回传给客户端
     const detail = await res.text().catch(() => '');
-    console.error(`[analyze] upstream ${res.status} model=${MODEL} base=${BASE_URL} body=${detail.slice(0, 500)}`);
+    console.error(`[analyze] upstream ${res.status} model=${MODEL} body=${detail.slice(0, 400)}`);
     throw new Error(`UPSTREAM_${res.status}`);
   }
+
   const json = (await res.json()) as ChatResponse;
-  const text = json.choices?.[0]?.message?.content ?? '';
+  const choice = json.choices?.[0];
+  const text = choice?.message?.content ?? '';
   if (!text) throw new Error('EMPTY_RESPONSE');
-  return { text, usage: json.usage };
+  if (choice?.finish_reason === 'length') throw new Error('TRUNCATED');
+  return text;
+}
+
+/** 生成一次并校验，不过就把问题喂回去让它自己修，最多 MAX_ATTEMPTS 次 */
+async function generate<T>(
+  system: string,
+  user: string,
+  pick: (parsed: unknown) => T,
+  check: (v: T) => Issue[],
+  signal: AbortSignal,
+): Promise<{ value: T } | { failed: string[] }> {
+  const messages: Msg[] = [
+    { role: 'system', content: system },
+    { role: 'user', content: user },
+  ];
+  let last: string[] = [];
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    let value: T;
+    let raw: unknown;
+    try {
+      const text = await callModel(messages, signal);
+      raw = extractJson(text);
+      value = pick(raw);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'UNKNOWN';
+      if (msg === 'MISSING_KEY') throw e;
+      last = [`生成失败：${msg}`];
+      if (attempt === MAX_ATTEMPTS) return { failed: last };
+      continue;
+    }
+
+    const issues = check(value);
+    if (!issues.length) return { value };
+
+    last = issues.slice(0, 20).map((i) => `${i.where}：${i.what}`);
+    if (attempt === MAX_ATTEMPTS) return { failed: last };
+
+    messages.push({ role: 'assistant', content: JSON.stringify(raw) });
+    messages.push({
+      role: 'user',
+      content: `上面的输出没有通过格式校验，问题如下：\n${last.join('\n')}\n\n请只修正这些问题，其余内容保持不变，重新输出完整的 JSON。`,
+    });
+  }
+  return { failed: last };
 }
 
 export async function POST(req: NextRequest) {
@@ -74,7 +120,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '请求体不是合法 JSON' }, { status: 400 });
   }
 
-  // 形状校验：缺任何一块都直接拒绝，不要让下游在解引用时崩成 500
   const missing = (['acc', 'meta', 'agg'] as const).filter((k) => !report?.[k]);
   if (!Array.isArray(report?.notes) || missing.length) {
     return NextResponse.json(
@@ -84,9 +129,7 @@ export async function POST(req: NextRequest) {
   }
 
   const scored = report.notes.filter((n) => n?.structK !== 'pending');
-  if (!scored.length) {
-    return NextResponse.json({ error: '没有可分析的笔记' }, { status: 400 });
-  }
+  if (!scored.length) return NextResponse.json({ error: '没有可分析的笔记' }, { status: 400 });
   if (scored.length > MAX_NOTES) {
     return NextResponse.json(
       { error: `单次最多分析 ${MAX_NOTES} 篇，当前 ${scored.length} 篇。请缩短统计窗口。` },
@@ -95,63 +138,64 @@ export async function POST(req: NextRequest) {
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 280_000);
-
-  let lastIssues: string[] = [];
+  const timer = setTimeout(() => controller.abort(), 270_000);
 
   try {
-    const messages = [
-      { role: 'system', content: SYSTEM },
-      { role: 'user', content: buildUserPrompt(report) },
+    const batches: Note[][] = [];
+    for (let i = 0; i < scored.length; i += BATCH) batches.push(scored.slice(i, i + BATCH));
+
+    // 各批与总建议全部并行，墙钟时间只等最慢的一路
+    const jobs = [
+      ...batches.map((b) =>
+        generate(
+          SYSTEM_NOTES,
+          buildNotesPrompt(report, b),
+          (p) => p as Record<string, NoteAnalysis>,
+          (v) => validateNotes(v, b),
+          controller.signal,
+        ).then((r) => ({ kind: 'notes' as const, r })),
+      ),
+      generate(
+        SYSTEM_SUGGESTIONS,
+        buildSuggestionsPrompt(report),
+        (p) => (p as { suggestions?: Suggestion[] }).suggestions ?? [],
+        validateSuggestions,
+        controller.signal,
+      ).then((r) => ({ kind: 'sugs' as const, r })),
     ];
 
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-      let parsed: Analysis;
-      try {
-        const { text } = await callModel(messages, controller.signal);
-        parsed = extractJson(text) as Analysis;
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : 'UNKNOWN';
-        if (msg === 'MISSING_KEY') {
-          return NextResponse.json(
-            { error: 'AI 解读暂不可用：服务端未配置模型凭证。' },
-            { status: 503 },
-          );
-        }
-        if (attempt === MAX_ATTEMPTS) {
-          return NextResponse.json(
-            { error: `AI 解读失败（${msg}）。基础报告不受影响，可以稍后再试。` },
-            { status: 502 },
-          );
-        }
-        continue;
-      }
+    const results = await Promise.all(jobs);
 
-      const issues = validate(parsed, scored);
-      if (!issues.length) {
-        return NextResponse.json({ ...parsed, attempts: attempt });
-      }
+    const analysis: Record<string, NoteAnalysis> = {};
+    let suggestions: Suggestion[] = [];
+    const failures: string[] = [];
 
-      lastIssues = issues.slice(0, 25).map((i) => `${i.where}：${i.what}`);
-      if (attempt === MAX_ATTEMPTS) break;
-
-      // 把校验失败原样喂回去让它自己修，比重新生成便宜
-      messages.push({ role: 'assistant', content: JSON.stringify(parsed) });
-      messages.push({
-        role: 'user',
-        content: `上面的输出没有通过格式校验，问题如下：\n${lastIssues.join('\n')}\n\n请只修正这些问题，其余内容保持不变，重新输出完整的 JSON。`,
-      });
+    for (const { kind, r } of results) {
+      if ('failed' in r) { failures.push(...r.failed); continue; }
+      if (kind === 'notes') Object.assign(analysis, r.value as Record<string, NoteAnalysis>);
+      else suggestions = r.value as Suggestion[];
     }
 
-    return NextResponse.json(
-      {
-        error: '生成结果多次未通过格式校验，已放弃以免给出不合规范的诊断。',
-        issues: lastIssues,
-      },
-      { status: 422 },
-    );
-  } catch {
-    // 兜底：绝不把内部异常信息外泄（可能含请求内容或环境细节）
+    // 只要拿到一部分就返回一部分 —— 缺的格子界面上显示「需要 AI 解读」，
+    // 比整份失败对用户有用得多
+    if (!Object.keys(analysis).length && !suggestions.length) {
+      return NextResponse.json(
+        { error: '生成结果多次未通过格式校验，已放弃以免给出不合规范的诊断。', issues: failures.slice(0, 20) },
+        { status: 422 },
+      );
+    }
+
+    return NextResponse.json({
+      analysis,
+      suggestions,
+      partial: failures.length > 0,
+      covered: Object.keys(analysis).length,
+      total: scored.length,
+    });
+  } catch (e) {
+    if (e instanceof Error && e.message === 'MISSING_KEY') {
+      return NextResponse.json({ error: 'AI 解读暂不可用：服务端未配置模型凭证。' }, { status: 503 });
+    }
     return NextResponse.json({ error: 'AI 解读遇到内部错误，基础报告不受影响。' }, { status: 500 });
   } finally {
     clearTimeout(timer);

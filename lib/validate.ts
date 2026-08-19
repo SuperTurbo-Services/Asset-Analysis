@@ -1,4 +1,4 @@
-import type { Analysis, Note, NoteAnalysis } from './types';
+import type { Note, NoteAnalysis, Suggestion } from './types';
 
 const CELLS = [
   'fanAlgo', 'fanBlog', 'fanFix',
@@ -36,24 +36,24 @@ function bigramOverlap(a: string, b: string): number {
  * 机械校验。便宜模型能不能用，全靠这一层 —— 失败就重试，
  * 重试三次的成本仍远低于一次顶配模型。
  */
-export function validate(out: Analysis, scored: Note[]): Issue[] {
+/** 只校验一批笔记的诊断，供分批调用使用 */
+export function validateNotes(
+  analysis: Record<string, NoteAnalysis>,
+  batch: Note[],
+): Issue[] {
   const issues: Issue[] = [];
-  const byTitle = new Map(scored.map((n) => [n.title, n]));
+  const byTitle = new Map(batch.map((n) => [n.title, n]));
 
-  if (!out || typeof out !== 'object') return [{ where: '整体', what: '不是对象' }];
-  if (!out.analysis || typeof out.analysis !== 'object') {
-    return [{ where: '整体', what: '缺少 analysis 字段' }];
+  if (!analysis || typeof analysis !== 'object') return [{ where: '整体', what: '不是对象' }];
+
+  for (const n of batch) {
+    if (!analysis[n.title]) issues.push({ where: n.title, what: '缺少这篇的诊断' });
+  }
+  for (const t of Object.keys(analysis)) {
+    if (!byTitle.has(t)) issues.push({ where: t, what: '多出了这一批里没有的标题' });
   }
 
-  // 篇目完整性
-  for (const n of scored) {
-    if (!out.analysis[n.title]) issues.push({ where: n.title, what: '缺少这篇的诊断' });
-  }
-  for (const t of Object.keys(out.analysis)) {
-    if (!byTitle.has(t)) issues.push({ where: t, what: '多出了输入里没有的标题' });
-  }
-
-  for (const [title, o] of Object.entries(out.analysis)) {
+  for (const [title, o] of Object.entries(analysis)) {
     const n = byTitle.get(title);
     if (!n || !o) continue;
     const cell = o as NoteAnalysis;
@@ -107,26 +107,26 @@ export function validate(out: Analysis, scored: Note[]): Issue[] {
     }
   }
 
-  // 总建议
-  const sg = out.suggestions;
-  if (!Array.isArray(sg)) {
-    issues.push({ where: 'suggestions', what: '缺少或不是数组' });
-  } else {
-    if (sg.length < 3 || sg.length > 5) issues.push({ where: 'suggestions', what: `${sg.length} 条，应为 3–5 条` });
-    sg.forEach((s, i) => {
-      const at = `suggestions[${i}]`;
-      if (!s?.h || typeof s.h !== 'string') issues.push({ where: at, what: '缺 h' });
-      else if (s.h.endsWith('。')) issues.push({ where: at, what: 'h 不应带句号' });
-      if (!s?.t || !String(s.t).includes('<b>')) issues.push({ where: at, what: 't 缺少 <b> 加粗的关键值' });
-      if (!Array.isArray(s?.p) || s.p.length < 2 || s.p.length > 4) issues.push({ where: at, what: 'p 应为 2–4 条' });
-      else if (s.p.some((p) => !String(p).endsWith('。'))) issues.push({ where: at, what: 'p 每条句末要有句号' });
-      if (!s?.s || !String(s.s).startsWith('算法依据：')) issues.push({ where: at, what: 's 应以「算法依据：」开头' });
-      if (typeof s?.s === 'string' && /https?:\/\/|<a\s/i.test(s.s)) {
-        issues.push({ where: at, what: 's 里不允许出现链接（防编造来源）' });
-      }
-    });
-  }
+  return issues;
+}
 
+/** 只校验总建议 */
+export function validateSuggestions(sg: unknown): Issue[] {
+  const issues: Issue[] = [];
+  if (!Array.isArray(sg)) return [{ where: 'suggestions', what: '缺少或不是数组' }];
+  if (sg.length < 3 || sg.length > 5) issues.push({ where: 'suggestions', what: `${sg.length} 条，应为 3–5 条` });
+  sg.forEach((s: Suggestion, i: number) => {
+    const at = `suggestions[${i}]`;
+    if (!s?.h || typeof s.h !== 'string') issues.push({ where: at, what: '缺 h' });
+    else if (s.h.endsWith('。')) issues.push({ where: at, what: 'h 不应带句号' });
+    if (!s?.t || !String(s.t).includes('<b>')) issues.push({ where: at, what: 't 缺少 <b> 加粗的关键值' });
+    if (!Array.isArray(s?.p) || s.p.length < 2 || s.p.length > 4) issues.push({ where: at, what: 'p 应为 2–4 条' });
+    else if (s.p.some((p) => !String(p).endsWith('。'))) issues.push({ where: at, what: 'p 每条句末要有句号' });
+    if (!s?.s || !String(s.s).startsWith('算法依据：')) issues.push({ where: at, what: 's 应以「算法依据：」开头' });
+    if (typeof s?.s === 'string' && /https?:\/\/|<a\s/i.test(s.s)) {
+      issues.push({ where: at, what: 's 里不允许出现链接（防编造来源）' });
+    }
+  });
   return issues;
 }
 
