@@ -116,3 +116,108 @@ npm run dev
 ## License
 
 MIT
+
+---
+
+# 宏观影响看板 · macro-dashboard
+
+同一个仓库里的第二个工具。线上： https://superturbo.app/macro-dashboard
+
+每天自动重建一次，回答一个问题：当下的宏观环境，对美股、现金、黄金、加密这四类资产
+是看多还是看跌。来源是 `macro-dashboard` 这个 skill，把它变成了不需要人来跑的网站。
+
+## 它怎么跑
+
+```
+  每天一次的 cron
+        │
+        ▼
+  1. 抓数据      FRED + 行情，不需要 key，约 2 秒
+  2. 算派生量    实际利率、现金实际收益、均线、同比
+  3. 打分        一次模型调用，框架在 lib/macro/prompt.ts
+  4. 校验        净分与结论是否一致、连字符、每个数字能否回溯到数据
+  5. 存起来      只有校验通过才覆盖，失败的一次跑不会把页面弄坏
+        │
+        ▼
+  访客读到的是已经生成好的静态文档
+```
+
+**模型不查任何数字。** 所有数据先抓好，作为 facts bundle 交给它，它只负责给因子打分和
+写判断。`lib/macro/validate.ts` 会把任何回溯不到数据的数字判为错误并让模型重写一次。
+结论也不是模型写的，是从因子网格算出来的：说 BULLISH 但那一列净分是负的，直接判错重来。
+
+用不到的数据在 prompt 里被明确禁止提及：ISM PMI（要授权）、现货 ETF 流入、联邦基金目标
+区间、降息概率、估值倍数。免费无 key 的源里没有这些，所以页面不会出现没抓过的数字。
+增长因子用 FRED 的工业产出同比代替 PMI。
+
+## 为什么它是一份独立文档
+
+`app/macro-dashboard/route.ts` 返回的是完整 HTML，不是 React 页面。因为站点的
+`app/globals.css` 里有 `.wrap`、`.card`、`.tabs`、`.panel` 这些类名，和 skill 模板
+撞在一起，其中 `.panel` 是两栏 grid，同一份文档里会把看板挤成两列。独立文档既避开了
+样式冲突，也让模板保持原样。
+
+## 环境变量
+
+| 变量 | 需要吗 | 说明 |
+|---|---|---|
+| `AI_GATEWAY_API_KEY` | 已经有了 | 和小红书那个工具共用同一把 |
+| `CRON_SECRET` | 强烈建议 | Vercel 调 cron 时带上它。不设的话，任何人找到 `/api/macro-dashboard/refresh` 都能烧你的额度 |
+| `AI_GATEWAY_MODEL` | 否 | 默认 `anthropic/claude-sonnet-5` |
+| `BLOB_READ_WRITE_TOKEN` | 否，但建议 | 建好 Blob store 后 Vercel 自动注入 |
+
+## 存哪儿
+
+生成好的看板要活到下一个访客手里。
+
+- **有 Blob store**（Storage 里建一个就行）：cron 写进去，页面读出来。推荐这个。失败的一次
+  跑不会让站点空掉，旧的那份还在。
+- **没有**：缓存过期后第一个访客会触发一次即时生成，能用，但那个人要等约三十秒，
+  而且比需要的多花钱。
+- **本地开发**：`.cache/macro-dashboard.json`。
+
+## 命令
+
+| 命令 | 做什么 |
+|---|---|
+| `npm run macro:selftest` | 抓真实数据跑完整条链路，文案用占位符。**不需要 key，不花钱**，改完代码先跑这个 |
+| `npm run macro:refresh` | 真跑一次，写 `.cache/macro-dashboard.json` 和可以直接打开的 `.cache/macro-preview.html` |
+| `npm run macro:models -- sonnet` | 列出 gateway 上能用的模型 |
+
+线上手动重建：
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" https://superturbo.app/api/macro-dashboard/refresh
+```
+
+`/api/macro-dashboard/dashboard` 返回当前这一版的原始数据。
+
+## 数据来源
+
+| 数据 | 来源 |
+|---|---|
+| 10 年期实际利率、名义利率、盈亏平衡通胀 | FRED DFII10、DGS10、T10YIE |
+| 高收益债利差 | FRED BAMLH0A0HYM2 |
+| 3 个月国库券、联邦基金有效利率 | FRED DGS3MO、DFF |
+| 核心与整体 CPI | FRED CPILFESL、CPIAUCSL，换算成同比 |
+| 增长 | FRED INDPRO 同比 |
+| 标普、VIX、比特币、黄金、美元指数 | Yahoo Finance chart 接口 |
+
+Yahoo 会挡掉一些机房 IP，所以每个行情都有备用源，只在主源失败时才走：标普回落到
+FRED SP500，VIX 到 FRED VIXCLS，美元到 FRED DTWEXBGS，比特币到 CoinGecko，
+黄金到 api.gold-api.com。页面上标的是实际用到的那个源。
+
+## 模板改了一处
+
+`template/macro-dashboard.html` 是 skill 的模板，只改了一个地方：柱状图的分类标签原本
+永远画在零线上方，正值的柱子会盖住它。现在标签画在柱子的另一侧。skill 那边还是原样，
+因为它的示例数据全是负值，没暴露出来。
+
+## 成本
+
+一天一次，大约 3k 输入 3k 输出，几美分。访客读的是存好的页面，不花钱。
+
+## 免责
+
+模板里内置了 not financial advice 区块，两个 tab 都会显示。那段文字没有经过律师，
+真要公开推广之前找人看一眼。

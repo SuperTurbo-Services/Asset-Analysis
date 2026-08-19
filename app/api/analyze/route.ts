@@ -123,7 +123,7 @@ async function generateNotes(
   report: Report,
   batch: Note[],
   signal: AbortSignal,
-): Promise<{ good: Record<string, NoteAnalysis>; failed: string[] }> {
+): Promise<{ good: Record<string, NoteAnalysis>; failed: string[]; reason: string[] }> {
   const good: Record<string, NoteAnalysis> = {};
   let pending = [...batch];
   let lastIssues: string[] = [];
@@ -141,6 +141,7 @@ async function generateNotes(
     let parsed: Record<string, NoteAnalysis>;
     try {
       const text = await callModel(messages, signal);
+      if (attempt === MAX_ATTEMPTS) console.error(`[analyze] 末次响应开头：${text.slice(0, 200)}`);
       parsed = repairFixPrefixes(
         normalizeSpacing(extractJson(text)) as Record<string, NoteAnalysis>,
         pending,
@@ -149,6 +150,7 @@ async function generateNotes(
       const msg = e instanceof Error ? e.message : 'UNKNOWN';
       if (msg === 'MISSING_KEY') throw e;
       lastIssues = [`生成失败：${msg}`];
+      console.error(`[analyze] 批次失败 attempt=${attempt} reason=${msg} notes=${pending.map((n) => n.title).join(',').slice(0, 120)}`);
       messages.pop();
       continue;
     }
@@ -170,7 +172,10 @@ async function generateNotes(
     messages.push({ role: 'assistant', content: JSON.stringify(parsed) });
   }
 
-  return { good, failed: pending.map((n) => n.title) };
+  if (pending.length) {
+    console.error(`[analyze] 放弃 ${pending.length} 篇：${lastIssues.slice(0, 6).join(' ｜ ')}`);
+  }
+  return { good, failed: pending.map((n) => n.title), reason: lastIssues.slice(0, 6) };
 }
 
 export async function POST(req: NextRequest) {
@@ -228,7 +233,9 @@ export async function POST(req: NextRequest) {
     for (const res of results) {
       if (res.kind === 'notes') {
         Object.assign(analysis, res.r.good);
-        if (res.r.failed.length) failures.push(...res.r.failed.map((t) => `${t}：多次未通过校验`));
+        if (res.r.failed.length) {
+          failures.push(...res.r.failed.map((t) => `${t}：未生成`), ...res.r.reason);
+        }
       } else if ('failed' in res.r) {
         failures.push(...res.r.failed);
       } else {
