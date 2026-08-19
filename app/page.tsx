@@ -28,13 +28,13 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link className="tool" href="/macro-dashboard">
+          <a className="tool" href="/macro-dashboard">
             <h3>宏观影响看板</h3>
             <p>
               美股、现金、黄金、加密四类资产，在当下的宏观环境里是看多还是看跌。
               每天自动重建一次，数字全部来自 FRED 和市场行情，模型只负责打分和写判断。
             </p>
-          </Link>
+          </a>
         </div>
 
         <footer style={{ marginTop: 56 }}>

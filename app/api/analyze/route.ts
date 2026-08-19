@@ -114,6 +114,65 @@ async function generate<T>(
   return { failed: last };
 }
 
+/**
+ * 逐篇诊断。关键在于 **通过的篇目立刻锁定，只把没过的重新问一遍** ——
+ * 之前整批全有或全无，一批 4 篇里 1 篇有问题就把另外 3 篇的好内容一起丢掉，
+ * 实测四批各因不同原因失败时覆盖率会掉到 0。
+ */
+async function generateNotes(
+  report: Report,
+  batch: Note[],
+  signal: AbortSignal,
+): Promise<{ good: Record<string, NoteAnalysis>; failed: string[] }> {
+  const good: Record<string, NoteAnalysis> = {};
+  let pending = [...batch];
+  let lastIssues: string[] = [];
+  const messages: Msg[] = [{ role: 'system', content: SYSTEM_NOTES }];
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS && pending.length; attempt++) {
+    messages.push({
+      role: 'user',
+      content:
+        attempt === 1
+          ? buildNotesPrompt(report, pending)
+          : `这些还没通过校验，请重写这 ${pending.length} 篇（其余已通过的不用再写）：\n${lastIssues.join('\n')}\n\n${buildNotesPrompt(report, pending)}`,
+    });
+
+    let parsed: Record<string, NoteAnalysis>;
+    try {
+      const text = await callModel(messages, signal);
+      parsed = repairFixPrefixes(
+        normalizeSpacing(extractJson(text)) as Record<string, NoteAnalysis>,
+        pending,
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'UNKNOWN';
+      if (msg === 'MISSING_KEY') throw e;
+      lastIssues = [`生成失败：${msg}`];
+      messages.pop();
+      continue;
+    }
+
+    const stillBad: Note[] = [];
+    lastIssues = [];
+    for (const n of pending) {
+      const cell = parsed[n.title];
+      const iss = cell ? validateNotes({ [n.title]: cell }, [n]) : [{ where: n.title, what: '这一篇没写' }];
+      if (cell && !iss.length) good[n.title] = cell;
+      else {
+        stillBad.push(n);
+        lastIssues.push(...iss.slice(0, 4).map((i) => `${i.where}：${i.what}`));
+      }
+    }
+    pending = stillBad;
+    if (!pending.length) break;
+
+    messages.push({ role: 'assistant', content: JSON.stringify(parsed) });
+  }
+
+  return { good, failed: pending.map((n) => n.title) };
+}
+
 export async function POST(req: NextRequest) {
   let report: Report;
   try {
@@ -149,13 +208,7 @@ export async function POST(req: NextRequest) {
     // 各批与总建议全部并行，墙钟时间只等最慢的一路
     const jobs = [
       ...batches.map((b) =>
-        generate(
-          SYSTEM_NOTES,
-          buildNotesPrompt(report, b),
-          (p) => repairFixPrefixes(p as Record<string, NoteAnalysis>, b),
-          (v) => validateNotes(v, b),
-          controller.signal,
-        ).then((r) => ({ kind: 'notes' as const, r })),
+        generateNotes(report, b, controller.signal).then((r) => ({ kind: 'notes' as const, r })),
       ),
       generate(
         SYSTEM_SUGGESTIONS,
@@ -172,10 +225,15 @@ export async function POST(req: NextRequest) {
     let suggestions: Suggestion[] = [];
     const failures: string[] = [];
 
-    for (const { kind, r } of results) {
-      if ('failed' in r) { failures.push(...r.failed); continue; }
-      if (kind === 'notes') Object.assign(analysis, r.value as Record<string, NoteAnalysis>);
-      else suggestions = r.value as Suggestion[];
+    for (const res of results) {
+      if (res.kind === 'notes') {
+        Object.assign(analysis, res.r.good);
+        if (res.r.failed.length) failures.push(...res.r.failed.map((t) => `${t}：多次未通过校验`));
+      } else if ('failed' in res.r) {
+        failures.push(...res.r.failed);
+      } else {
+        suggestions = res.r.value;
+      }
     }
 
     // 只要拿到一部分就返回一部分 —— 缺的格子界面上显示「需要 AI 解读」，

@@ -1,4 +1,3 @@
-import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { generateDashboard } from '@/lib/macro/generate';
 import { writeDashboard } from '@/lib/macro/store';
@@ -26,7 +25,6 @@ export async function GET(req: Request) {
   try {
     const { dashboard, attempts, warnings } = await generateDashboard();
     const stored = await writeDashboard(dashboard);
-    revalidatePath('/macro-dashboard');
     return NextResponse.json({
       ok: true,
       attempts,
