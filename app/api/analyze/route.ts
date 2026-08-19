@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   SYSTEM_NOTES, SYSTEM_SUGGESTIONS, buildNotesPrompt, buildSuggestionsPrompt,
 } from '@/lib/prompt';
-import { extractJson, validateNotes, validateSuggestions, type Issue } from '@/lib/validate';
+import { extractJson, normalizeSpacing, validateNotes, validateSuggestions, type Issue } from '@/lib/validate';
 import type { Note, NoteAnalysis, Report, Suggestion } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -87,7 +87,7 @@ async function generate<T>(
     let raw: unknown;
     try {
       const text = await callModel(messages, signal);
-      raw = extractJson(text);
+      raw = normalizeSpacing(extractJson(text));
       value = pick(raw);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'UNKNOWN';

@@ -110,16 +110,6 @@ export function validateNotes(
         }
       }
 
-      // 中文与数字之间要有空格
-      for (const [kind, arr] of [['Algo', algo], ['Blog', blog], ['Fix', fix]] as const) {
-        if (!Array.isArray(arr)) continue;
-        for (const b of arr) {
-          if (/[\u4e00-\u9fa5]\d|\d[\u4e00-\u9fa5]/.test(b.replace(/\d+(\.\d+)?%/g, '%').replace(/第\d+/g, ''))) {
-            issues.push({ where: `${title}.${d.pre}${kind}`, what: '中文与数字之间要加一个空格（如「涨粉 7 人」）' });
-          }
-        }
-      }
-
       // *Algo 整格必须有真实数字（样本不足的除外）
       if (Array.isArray(algo)) {
         const joined = algo.join('');
@@ -159,6 +149,29 @@ export function validateSuggestions(sg: unknown): Issue[] {
     }
   });
   return issues;
+}
+
+/**
+ * 中文与数字之间补空格。这是确定性的排版规则，自己补比让模型重试划算得多 ——
+ * 实测把它做成校验规则会为一个排版细节丢掉近一半的篇目。
+ */
+export function normalizeSpacing<T>(v: T): T {
+  const fix = (s: string) =>
+    s
+      .replace(/([\u4e00-\u9fa5])(\d)/g, '$1 $2')
+      .replace(/(\d(?:\.\d+)?%?)([\u4e00-\u9fa5])/g, '$1 $2')
+      .replace(/第 (\d+)/g, '第$1')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const walk = (x: unknown): unknown => {
+    if (typeof x === 'string') return fix(x);
+    if (Array.isArray(x)) return x.map(walk);
+    if (x && typeof x === 'object') {
+      return Object.fromEntries(Object.entries(x).map(([k, val]) => [k, walk(val)]));
+    }
+    return x;
+  };
+  return walk(v) as T;
 }
 
 /** 模型有时会用 ```json 包裹，或在 JSON 前后带解释，这里做宽容提取 */

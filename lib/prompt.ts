@@ -149,6 +149,10 @@ function line(n: Note): string {
     `互动率${ia.toFixed(2)}% 收藏率${sr.toFixed(2)}% 藏赞比${sl.toFixed(1)}% CES${ces} CES千曝${cek.toFixed(2)}`,
     `流量结构${n.struct}(比值${n.ratio} 点击${n.clicks} 缺口${n.gap})`,
     `卡在${gate}`,
+    // 前缀由分数唯一决定，直接给出答案，不让模型去推 —— 实测它推错的概率不低
+    `本篇前缀：fanFix必须用「${n.fanS >= 40 ? '保持：' : '修改：'}」 covFix必须用「${
+      n.covS >= 40 ? '保持：' : '修改：'
+    }」 conFix必须用「${n.conS >= 40 ? '保持：' : '修改：'}」`,
   ].join(' | ');
 }
 

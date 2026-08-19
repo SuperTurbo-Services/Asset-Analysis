@@ -5,6 +5,11 @@ import path from 'node:path';
 // 不用 basePath —— 根路径留给 SuperTurbo 落地页和后续工具。
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
+  // template/macro-dashboard.html 在运行时用 fs 读取，必须打进函数包里
+  outputFileTracingIncludes: {
+    '/macro-dashboard': ['./template/**'],
+    '/api/macro-dashboard/refresh': ['./template/**'],
+  },
 };
 
 export default nextConfig;
