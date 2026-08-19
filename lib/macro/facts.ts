@@ -8,9 +8,11 @@ export type Metric = {
   value: number;
   /** Preformatted for display, e.g. "4.71%", "275 bp", "$69,608" */
   fmt: string;
-  /** Observation date in prose, e.g. "August 18". Never an ISO string, the
-   *  dashboard forbids hyphens in visible text. */
-  date: string;
+  /** Raw observation date, formatted per language at render time. Never put an
+   *  ISO string on the page, the dashboard forbids hyphens in visible text. */
+  iso: string;
+  /** Monthly releases are stamped by month, daily ones by month and day. */
+  monthly: boolean;
   source: string;
   /** Recent observations, oldest first, for the sparkline */
   spark: number[];
@@ -18,7 +20,8 @@ export type Metric = {
 
 export type Facts = {
   generatedAt: string;
-  stampDate: string;
+  /** The run's date in New York, as year, month, day. */
+  stampParts: { y: number; m: number; d: number; weekday: number };
   /** Names of anything that could not be fetched this run */
   missing: string[];
   metrics: Record<string, Metric>;
@@ -124,7 +127,8 @@ export async function gatherFacts(now = new Date()): Promise<Facts> {
       label,
       value: round(last.value * scale, 2),
       fmt: fmt(last.value * scale),
-      date: prose(last.date),
+      iso: last.date,
+      monthly: false,
       source: `FRED ${id}`,
       spark: obs.slice(-5).map((o) => round(o.value * scale, 2)),
     };
@@ -149,7 +153,7 @@ export async function gatherFacts(now = new Date()): Promise<Facts> {
   if (core && coreObs) {
     metrics.coreCpi = {
       label: "Core CPI, year over year", value: round(core.value),
-      fmt: `${core.value.toFixed(1)}%`, date: proseMonth(core.date),
+      fmt: `${core.value.toFixed(1)}%`, iso: core.date, monthly: true,
       source: "FRED CPILFESL",
       spark: yoySeries(coreObs, 5).map((p) => p.value),
     };
@@ -157,7 +161,7 @@ export async function gatherFacts(now = new Date()): Promise<Facts> {
   if (head) {
     metrics.headlineCpi = {
       label: "Headline CPI, year over year", value: round(head.value),
-      fmt: `${head.value.toFixed(1)}%`, date: proseMonth(head.date),
+      fmt: `${head.value.toFixed(1)}%`, iso: head.date, monthly: true,
       source: "FRED CPIAUCSL", spark: [],
     };
   } else missing.push("Headline CPI");
@@ -167,7 +171,7 @@ export async function gatherFacts(now = new Date()): Promise<Facts> {
   if (ind && indObs) {
     metrics.growth = {
       label: "Industrial production, year over year", value: round(ind.value),
-      fmt: `${ind.value.toFixed(1)}%`, date: proseMonth(ind.date),
+      fmt: `${ind.value.toFixed(1)}%`, iso: ind.date, monthly: true,
       source: "FRED INDPRO",
       spark: yoySeries(indObs, 5).map((p) => p.value),
     };
@@ -180,8 +184,8 @@ export async function gatherFacts(now = new Date()): Promise<Facts> {
     if (!resolved) { missing.push(label); return null; }
     const { q, source } = resolved;
     metrics[key] = {
-      label, value: round(q.last, 2), fmt: fmt(q.last), date: prose(q.asOf),
-      source, spark: q.closes.slice(-5).map((c) => round(c, 2)),
+      label, value: round(q.last, 2), fmt: fmt(q.last), iso: q.asOf,
+      monthly: false, source, spark: q.closes.slice(-5).map((c) => round(c, 2)),
     };
     const window = q.closes.slice(-260);
     ranges[key] = { lo: Math.min(...window), hi: Math.max(...window) };
@@ -228,7 +232,7 @@ export async function gatherFacts(now = new Date()): Promise<Facts> {
     if (gf.ok) {
       metrics.gold = {
         label: "Gold", value: round(gf.v.price), fmt: money(gf.v.price),
-        date: prose(gf.v.asOf), source: "gold api, spot XAU", spark: [],
+        iso: gf.v.asOf, monthly: false, source: "gold api, spot XAU", spark: [],
       };
       const i = missing.indexOf("Gold");
       if (i >= 0) missing.splice(i, 1);
@@ -293,14 +297,23 @@ export async function gatherFacts(now = new Date()): Promise<Facts> {
   push5(btcQ, "Bitcoin");
   push5(dxyQ, "Dollar index");
 
-  const stampDate = now.toLocaleDateString("en-US", {
-    weekday: "long", month: "long", day: "numeric", year: "numeric",
+  // the run's own date, read in New York because that is the market's clock
+  const nyParts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/New_York",
-  });
+    year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
+  }).formatToParts(now);
+  const part = (t: string) => nyParts.find((x) => x.type === t)?.value ?? "";
+  const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const stampParts = {
+    y: Number(part("year")),
+    m: Number(part("month")),
+    d: Number(part("day")),
+    weekday: Math.max(0, WEEKDAYS.indexOf(part("weekday"))),
+  };
 
   return {
     generatedAt: now.toISOString(),
-    stampDate,
+    stampParts,
     missing,
     metrics,
     derived,

@@ -121,6 +121,19 @@ async function generate<T>(
  * 而这个键不像笔记标题（笔记标题一定在本批的名单里）。
  */
 function unwrap(raw: unknown, titles: string[]): Record<string, NoteAnalysis> {
+  const out = unwrapLayer(raw, titles);
+  // 模型会把标题里的英文和中文之间也加上空格（「别吹ai杀死saas了」→「别吹 ai 杀死 saas 了」），
+  // 于是键对不上整篇作废。去掉全部空格再匹配一次。
+  const canon = new Map(titles.map((t) => [t.replace(/\s+/g, '').toLowerCase(), t]));
+  const remapped: Record<string, NoteAnalysis> = {};
+  for (const [k, v] of Object.entries(out)) {
+    const real = canon.get(k.replace(/\s+/g, '').toLowerCase());
+    remapped[real ?? k] = v as NoteAnalysis;
+  }
+  return remapped;
+}
+
+function unwrapLayer(raw: unknown, titles: string[]): Record<string, NoteAnalysis> {
   if (!raw || typeof raw !== 'object') return {};
   const obj = raw as Record<string, unknown>;
   if (titles.some((t) => t in obj)) return obj as Record<string, NoteAnalysis>;
