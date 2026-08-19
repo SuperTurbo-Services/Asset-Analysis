@@ -60,7 +60,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '请求体不是合法 JSON' }, { status: 400 });
   }
 
-  const scored = report?.notes?.filter?.((n) => n.structK !== 'pending') ?? [];
+  // 形状校验：缺任何一块都直接拒绝，不要让下游在解引用时崩成 500
+  const missing = (['acc', 'meta', 'agg'] as const).filter((k) => !report?.[k]);
+  if (!Array.isArray(report?.notes) || missing.length) {
+    return NextResponse.json(
+      { error: `请求体不是完整的报告对象（缺少 ${missing.join('、') || 'notes'}）` },
+      { status: 400 },
+    );
+  }
+
+  const scored = report.notes.filter((n) => n?.structK !== 'pending');
   if (!scored.length) {
     return NextResponse.json({ error: '没有可分析的笔记' }, { status: 400 });
   }
@@ -74,14 +83,14 @@ export async function POST(req: NextRequest) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 280_000);
 
-  const messages = [
-    { role: 'system', content: SYSTEM },
-    { role: 'user', content: buildUserPrompt(report) },
-  ];
-
   let lastIssues: string[] = [];
 
   try {
+    const messages = [
+      { role: 'system', content: SYSTEM },
+      { role: 'user', content: buildUserPrompt(report) },
+    ];
+
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       let parsed: Analysis;
       try {
@@ -127,6 +136,9 @@ export async function POST(req: NextRequest) {
       },
       { status: 422 },
     );
+  } catch {
+    // 兜底：绝不把内部异常信息外泄（可能含请求内容或环境细节）
+    return NextResponse.json({ error: 'AI 解读遇到内部错误，基础报告不受影响。' }, { status: 500 });
   } finally {
     clearTimeout(timer);
   }
