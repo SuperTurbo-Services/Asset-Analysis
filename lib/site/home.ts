@@ -86,8 +86,8 @@ export const COPY = {
     en: 'A small collection of analysis tools. Each one does a single thing, and turns an exported spreadsheet into a diagnosis you can act on.',
   },
   headline: {
-    zh: '把后台导出的表，变成能动手的诊断',
-    en: 'Turn an exported spreadsheet into a diagnosis you can act on',
+    zh: 'SuperTurbo 工具合集',
+    en: 'SuperTurbo Tool Set',
   },
   lead: {
     zh: '一组自用的分析工具。每个工具只做一件小事，打开就能用。',
