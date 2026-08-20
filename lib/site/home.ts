@@ -107,12 +107,8 @@ export const COPY = {
     zh: '关于。',
     en: 'About.',
   },
-  aboutLead: {
-    zh: 'SuperTurbo 是 Turbo 的个人工具集。源码在',
-    en: "SuperTurbo is Turbo's personal collection of tools. The source lives at",
-  },
-  aboutTail: {
-    zh: '。',
-    en: '.',
+  about: {
+    zh: 'SuperTurbo 是 Turbo 的个人工具集。',
+    en: "SuperTurbo is Turbo's personal collection of tools.",
   },
 } as const;

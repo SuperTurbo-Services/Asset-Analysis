@@ -49,13 +49,7 @@ export default function HomePage({ lang }: { lang: Lang }) {
         <footer style={{ marginTop: 56 }}>
           <dl>
             <dt>{COPY.aboutTerm[lang]}</dt>
-            <dd>
-              {COPY.aboutLead[lang]}{' '}
-              <a href="https://github.com/SuperTurbo-Services" target="_blank" rel="noreferrer">
-                github.com/SuperTurbo-Services
-              </a>
-              {COPY.aboutTail[lang]}
-            </dd>
+            <dd>{COPY.about[lang]}</dd>
           </dl>
         </footer>
       </div>
