@@ -253,3 +253,36 @@ FRED SP500，VIX 到 FRED VIXCLS，美元到 FRED DTWEXBGS，比特币到 CoinGe
 
 模板里内置了 not financial advice 区块，两个 tab 都会显示。那段文字没有经过律师，
 真要公开推广之前找人看一眼。
+
+---
+
+# 首页 · superturbo.app
+
+工具集的落地页，中英两版，各自一个静态路径。
+
+| 路径 | 语言 | `<html lang>` |
+|---|---|---|
+| `/` | 中文 | `zh-CN` |
+| `/en` | English | `en` |
+
+`/` 保持中文，因为已经分享出去的链接和已被收录的都是它。英文加在 `/en`，
+不动根路径。
+
+**为什么不是一个按钮切文案。** 两个真实路径可以分享、可以被收录，两版都能预渲染成
+静态页，也不会有 hydration 之前先闪一下另一种语言。这和宏观看板的做法是同一套：
+一种语言一个路径，`canonical` 指自己，`hreflang` 指对方，`x-default` 指中文。
+
+**两个根布局。** `<html lang>` 必须跟着页面变，而布局本身看不见路由，所以用 route
+group 分成 `app/(zh)` 和 `app/(en)`，各带一个根布局。代价是中英之间跳转会整页刷新
+（切语言本来就该刷新），好处是 lang 属性在服务端就是对的。小红书那页在 `app/(zh)` 里，
+URL 不变 —— route group 的括号目录不进路径。
+
+**文案只有一份。** `lib/site/home.ts` 里每条文案是一个 `{ zh, en }`，
+`components/HomePage.tsx` 按 lang 取。加工具就往 `TOOLS` 里加一条，两版一起有。
+工具卡的链接也是分语言的：宏观看板在英文首页指 `/macro-dashboard`，中文首页指
+`/macro-dashboard/zh`。界面只有中文的工具在 `TOOLS` 里标 `zhOnly`，英文首页会在
+标题旁挂一枚 Chinese interface 的小标，点进去之前先知道。
+
+**小红书那页的标题**在 `app/(zh)/xiaohongshu-growth-dashboard/layout.tsx` 里。
+那页是 `'use client'`，导不出 metadata，所以标题挂在它自己的 layout 上，
+不再借用根布局的。
