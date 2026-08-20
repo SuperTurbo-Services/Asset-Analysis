@@ -45,13 +45,6 @@ export default function HomePage({ lang }: { lang: Lang }) {
             </a>
           ))}
         </div>
-
-        <footer style={{ marginTop: 56 }}>
-          <dl>
-            <dt>{COPY.aboutTerm[lang]}</dt>
-            <dd>{COPY.about[lang]}</dd>
-          </dl>
-        </footer>
       </div>
     </>
   );

@@ -103,12 +103,4 @@ export const COPY = {
     zh: '界面为中文',
     en: 'Chinese interface',
   },
-  aboutTerm: {
-    zh: '关于。',
-    en: 'About.',
-  },
-  about: {
-    zh: 'SuperTurbo 是 Turbo 的个人工具集。',
-    en: "SuperTurbo is Turbo's personal collection of tools.",
-  },
 } as const;
