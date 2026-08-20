@@ -284,6 +284,8 @@ const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k i
 /* **x** becomes an emphasised number span */
 const md = (s) => String(s == null ? "" : s).replace(/\*\*(.+?)\*\*/g, '<span class="num">$1</span>');
 const sgn = (n, d = 1) => { const x = Number(n); return (x < 0 ? "−" : "+") + Math.abs(x).toFixed(d); };
+/* integer net score, real minus sign, no hyphen anywhere in visible text */
+const signed = (n) => (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n);
 
 document.title = D.title;
 $("#h-title").textContent = D.title;
@@ -304,7 +306,7 @@ $("#board").innerHTML = D.assets.map((a, i) => `
     </div>
     <div class="b-meta">
       ${a.cap ? `<span class="b-qual">${a.cap}</span>` : ""}
-      <span class="b-score">net ${NET[i] > 0 ? "+" : ""}${NET[i]} on the factor grid</span>
+      <span class="b-score">net ${signed(NET[i])} on the factor grid</span>
     </div>
     <div class="b-line">${md(a.one)}</div>
   </div>`).join("");
@@ -339,7 +341,7 @@ $("#cards").innerHTML = D.assets.map(a => `
       </tr>`).join("")}
       <tr class="tally">
         <td class="rowl">Net score</td><td class="readl">bullish factors minus bearish</td>
-        ${NET.map(t => `<td>${t > 0 ? "+" : ""}${t}</td>`).join("")}
+        ${NET.map(t => `<td>${signed(t)}</td>`).join("")}
       </tr>
       <tr class="tally">
         <td class="rowl">Verdict</td><td class="readl">one word, plus a qualifier where true</td>

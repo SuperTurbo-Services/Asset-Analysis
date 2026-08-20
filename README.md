@@ -198,7 +198,12 @@ MIT
 **运行时一个都不需要。** 页面是静态的，线上不调模型。
 
 只有跑 `npm run macro:refresh` 的那台机器需要 `AI_GATEWAY_API_KEY`，放在 `.env.local`。
-换模型改 `AI_GATEWAY_MODEL`，默认 `anthropic/claude-sonnet-5`。小红书那个工具看的是
+换模型改 `AI_GATEWAY_MODEL`，默认 `zai/glm-4.7`，一次跑完约 15 到 20 秒。
+
+**别用 `zai/glm-5.3` 或 `zai/glm-5.2-fast`。** 它们必然思考，网关没有开关能关掉
+（`thinking: {type:'disabled'}` 会被拒绝，说这个模型无法关闭思考；给 low 或
+`reasoning_effort` 也不生效），提示词一长就把全部输出预算花在思考上，
+实测 16000 token、278 秒，正文是空字符串。输出上限如果被服务商拒绝，用 `AI_GATEWAY_MAX_TOKENS` 调低。小红书那个工具看的是
 `AI_MODEL`，两个变量各管一个工具，不要合并。
 
 注意：Vercel 里那把 key 标了 **Sensitive**，所以 `vercel env pull` 拿不回来，

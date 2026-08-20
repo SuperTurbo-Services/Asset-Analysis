@@ -33,6 +33,12 @@ const SOURCE_URLS: Record<string, string> = {
   "CoinGecko, bitcoin daily": "https://www.coingecko.com/en/coins/bitcoin",
 };
 
+/**
+ * 模板只对 banner、one 和因子正文跑 md()，其余字段是直出的。
+ * 所以那些字段里不能留 ** 标记，否则页面上会看到星号。
+ */
+const plain = (v: string) => v.replace(/\*\*/g, "");
+
 /** Round a span outward to something a human would draw an axis on. */
 function niceStep(range: number): number {
   const raw = range / 5;
@@ -104,7 +110,7 @@ function buildTiles(f: Facts, reads: Record<string, string>, lang: Lang): Tile[]
       mark: s.mark ?? Number(((blo + bhi) / 2).toFixed(2)),
       markLab: s.markLab,
       spark: met.spark,
-      read: reads[s.key] ?? "",
+      read: plain(reads[s.key] ?? ""),
     });
   }
   return tiles;
@@ -246,19 +252,22 @@ export function assemble(
       dir: (a.verdict === "BULLISH" ? "bull" : "bear") as "bull" | "bear",
       cap: a.cap ?? "",
       one: a.one,
-      qual: a.qual,
+      qual: plain(a.qual),
       factors: a.factors,
     };
   });
 
-  const matrix: MatrixRow[] = j.matrix.map((r) => ({ f: r.f, r: r.r, c: r.c }));
+  const matrix: MatrixRow[] = j.matrix.map((r) => ({
+    f: plain(r.f), r: plain(r.r), c: r.c,
+  }));
   const stampBase = formatStamp(f.stampParts, lang);
-  const stamp = j.stampNote ? `${stampBase} ${j.stampNote}` : stampBase;
+  const note = plain(j.stampNote ?? "").trim();
+  const stamp = note ? `${stampBase} ${note}` : stampBase;
 
   return {
     title: S.title[lang],
     stamp,
-    regime: j.regime,
+    regime: plain(j.regime),
     banner: j.banner,
     assets,
     matrix,

@@ -118,6 +118,23 @@ export function validate(d: Dashboard, f: Facts): Report {
     }
   });
 
+  // 结论旁边的那行小字不能和结论自己相反。GLM 把 bullish 译成过 看空，
+  // 页面上就出现了 看多 的卡片配一句 看空 的说明。
+  const BULL_WORDS = ["看多", "看涨", "做多", "唱多", "bullish"];
+  const BEAR_WORDS = ["看跌", "看空", "做空", "唱空", "bearish"];
+  d.assets.forEach((a) => {
+    const opening = a.qual.slice(0, 8).toLowerCase();
+    const wrong = a.dir === "bull" ? BEAR_WORDS : BULL_WORDS;
+    for (const w of wrong) {
+      if (opening.includes(w)) {
+        errors.push(
+          `${a.name}: the verdict is ${a.verdict} but its qualifier opens with ${JSON.stringify(w)}, which says the opposite`,
+        );
+        break;
+      }
+    }
+  });
+
   d.tiles.forEach((t, i) => {
     if (t.lo >= t.hi) errors.push(`tiles[${i}] "${t.lab}" lo is not below hi`);
     if (t.v < t.lo || t.v > t.hi) {

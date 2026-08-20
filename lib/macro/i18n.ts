@@ -198,8 +198,7 @@ const ZH_TEMPLATE: [string, string][] = [
   ['Primary series first, price and flow reads second.', '先列原始序列，再列价格和资金面的读数。'],
   ['Table view', '表格视图'],
   // rendered by the script
-  ['net ${NET[i] > 0 ? "+" : ""}${NET[i]} on the factor grid',
-    '因子网格净分 ${NET[i] > 0 ? "+" : ""}${NET[i]}'],
+  ['net ${signed(NET[i])} on the factor grid', '因子网格净分 ${signed(NET[i])}'],
   ['<span class="b-word">${a.verdict}</span>',
     '<span class="b-word">${a.verdict === "BULLISH" ? "看多" : "看跌"}</span>'],
   ['<span class="b-qual">${a.cap}</span>',

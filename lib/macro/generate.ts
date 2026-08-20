@@ -1,5 +1,5 @@
 import { gateway } from '@ai-sdk/gateway';
-import { NoObjectGeneratedError, generateObject } from 'ai';
+import { generateText, zodSchema } from 'ai';
 import { gatherFacts, type Facts } from './facts';
 import type { Lang } from './i18n';
 import { assemble } from './payload';
@@ -12,7 +12,20 @@ import type { Dashboard } from './types';
  * Routed through the Vercel AI Gateway, so the only credential this app needs is
  * AI_GATEWAY_API_KEY. Run `npm run macro:models` to see what your gateway has.
  */
-export const MODEL = process.env.AI_GATEWAY_MODEL || 'anthropic/claude-sonnet-5';
+/**
+ * zai/glm-4.7, not glm-5.3.
+ *
+ * Turbo asked for glm-5.3 and it cannot do this job. It always reasons, the
+ * gateway exposes no way to cap that (`thinking: {type:'disabled'}` is refused
+ * with "this model always engages in thinking", and neither a bare level nor
+ * reasoning_effort is accepted), and on a prompt this long it spends every
+ * available output token thinking: 16000 tokens and 278 seconds produced an
+ * empty text field. glm-5.2-fast behaves the same way.
+ *
+ * glm-4.7 returns the whole object in about 7 seconds. Override with
+ * AI_GATEWAY_MODEL if the provider ever fixes the reasoning cap.
+ */
+export const MODEL = process.env.AI_GATEWAY_MODEL || 'zai/glm-4.7';
 
 function keyReads(raw: RawJudgment): Judgment {
   const reads: Record<string, string> = {};
@@ -26,36 +39,97 @@ function keyReads(raw: RawJudgment): Judgment {
 }
 
 /**
- * Thinking tokens count against the output budget, so a tight cap truncates the
- * JSON and surfaces as a schema mismatch rather than as a length error.
+ * Reasoning tokens count against the output budget on models that think, so a
+ * tight cap truncates the JSON and surfaces as a schema mismatch rather than as
+ * a length error. Providers cap this differently, so it is overridable: if the
+ * gateway rejects the request outright, lower it.
  */
-const MAX_OUTPUT_TOKENS = 32_000;
+const MAX_OUTPUT_TOKENS = Number(process.env.AI_GATEWAY_MAX_TOKENS) || 12_000;
+
+/** The exact shape the model has to return, so the prompt cannot drift from the schema. */
+const SHAPE = JSON.stringify(zodSchema(judgmentSchema).jsonSchema);
+
+const JSON_RULES = `
+OUTPUT FORMAT
+Return one JSON object and nothing else. No prose before or after it, no markdown fences, no explanation. It must validate against this JSON Schema:
+
+${SHAPE}`;
+
+/** First balanced brace span, so leading prose or a stray fence cannot break parsing. */
+function extractJson(text: string): string | null {
+  const start = text.indexOf('{');
+  if (start < 0) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
+    if (escaped) { escaped = false; continue; }
+    if (c === '\\') { escaped = true; continue; }
+    if (c === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (c === '{') depth++;
+    else if (c === '}' && --depth === 0) return text.slice(start, i + 1);
+  }
+  return null;
+}
 
 /**
- * A schema mismatch throws instead of returning an object, which would end the
- * run with nothing to retry on. This turns it into a normal failed attempt and
- * keeps the detail worth having: why it stopped, and what it actually wrote.
+ * Deliberately not generateObject.
+ *
+ * Structured output through the gateway is provider dependent, and the model
+ * Turbo picked fails it outright: a three field schema returned
+ * NoObjectGeneratedError after 36 seconds, while the same model returns clean
+ * JSON as plain text in 2. So the JSON Schema goes in the prompt, and parsing
+ * and validation happen here, where a failure is a retryable attempt carrying
+ * the exact reason rather than an exception with nothing to act on.
  */
-async function tryObject(args: Parameters<typeof generateObject>[0]) {
-  try {
-    const { object } = await generateObject(args);
-    return { ok: true as const, object };
-  } catch (err) {
-    if (!NoObjectGeneratedError.isInstance(err)) throw err;
-    const finish = err.finishReason ?? 'unknown';
-    const wrote = err.text ? `${err.text.length} characters` : 'nothing';
-    const detail =
-      `the model returned an object that did not match the schema. ` +
-      `Finish reason ${finish}, it wrote ${wrote}` +
-      (err.usage?.outputTokens ? `, ${err.usage.outputTokens} output tokens` : '') +
-      '.';
-    console.error('macro generate: no object', {
-      finishReason: finish,
-      usage: err.usage,
-      textTail: err.text?.slice(-400),
-    });
-    return { ok: false as const, detail };
+async function tryObject(args: { system: string; prompt: string }) {
+  const res = await generateText({
+    model: gateway(MODEL),
+    system: `${args.system}\n${JSON_RULES}`,
+    prompt: args.prompt,
+    maxOutputTokens: MAX_OUTPUT_TOKENS,
+    // one gateway level retry, not three, or a slow model turns a bad run into
+    // a ten minute one
+    maxRetries: 1,
+  });
+
+  const raw = extractJson(res.text);
+  if (!raw) {
+    return {
+      ok: false as const,
+      detail: `no JSON object found in the response. Finish reason ${res.finishReason}, ${res.usage?.outputTokens ?? 0} output tokens.`,
+    };
   }
+
+  let parsedJson: unknown;
+  try {
+    parsedJson = JSON.parse(raw);
+  } catch (err) {
+    return {
+      ok: false as const,
+      detail: `the JSON did not parse: ${(err as Error).message}. Finish reason ${res.finishReason}.`,
+    };
+  }
+
+  const check = judgmentSchema.safeParse(parsedJson);
+  if (!check.success) {
+    const issues = check.error.issues
+      .slice(0, 12)
+      .map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`);
+    console.error('macro generate: schema mismatch', {
+      finishReason: res.finishReason,
+      usage: res.usage,
+      issues,
+    });
+    return {
+      ok: false as const,
+      detail: `the JSON did not match the schema: ${issues.join('; ')}.`,
+    };
+  }
+
+  return { ok: true as const, object: check.data };
 }
 
 export type Bundle = { en: Dashboard; zh: Dashboard };
@@ -73,22 +147,14 @@ async function score(facts: Facts, maxAttempts: number) {
   let lastErrors: string[] = [];
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const got = await tryObject({
-      model: gateway(MODEL),
-      schema: judgmentSchema,
-      system: SYSTEM,
-      prompt,
-      maxOutputTokens: MAX_OUTPUT_TOKENS,
-      // No temperature or top_p on purpose. Current Claude models reject
-      // sampling parameters outright.
-    });
+    const got = await tryObject({ system: SYSTEM, prompt });
     if (!got.ok) {
       lastErrors = [got.detail];
       prompt = `${base}\n\nYour previous attempt failed: ${got.detail} Return the whole object again, complete and matching the schema.`;
       continue;
     }
 
-    const judgment = keyReads(got.object as RawJudgment);
+    const judgment = keyReads(got.object);
     const dashboard = assemble(facts, judgment, MODEL, 'en');
     const { errors, warnings } = validate(dashboard, facts);
     if (errors.length === 0) return { judgment, dashboard, attempts: attempt, warnings };
@@ -156,11 +222,8 @@ async function translate(facts: Facts, en: Judgment, maxAttempts: number) {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const got = await tryObject({
-      model: gateway(MODEL),
-      schema: judgmentSchema,
       system: TRANSLATE_SYSTEM,
       prompt: `Translate this object into Simplified Chinese.\n\n${payload}${extra}`,
-      maxOutputTokens: MAX_OUTPUT_TOKENS,
     });
     if (!got.ok) {
       lastErrors = [got.detail];
@@ -168,7 +231,7 @@ async function translate(facts: Facts, en: Judgment, maxAttempts: number) {
       continue;
     }
 
-    const dashboard = assemble(facts, graft(en, got.object as RawJudgment), MODEL, 'zh');
+    const dashboard = assemble(facts, graft(en, got.object), MODEL, 'zh');
     const { errors, warnings } = validate(dashboard, facts);
     if (errors.length === 0) return { dashboard, attempts: attempt, warnings };
 
@@ -190,7 +253,9 @@ export async function generateDashboard(
   opts: { facts?: Facts; maxAttempts?: number } = {},
 ): Promise<GenerateResult> {
   const facts = opts.facts ?? (await gatherFacts());
-  const maxAttempts = opts.maxAttempts ?? 2;
+  // 三次而不是两次：模型偶尔会把网格和结论算不一致，重试带着具体错误
+  // 回去通常第二三次就对了
+  const maxAttempts = opts.maxAttempts ?? (Number(process.env.AI_MAX_ATTEMPTS) || 3);
 
   const scored = await score(facts, maxAttempts);
   const translated = await translate(facts, scored.judgment, maxAttempts);

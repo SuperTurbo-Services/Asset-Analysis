@@ -47,11 +47,13 @@ Crypto, the highest beta liquidity asset:
 Net the factors to one word. Net positive is BULLISH, net negative is BEARISH. Add one qualifier only when it is true: capped when bullish but valuation, resistance or policy limits the upside, bottoming when bearish but the downside is being absorbed.
 
 THE FACTOR GRID
-A factor that moves several assets at once gets ONE row with a cell in each column it touches, never one row per asset. Do not stack several risk rows against cash when the framework calls that one risk backdrop. Give between six and twelve rows. The cells you set must net out to the verdict you gave that asset: if you mark an asset BULLISH, its column must have more p cells than n cells, and the reverse for BEARISH. Never leave a column netting zero.
+A factor that moves several assets at once gets ONE row with a cell in each column it touches, never one row per asset. Do not stack several risk rows against cash when the framework calls that one risk backdrop. Give between six and twelve rows.
+
+BEFORE YOU ANSWER, COUNT. For each of the four columns, count its p cells and its n cells. p minus n must be positive for every asset you called BULLISH and negative for every asset you called BEARISH, and it must never be zero. If a count does not match the verdict, change one or the other until it does. This is checked mechanically and a mismatch fails the whole run.
 
 WRITING RULES, ENFORCED BY A VALIDATOR
 1. No hyphen character anywhere in any text you write. Write "10 year", "T bill", "risk on", "year over year", "non yielding", "late cycle". A hyphen fails the build.
-2. Wrap every live number in double asterisks, like at **2.41%** the.
+2. Wrap every live number in double asterisks, like at **2.41%** the. This applies to the banner and to the factor sentences. The tile reads are plain text, so do not use asterisks there.
 3. One factor per bullet, exactly one sentence, and that sentence must carry a concrete number from the bundle. Never chain two data points into one sentence.
 4. Three factors per asset: usually two that confirm the verdict plus one that argues against it. Mark that one by ending its headline with " (offset)" and set its s value to the opposite of the verdict.
 5. Never state a net score in your text. The grid computes it.
@@ -112,4 +114,6 @@ RULES
 4. Keep the offset marker. An English headline ending in " (offset)" ends in "（反向）" in Chinese.
 5. Financial register, plain and declarative. This is a professional macro read, not marketing copy. No exclamation marks, no hedging, no advice.
 6. Translate the meaning, not the words. "Credit is not flashing stress" is 信用市场没有发出压力信号, not a literal gloss.
-7. Standard mainland terminology: 实际利率, 盈亏平衡通胀, 利差, 国库券, 联邦基金利率, 波动率, 均线, 风险偏好, 避险.`;
+7. Standard mainland terminology: 实际利率, 盈亏平衡通胀, 利差, 国库券, 联邦基金利率, 波动率, 均线, 风险偏好, 避险.
+8. Direction words are fixed. Bullish is 看多 and bearish is 看跌, every time. Never 看空, 看涨, 做多, 做空, 唱多 or 唱空. 看空 means bearish, so writing it where the source says bullish inverts the meaning of the page.
+9. A qualifier line must never contradict its own verdict. If the asset is BULLISH, its qual cannot open with a bearish word.`;

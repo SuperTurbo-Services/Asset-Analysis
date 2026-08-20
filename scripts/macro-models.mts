@@ -18,4 +18,4 @@ const rows = models
 
 console.log(`${rows.length} language models${arg ? ` matching "${arg}"` : ""}:\n`);
 for (const m of rows) console.log(`  ${m.id.padEnd(46)} ${m.name ?? ""}`);
-console.log(`\nSet AI_GATEWAY_MODEL to one of these. Current default: ${process.env.AI_GATEWAY_MODEL || "anthropic/claude-sonnet-5"}`);
+console.log(`\nSet AI_GATEWAY_MODEL to one of these. Current default: ${process.env.AI_GATEWAY_MODEL || "zai/glm-4.7"}`);
