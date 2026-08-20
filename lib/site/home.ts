@@ -77,9 +77,11 @@ export const TOOLS: Tool[] = [
 ];
 
 export const COPY = {
+  // 标签页标题和大标题保持一致。别的页是「工具名 · SuperTurbo」，首页标题里已经有
+  // SuperTurbo 了，再缀一次是重复。
   title: {
-    zh: 'SuperTurbo · 自用分析工具集',
-    en: 'SuperTurbo · Small analysis tools',
+    zh: 'SuperTurbo 工具合集',
+    en: 'SuperTurbo Tool Set',
   },
   description: {
     zh: '一组自用的分析工具。每个工具只做一件小事，把后台导出的表变成能动手的诊断。',
