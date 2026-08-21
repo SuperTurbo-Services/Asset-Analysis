@@ -12,10 +12,11 @@
     "macro:models": "tsx scripts/macro-models.mts"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^1.0.0",
-    "@vercel/blob": "^1.0.0",
-    "ai": "^5.0.0",
-    "next": "^15.5.4",
+    "@ai-sdk/gateway": "^4.0.56",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/blob": "^2.8.0",
+    "ai": "^7.0.70",
+    "next": "^16.3.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",

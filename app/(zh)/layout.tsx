@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import SiteHead from '@/components/SiteHead';
 import { COPY, HTML_LANG } from '@/lib/site/home';
 import '../globals.css';
@@ -16,7 +17,10 @@ export default function ZhRootLayout({ children }: { children: React.ReactNode }
       <head>
         <SiteHead />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
