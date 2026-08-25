@@ -1,59 +1,59 @@
 {
  "en": {
   "title": "Macro Impact Dashboard",
-  "stamp": "As of Saturday, August 22, 2026.",
-  "regime": "late cycle repression",
-  "banner": "The 10 year real yield sits at **2.35%** which acts as a heavy cap on risk asset valuations.",
+  "stamp": "As of Tuesday, August 25, 2026. Gold and Bitcoin surge on falling yields and a weak dollar.",
+  "regime": "late cycle expansion",
+  "banner": "The 10 year real yield has dropped to **2.40%**, signaling easier financial conditions that are lifting non yielding assets.",
   "assets": [
    {
     "emoji": "📊",
     "name": "US Stocks",
-    "verdict": "BEARISH",
-    "dir": "bear",
+    "verdict": "BULLISH",
+    "dir": "bull",
     "cap": "",
-    "one": "Growth is stalling while real yields remain elevated.",
-    "qual": "Economic growth is barely positive while the discount rate stays high.",
+    "one": "Growth is firm and volatility is low, supporting equity valuations despite elevated rates.",
+    "qual": "Rising yields and rich valuations cap the upside potential.",
     "factors": [
      {
-      "s": "down",
+      "s": "up",
       "h": "Growth",
-      "b": "Industrial production is up only **1.1%** year over year."
-     },
-     {
-      "s": "down",
-      "h": "Rates",
-      "b": "The 10 year nominal yield is at **4.69%**."
+      "b": "Industrial production is up **1.1%** year over year."
      },
      {
       "s": "up",
-      "h": "Volatility (offset)",
-      "b": "The VIX is low at **15.13**."
+      "h": "Volatility",
+      "b": "The VIX sits at **15.54**."
+     },
+     {
+      "s": "down",
+      "h": "Rates (offset)",
+      "b": "The 10 year nominal yield is at **4.74%**."
      }
     ]
    },
    {
     "emoji": "💵",
     "name": "US Cash",
-    "verdict": "BULLISH",
-    "dir": "bull",
-    "cap": "capped",
-    "one": "Positive real yields support cash even as the Fed holds.",
-    "qual": "Yields are positive but the Fed funds rate is stable so upside is limited.",
+    "verdict": "BEARISH",
+    "dir": "bear",
+    "cap": "",
+    "one": "Real yields are positive but falling as risk assets rally.",
+    "qual": "The aggressive risk on trade in other assets reduces the appeal of cash.",
     "factors": [
      {
       "s": "up",
       "h": "Real yield on cash",
-      "b": "The real yield on cash is **1.40%**."
-     },
-     {
-      "s": "up",
-      "h": "Fed funds level",
-      "b": "The fed funds effective rate is **3.63%**."
+      "b": "The real carry on core inflation is **1.41%**."
      },
      {
       "s": "down",
-      "h": "Fed funds bias (offset)",
-      "b": "The fed funds effective rate is steady at **3.63%**."
+      "h": "Risk backdrop",
+      "b": "Bitcoin is up **8.7%** over the last five sessions."
+     },
+     {
+      "s": "down",
+      "h": "Fed funds level and bias",
+      "b": "Fed funds effective is at **3.63%**."
      }
     ]
    },
@@ -63,23 +63,23 @@
     "verdict": "BULLISH",
     "dir": "bull",
     "cap": "",
-    "one": "A weak dollar and rising inflation expectations drive gold higher.",
-    "qual": "The trend is up and the dollar is providing a tailwind.",
+    "one": "Falling real yields and a weak dollar are driving the metal higher.",
+    "qual": "The price surge leaves little room for a near term miss.",
     "factors": [
      {
       "s": "up",
-      "h": "Dollar",
-      "b": "The dollar index is **98.84**."
+      "h": "Real yields",
+      "b": "The 10 year real yield is at **2.40%**."
      },
      {
       "s": "up",
-      "h": "Trend",
-      "b": "Gold is trading **4.0%** above its 200 day moving average."
+      "h": "Dollar",
+      "b": "The dollar index is at **98.94**."
      },
      {
       "s": "down",
-      "h": "Real yields (offset)",
-      "b": "The 10 year real yield is **2.35%**."
+      "h": "Valuation (offset)",
+      "b": "Gold is trading at **4,709**."
      }
     ]
    },
@@ -89,23 +89,23 @@
     "verdict": "BULLISH",
     "dir": "bull",
     "cap": "",
-    "one": "Bitcoin is surging as it trades well above key moving averages.",
-    "qual": "Strong momentum and a weak dollar are lifting the asset.",
+    "one": "Liquidity conditions are easing with falling yields and a soft dollar.",
+    "qual": "The rapid appreciation suggests the market is pricing in significant future easing.",
     "factors": [
      {
       "s": "up",
-      "h": "Trend",
-      "b": "Bitcoin is **19.2%** above its 50 day moving average."
+      "h": "Real yields",
+      "b": "The 10 year real yield is at **2.40%**."
      },
      {
       "s": "up",
-      "h": "Dollar",
-      "b": "The dollar index is down to **98.84**."
+      "h": "Trend",
+      "b": "Bitcoin is **14.8%** above its 200 day moving average."
      },
      {
       "s": "down",
-      "h": "Real yields (offset)",
-      "b": "The 10 year real yield is high at **2.35%**."
+      "h": "Credit spreads (offset)",
+      "b": "High yield OAS is at **269 bp**."
      }
     ]
    }
@@ -115,55 +115,85 @@
     "f": "Growth",
     "r": "1.1% YoY",
     "c": [
-     "n",
-     "z",
-     "z",
-     "z"
-    ]
-   },
-   {
-    "f": "Real yields",
-    "r": "2.35%",
-    "c": [
-     "n",
      "p",
-     "n",
-     "n"
-    ]
-   },
-   {
-    "f": "Nominal rates",
-    "r": "4.69%",
-    "c": [
-     "n",
      "z",
-     "z",
-     "z"
-    ]
-   },
-   {
-    "f": "Fed funds",
-    "r": "3.63%",
-    "c": [
-     "z",
-     "p",
      "z",
      "z"
     ]
    },
    {
     "f": "Credit spreads",
-    "r": "275 bp",
+    "r": "269 bp",
     "c": [
+     "p",
      "z",
+     "z",
+     "n"
+    ]
+   },
+   {
+    "f": "Rates",
+    "r": "4.74%",
+    "c": [
+     "n",
      "z",
      "z",
      "z"
     ]
    },
    {
+    "f": "Volatility",
+    "r": "15.54",
+    "c": [
+     "p",
+     "z",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "Fed funds level",
+    "r": "3.63%",
+    "c": [
+     "z",
+     "n",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "Real yield on cash",
+    "r": "1.41%",
+    "c": [
+     "z",
+     "p",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "Risk backdrop",
+    "r": "Risk On",
+    "c": [
+     "z",
+     "n",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "Real yields",
+    "r": "2.40%",
+    "c": [
+     "z",
+     "z",
+     "p",
+     "p"
+    ]
+   },
+   {
     "f": "Dollar",
-    "r": "98.84",
+    "r": "98.94",
     "c": [
      "z",
      "z",
@@ -173,7 +203,7 @@
    },
    {
     "f": "Inflation expectations",
-    "r": "2.34%",
+    "r": "2.32%",
     "c": [
      "z",
      "z",
@@ -183,120 +213,110 @@
    },
    {
     "f": "Trend",
-    "r": "BTC +19.2% vs 50d",
+    "r": "Above MA",
     "c": [
      "z",
      "z",
      "p",
      "p"
     ]
-   },
-   {
-    "f": "Volatility",
-    "r": "15.13",
-    "c": [
-     "p",
-     "z",
-     "z",
-     "z"
-    ]
    }
   ],
   "tiles": [
    {
     "lab": "10 year real yield",
-    "val": "2.35%",
-    "src": "FRED DFII10, August 20",
+    "val": "2.40%",
+    "src": "FRED DFII10, August 21",
     "lo": 0,
     "hi": 3.5,
-    "v": 2.35,
+    "v": 2.4,
     "mark": 2,
     "markLab": "2.00",
     "spark": [
-     2.41,
      2.44,
      2.41,
      2.35,
-     2.35
+     2.35,
+     2.4
     ],
-    "read": "The 10 year real yield is 2.35% which is a high hurdle for non yielding assets."
+    "read": "Real yields at 2.40% are falling, which is bullish for non yielding assets."
    },
    {
     "lab": "10 year nominal yield",
-    "val": "4.69%",
-    "src": "FRED DGS10, August 20",
+    "val": "4.74%",
+    "src": "FRED DGS10, August 21",
     "lo": 3,
     "hi": 6,
-    "v": 4.69,
+    "v": 4.74,
     "mark": 4.5,
     "markLab": "4.50",
     "spark": [
-     4.68,
      4.72,
      4.71,
      4.65,
-     4.69
+     4.69,
+     4.74
     ],
-    "read": "The 10 year nominal yield is 4.69% keeping pressure on growth stocks."
+    "read": "Nominal yields at 4.74% are elevated but stable."
    },
    {
     "lab": "10 year breakeven",
-    "val": "2.34%",
-    "src": "FRED T10YIE, August 21",
+    "val": "2.32%",
+    "src": "FRED T10YIE, August 24",
     "lo": 1.5,
     "hi": 3,
-    "v": 2.34,
+    "v": 2.32,
     "mark": 2,
     "markLab": "target",
     "spark": [
-     2.28,
      2.3,
      2.3,
      2.34,
-     2.34
+     2.34,
+     2.32
     ],
-    "read": "The 10 year breakeven is 2.34% showing rising inflation expectations."
+    "read": "Breakevens at 2.32% show steady inflation expectations."
    },
    {
     "lab": "High yield OAS",
-    "val": "275 bp",
-    "src": "FRED BAMLH0A0HYM2, August 20",
+    "val": "269 bp",
+    "src": "FRED BAMLH0A0HYM2, August 24",
     "lo": 250,
     "hi": 600,
-    "v": 275,
+    "v": 269,
     "mark": 400,
     "markLab": "400 bp",
     "spark": [
-     267,
-     270,
      275,
      273,
-     275
+     275,
+     270,
+     269
     ],
-    "read": "High yield OAS is 275 bp indicating stable credit conditions."
+    "read": "High yield spreads at 269 bp indicate moderate credit risk."
    },
    {
     "lab": "3 month T bill",
-    "val": "3.87%",
-    "src": "FRED DGS3MO, August 20",
+    "val": "3.88%",
+    "src": "FRED DGS3MO, August 21",
     "lo": 0,
     "hi": 6,
-    "v": 3.87,
+    "v": 3.88,
     "mark": 2.47,
     "markLab": "core CPI",
     "spark": [
-     3.86,
      3.87,
      3.86,
      3.86,
-     3.87
+     3.87,
+     3.88
     ],
-    "read": "The 3 month T bill is 3.87% offering a positive nominal return."
+    "read": "The 3 month T bill at 3.88% offers a positive nominal return."
    },
    {
     "lab": "Fed funds effective",
     "val": "3.63%",
-    "src": "FRED DFF, August 20",
+    "src": "FRED DFF, August 21",
     "lo": 0,
     "hi": 6,
     "v": 3.63,
@@ -309,138 +329,138 @@
      3.63,
      3.63
     ],
-    "read": "The fed funds effective rate is 3.63%."
+    "read": "Fed funds at 3.63% suggest a restrictive but easing stance."
    },
    {
     "lab": "VIX",
-    "val": "15.13",
-    "src": "Yahoo Finance, ^VIX, August 21",
+    "val": "15.54",
+    "src": "Yahoo Finance, ^VIX, August 25",
     "lo": 10,
     "hi": 40,
-    "v": 15.13,
+    "v": 15.54,
     "mark": 20,
     "markLab": "20",
     "spark": [
-     15.19,
-     15.84,
      14.89,
      16.01,
-     15.13
+     15.13,
+     15.85,
+     15.54
     ],
-    "read": "The VIX is 15.13 suggesting low expected volatility."
+    "read": "The VIX at 15.54 signals low volatility and complacency."
    },
    {
     "lab": "S&P 500",
-    "val": "7,674",
-    "src": "Yahoo Finance, ^GSPC, August 21",
+    "val": "7,672",
+    "src": "Yahoo Finance, ^GSPC, August 25",
     "lo": 6340,
     "hi": 7820,
-    "v": 7674.37,
+    "v": 7671.79,
     "mark": 7816.7,
     "markLab": "52 week high",
     "spark": [
-     7745.06,
-     7691.76,
      7707.98,
      7641.16,
-     7674.37
+     7674.37,
+     7652.86,
+     7671.79
     ],
-    "read": "The S&P 500 is at 7674 which is 1.8% below its 52 week high."
+    "read": "The S&P 500 at 7,672 is near its highs."
    },
    {
     "lab": "Bitcoin",
-    "val": "$77,351",
-    "src": "Yahoo Finance, BTC USD, August 22",
+    "val": "$79,364",
+    "src": "Yahoo Finance, BTC USD, August 25",
     "lo": 58500,
     "hi": 97000,
-    "v": 77351.02,
-    "mark": 68982.18,
+    "v": 79363.6,
+    "mark": 69129.87,
     "markLab": "200d",
     "spark": [
-     64680.71,
-     69266.19,
-     73032.76,
      78335.19,
-     77351.02
+     77083.41,
+     77755.27,
+     78964.48,
+     79363.6
     ],
-    "read": "Bitcoin is at $77351 and is 19.2% above its 50 day moving average."
+    "read": "Bitcoin at $79,364 is in a strong uptrend."
    },
    {
     "lab": "Gold",
-    "val": "$4,681",
-    "src": "Yahoo Finance, COMEX front month, August 21",
+    "val": "$4,709",
+    "src": "Yahoo Finance, COMEX front month, August 25",
     "lo": 3370,
     "hi": 5320,
-    "v": 4680.6,
-    "mark": 4498.67,
+    "v": 4709.3,
+    "mark": 4505.78,
     "markLab": "200d",
     "spark": [
-     4417.8,
-     4366,
      4489.4,
      4516.3,
-     4624.1
+     4624.1,
+     4640.8,
+     4709.3
     ],
-    "read": "Gold is at $4681 and is 4.0% above its 200 day moving average."
+    "read": "Gold at $4,709 is surging on monetary easing expectations."
    },
    {
     "lab": "Dollar index",
-    "val": "98.84",
-    "src": "Yahoo Finance, DX Y.NYB, August 21",
+    "val": "98.94",
+    "src": "Yahoo Finance, DX Y.NYB, August 25",
     "lo": 96,
     "hi": 102,
-    "v": 98.84,
-    "mark": 99.18,
+    "v": 98.94,
+    "mark": 99.17,
     "markLab": "200d",
     "spark": [
-     99.64,
-     99.65,
      98.83,
      98.9,
-     98.8
+     98.8,
+     99,
+     98.93
     ],
-    "read": "The dollar index is 98.84 which is 0.3% below its 200 day moving average."
+    "read": "The dollar at 98.94 is weak, supporting export and commodity assets."
    }
   ],
   "calcs": [
    {
     "lab": "10 year real yield, from the nominal and the breakeven",
-    "left": "4.69",
+    "left": "4.74",
     "op": "minus",
-    "right": "2.34",
-    "res": "2.35 percent",
-    "note": "Matches FRED DFII10, which prints the same yield at 2.35 percent."
+    "right": "2.32",
+    "res": "2.42 percent",
+    "note": "Cross checks against FRED DFII10 at 2.40 percent, a gap of 2 basis points from the different observation dates."
    },
    {
     "lab": "Real carry on cash, against core CPI",
-    "left": "3.87",
+    "left": "3.88",
     "op": "minus",
     "right": "2.5",
-    "res": "1.40 percent",
+    "res": "1.41 percent",
     "note": "What a 3 month T bill pays after core inflation, for taking no duration and no credit risk. Core CPI is the July print."
    },
    {
     "lab": "Real carry on cash, against headline CPI",
-    "left": "3.87",
+    "left": "3.88",
     "op": "minus",
     "right": "3.3",
-    "res": "0.57 percent",
+    "res": "0.58 percent",
     "note": "Headline includes food and energy, so this is the number a household actually feels."
    },
    {
     "lab": "Bitcoin against its 200 day average",
-    "left": "$77,351",
+    "left": "$79,364",
     "op": "against",
-    "right": "$68,982",
-    "res": "12.1 percent above",
+    "right": "$69,130",
+    "res": "14.8 percent above",
     "note": "The 200 day line is the trend filter the framework uses for crypto."
    },
    {
     "lab": "Gold against its 200 day average",
-    "left": "$4,681",
+    "left": "$4,709",
     "op": "against",
-    "right": "$4,499",
-    "res": "4.0 percent above",
+    "right": "$4,506",
+    "res": "4.5 percent above",
     "note": "Gold rejecting or reclaiming this line has capped every advance this cycle."
    }
   ],
@@ -448,35 +468,36 @@
    "title": "Five session change, by asset",
    "sub": "Percent change over the last five sessions. The zero line separates what is working from what is not.",
    "unit": "",
-   "min": -5,
-   "max": 20,
+   "min": -2,
+   "max": 10,
    "ticks": [
-    20,
-    15,
     10,
-    5,
+    8,
+    6,
+    4,
+    2,
     0,
-    -5
+    -2
    ],
-   "note": "The 10 year nominal yield sits at 4.69% over the same window.",
+   "note": "The 10 year nominal yield sits at 4.74% over the same window.",
    "itemHeader": "Asset",
    "valueHeader": "Change, percent",
    "data": [
     {
      "label": "S&P 500",
-     "value": -1.4
+     "value": -0.3
     },
     {
      "label": "Gold",
-     "value": 6.9
+     "value": 7.9
     },
     {
      "label": "Bitcoin",
-     "value": 19.9
+     "value": 8.7
     },
     {
      "label": "Dollar index",
-     "value": -0.8
+     "value": -0.7
     }
    ]
   },
@@ -606,7 +627,7 @@
    ]
   ],
   "meta": {
-   "generatedAt": "2026-08-22T16:50:54.712Z",
+   "generatedAt": "2026-08-25T16:09:49.831Z",
    "model": "zai/glm-4.7",
    "missing": [],
    "lang": "en"
@@ -614,59 +635,59 @@
  },
  "zh": {
   "title": "宏观影响看板",
-  "stamp": "截至 2026 年 8 月 22 日，星期六。",
-  "regime": "周期晚期压制",
-  "banner": "10 年期实际利率处于 **2.35%**，这对风险资产估值构成了沉重的上限。",
+  "stamp": "截至 2026 年 8 月 25 日，星期二。 金价和比特币随收益率下降及美元走强而上涨。",
+  "regime": "周期末段扩张",
+  "banner": "10 年期实际利率已降至 **2.40%**，表明金融状况宽松，提振了非生息资产。",
   "assets": [
    {
     "emoji": "📊",
     "name": "美股",
-    "verdict": "BEARISH",
-    "dir": "bear",
+    "verdict": "BULLISH",
+    "dir": "bull",
     "cap": "",
-    "one": "增长停滞，同时实际利率居高不下。",
-    "qual": "经济增长几乎为零，而折现率保持高位。",
+    "one": "增长稳健且波动率较低，尽管利率高企，但仍支撑股票估值。",
+    "qual": "收益率上升和估值过高限制了上行潜力。",
     "factors": [
      {
-      "s": "down",
+      "s": "up",
       "h": "增长",
-      "b": "工业生产同比仅增长 **1.1%**。"
-     },
-     {
-      "s": "down",
-      "h": "利率",
-      "b": "10 年期名义利率处于 **4.69%**。"
+      "b": "工业生产同比增长 **1.1%**。"
      },
      {
       "s": "up",
-      "h": "波动率（反向）",
-      "b": "VIX 较低，为 **15.13**。"
+      "h": "波动率",
+      "b": "VIX 位于 **15.54**。"
+     },
+     {
+      "s": "down",
+      "h": "利率（反向）",
+      "b": "10 年期名义利率位于 **4.74%**。"
      }
     ]
    },
    {
     "emoji": "💵",
     "name": "美元现金",
-    "verdict": "BULLISH",
-    "dir": "bull",
-    "cap": "capped",
-    "one": "即使美联储按兵不动，实际利率仍支撑现金。",
-    "qual": "收益率为正，但联邦基金利率保持稳定，因此上行空间有限。",
+    "verdict": "BEARISH",
+    "dir": "bear",
+    "cap": "",
+    "one": "实际收益率为正，但随着风险资产反弹而下降。",
+    "qual": "其他资产中激进的追逐风险交易降低了现金的吸引力。",
     "factors": [
      {
       "s": "up",
-      "h": "现金实际利率",
-      "b": "现金实际利率为 **1.40%**。"
-     },
-     {
-      "s": "up",
-      "h": "联邦基金水平",
-      "b": "联邦基金有效利率为 **3.63%**。"
+      "h": "现金实际收益率",
+      "b": "基于核心通胀的实际利差为 **1.41%**。"
      },
      {
       "s": "down",
-      "h": "联邦基金倾向（反向）",
-      "b": "联邦基金有效利率稳定在 **3.63%**。"
+      "h": "风险环境",
+      "b": "比特币在过去五个交易日上涨 **8.7%**。"
+     },
+     {
+      "s": "down",
+      "h": "联邦基金利率水平和倾向",
+      "b": "联邦基金有效利率位于 **3.63%**。"
      }
     ]
    },
@@ -676,23 +697,23 @@
     "verdict": "BULLISH",
     "dir": "bull",
     "cap": "",
-    "one": "美元疲软和通胀预期上升推动金价走高。",
-    "qual": "趋势向上，且美元提供了顺风。",
+    "one": "实际利率下降和美元走弱推动金价上涨。",
+    "qual": "价格急升几乎没有留下短期失误的空间。",
     "factors": [
      {
       "s": "up",
-      "h": "美元",
-      "b": "美元指数为 **98.84**。"
+      "h": "实际利率",
+      "b": "10 年期实际利率位于 **2.40%**。"
      },
      {
       "s": "up",
-      "h": "趋势",
-      "b": "黄金交易价格较其 200 日均线高出 **4.0%**。"
+      "h": "美元",
+      "b": "美元指数位于 **98.94**。"
      },
      {
       "s": "down",
-      "h": "实际利率（反向）",
-      "b": "10 年期实际利率为 **2.35%**。"
+      "h": "估值（反向）",
+      "b": "黄金交易价格为 **4,709**。"
      }
     ]
    },
@@ -702,23 +723,23 @@
     "verdict": "BULLISH",
     "dir": "bull",
     "cap": "",
-    "one": "比特币大幅飙升，交易价格远高于关键均线。",
-    "qual": "强劲的动量和疲软的美元正在推高该资产。",
+    "one": "随着收益率下降和美元走软，流动性状况正在缓解。",
+    "qual": "快速升值表明市场正在计入未来的大幅宽松。",
     "factors": [
      {
       "s": "up",
-      "h": "趋势",
-      "b": "比特币较其 50 日均线高出 **19.2%**。"
+      "h": "实际利率",
+      "b": "10 年期实际利率位于 **2.40%**。"
      },
      {
       "s": "up",
-      "h": "美元",
-      "b": "美元指数跌至 **98.84**。"
+      "h": "趋势",
+      "b": "比特币较其 200 日均线高出 **14.8%**。"
      },
      {
       "s": "down",
-      "h": "实际利率（反向）",
-      "b": "10 年期实际利率较高，为 **2.35%**。"
+      "h": "利差（反向）",
+      "b": "高收益 OAS 位于 **269 bp**。"
      }
     ]
    }
@@ -726,57 +747,87 @@
   "matrix": [
    {
     "f": "增长",
-    "r": "1.1% YoY",
+    "r": "1.1% 同比",
+    "c": [
+     "p",
+     "z",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "利差",
+    "r": "269 bp",
+    "c": [
+     "p",
+     "z",
+     "z",
+     "n"
+    ]
+   },
+   {
+    "f": "利率",
+    "r": "4.74%",
     "c": [
      "n",
      "z",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "波动率",
+    "r": "15.54",
+    "c": [
+     "p",
+     "z",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "联邦基金利率水平",
+    "r": "3.63%",
+    "c": [
+     "z",
+     "n",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "现金实际收益率",
+    "r": "1.41%",
+    "c": [
+     "z",
+     "p",
+     "z",
+     "z"
+    ]
+   },
+   {
+    "f": "风险环境",
+    "r": "追逐风险",
+    "c": [
+     "z",
+     "n",
      "z",
      "z"
     ]
    },
    {
     "f": "实际利率",
-    "r": "2.35%",
+    "r": "2.40%",
     "c": [
-     "n",
-     "p",
-     "n",
-     "n"
-    ]
-   },
-   {
-    "f": "名义利率",
-    "r": "4.69%",
-    "c": [
-     "n",
      "z",
-     "z",
-     "z"
-    ]
-   },
-   {
-    "f": "联邦基金利率",
-    "r": "3.63%",
-    "c": [
      "z",
      "p",
-     "z",
-     "z"
-    ]
-   },
-   {
-    "f": "信用利差",
-    "r": "275 bp",
-    "c": [
-     "z",
-     "z",
-     "z",
-     "z"
+     "p"
     ]
    },
    {
     "f": "美元",
-    "r": "98.84",
+    "r": "98.94",
     "c": [
      "z",
      "z",
@@ -786,7 +837,7 @@
    },
    {
     "f": "通胀预期",
-    "r": "2.34%",
+    "r": "2.32%",
     "c": [
      "z",
      "z",
@@ -796,120 +847,110 @@
    },
    {
     "f": "趋势",
-    "r": "BTC +19.2% vs 50d",
+    "r": "高于均线",
     "c": [
      "z",
      "z",
      "p",
      "p"
     ]
-   },
-   {
-    "f": "波动率",
-    "r": "15.13",
-    "c": [
-     "p",
-     "z",
-     "z",
-     "z"
-    ]
    }
   ],
   "tiles": [
    {
     "lab": "10 年期实际利率",
-    "val": "2.35%",
-    "src": "FRED DFII10，8 月 20 日",
+    "val": "2.40%",
+    "src": "FRED DFII10，8 月 21 日",
     "lo": 0,
     "hi": 3.5,
-    "v": 2.35,
+    "v": 2.4,
     "mark": 2,
     "markLab": "2.00",
     "spark": [
-     2.41,
      2.44,
      2.41,
      2.35,
-     2.35
+     2.35,
+     2.4
     ],
-    "read": "10 年期实际利率为 2.35%，这对非生息资产来说是一个很高的门槛。"
+    "read": "2.40% 的实际利率正在下降，这对非生息资产看多。"
    },
    {
     "lab": "10 年期名义利率",
-    "val": "4.69%",
-    "src": "FRED DGS10，8 月 20 日",
+    "val": "4.74%",
+    "src": "FRED DGS10，8 月 21 日",
     "lo": 3,
     "hi": 6,
-    "v": 4.69,
+    "v": 4.74,
     "mark": 4.5,
     "markLab": "4.50",
     "spark": [
-     4.68,
      4.72,
      4.71,
      4.65,
-     4.69
+     4.69,
+     4.74
     ],
-    "read": "10 年期名义利率为 4.69%，给成长股带来压力。"
+    "read": "4.74% 的名义利率处于高位但保持稳定。"
    },
    {
     "lab": "10 年期盈亏平衡通胀",
-    "val": "2.34%",
-    "src": "FRED T10YIE，8 月 21 日",
+    "val": "2.32%",
+    "src": "FRED T10YIE，8 月 24 日",
     "lo": 1.5,
     "hi": 3,
-    "v": 2.34,
+    "v": 2.32,
     "mark": 2,
     "markLab": "目标",
     "spark": [
-     2.28,
      2.3,
      2.3,
      2.34,
-     2.34
+     2.34,
+     2.32
     ],
-    "read": "10 年期盈亏平衡通胀率为 2.34%，显示通胀预期正在上升。"
+    "read": "2.32% 的盈亏平衡通胀显示通胀预期平稳。"
    },
    {
     "lab": "高收益债利差",
-    "val": "275 bp",
-    "src": "FRED BAMLH0A0HYM2，8 月 20 日",
+    "val": "269 bp",
+    "src": "FRED BAMLH0A0HYM2，8 月 24 日",
     "lo": 250,
     "hi": 600,
-    "v": 275,
+    "v": 269,
     "mark": 400,
     "markLab": "400 个基点",
     "spark": [
-     267,
-     270,
      275,
      273,
-     275
+     275,
+     270,
+     269
     ],
-    "read": "高收益率期权调整利差为 275 bp，表明信贷状况稳定。"
+    "read": "269 bp 的高收益利差表明信用风险适中。"
    },
    {
     "lab": "3 个月国库券",
-    "val": "3.87%",
-    "src": "FRED DGS3MO，8 月 20 日",
+    "val": "3.88%",
+    "src": "FRED DGS3MO，8 月 21 日",
     "lo": 0,
     "hi": 6,
-    "v": 3.87,
+    "v": 3.88,
     "mark": 2.47,
     "markLab": "核心 CPI",
     "spark": [
-     3.86,
      3.87,
      3.86,
      3.86,
-     3.87
+     3.87,
+     3.88
     ],
-    "read": "3 个月期国库券为 3.87%，提供正的名义回报。"
+    "read": "3 个月期国库券位于 3.88%，提供正的名义回报。"
    },
    {
     "lab": "联邦基金有效利率",
     "val": "3.63%",
-    "src": "FRED DFF，8 月 20 日",
+    "src": "FRED DFF，8 月 21 日",
     "lo": 0,
     "hi": 6,
     "v": 3.63,
@@ -922,138 +963,138 @@
      3.63,
      3.63
     ],
-    "read": "联邦基金有效利率为 3.63%。"
+    "read": "3.63% 的联邦基金利率表明立场具有限制性但正在放松。"
    },
    {
     "lab": "VIX 波动率",
-    "val": "15.13",
-    "src": "Yahoo Finance, ^VIX，8 月 21 日",
+    "val": "15.54",
+    "src": "Yahoo Finance, ^VIX，8 月 25 日",
     "lo": 10,
     "hi": 40,
-    "v": 15.13,
+    "v": 15.54,
     "mark": 20,
     "markLab": "20",
     "spark": [
-     15.19,
-     15.84,
      14.89,
      16.01,
-     15.13
+     15.13,
+     15.85,
+     15.54
     ],
-    "read": "VIX 为 15.13，表明预期波动率较低。"
+    "read": "15.54 的 VIX 指示波动率较低且市场自满。"
    },
    {
     "lab": "标普 500",
-    "val": "7,674",
-    "src": "Yahoo Finance, ^GSPC，8 月 21 日",
+    "val": "7,672",
+    "src": "Yahoo Finance, ^GSPC，8 月 25 日",
     "lo": 6340,
     "hi": 7820,
-    "v": 7674.37,
+    "v": 7671.79,
     "mark": 7816.7,
     "markLab": "52 周高点",
     "spark": [
-     7745.06,
-     7691.76,
      7707.98,
      7641.16,
-     7674.37
+     7674.37,
+     7652.86,
+     7671.79
     ],
-    "read": "标普 500 指数处于 7674 点，较其 52 周高点低 1.8%。"
+    "read": "标普 500 指数位于 7,672，接近其高点。"
    },
    {
     "lab": "比特币",
-    "val": "$77,351",
-    "src": "Yahoo Finance, BTC USD，8 月 22 日",
+    "val": "$79,364",
+    "src": "Yahoo Finance, BTC USD，8 月 25 日",
     "lo": 58500,
     "hi": 97000,
-    "v": 77351.02,
-    "mark": 68982.18,
+    "v": 79363.6,
+    "mark": 69129.87,
     "markLab": "200 日线",
     "spark": [
-     64680.71,
-     69266.19,
-     73032.76,
      78335.19,
-     77351.02
+     77083.41,
+     77755.27,
+     78964.48,
+     79363.6
     ],
-    "read": "比特币处于 $77351，较其 50 日均线高出 19.2%。"
+    "read": "比特币位于 $79,364，处于强劲的上升趋势中。"
    },
    {
     "lab": "黄金",
-    "val": "$4,681",
-    "src": "Yahoo Finance, COMEX front month，8 月 21 日",
+    "val": "$4,709",
+    "src": "Yahoo Finance, COMEX front month，8 月 25 日",
     "lo": 3370,
     "hi": 5320,
-    "v": 4680.6,
-    "mark": 4498.67,
+    "v": 4709.3,
+    "mark": 4505.78,
     "markLab": "200 日线",
     "spark": [
-     4417.8,
-     4366,
      4489.4,
      4516.3,
-     4624.1
+     4624.1,
+     4640.8,
+     4709.3
     ],
-    "read": "黄金处于 $4681，较其 200 日均线高出 4.0%。"
+    "read": "黄金位于 $4,709，受货币宽松预期推动而急升。"
    },
    {
     "lab": "美元指数",
-    "val": "98.84",
-    "src": "Yahoo Finance, DX Y.NYB，8 月 21 日",
+    "val": "98.94",
+    "src": "Yahoo Finance, DX Y.NYB，8 月 25 日",
     "lo": 96,
     "hi": 102,
-    "v": 98.84,
-    "mark": 99.18,
+    "v": 98.94,
+    "mark": 99.17,
     "markLab": "200 日线",
     "spark": [
-     99.64,
-     99.65,
      98.83,
      98.9,
-     98.8
+     98.8,
+     99,
+     98.93
     ],
-    "read": "美元指数为 98.84，较其 200 日均线低 0.3%。"
+    "read": "美元位于 98.94，走势疲软，支撑出口和大宗商品资产。"
    }
   ],
   "calcs": [
    {
     "lab": "10 年期实际利率，由名义利率与盈亏平衡通胀得出",
-    "left": "4.69",
+    "left": "4.74",
     "op": "减",
-    "right": "2.34",
-    "res": "2.35%",
-    "note": "与 FRED DFII10 一致，那边同样是 2.35%。"
+    "right": "2.32",
+    "res": "2.42%",
+    "note": "与 FRED DFII10 的 2.40% 相互印证，2 个基点的差来自观测日期不同。"
    },
    {
     "lab": "现金的实际收益，对核心 CPI",
-    "left": "3.87",
+    "left": "3.88",
     "op": "减",
     "right": "2.5",
-    "res": "1.40%",
+    "res": "1.41%",
     "note": "不承担久期和信用风险的前提下，3 个月国库券扣掉核心通胀还剩多少。核心 CPI 取的是 7 月 那期。"
    },
    {
     "lab": "现金的实际收益，对整体 CPI",
-    "left": "3.87",
+    "left": "3.88",
     "op": "减",
     "right": "3.3",
-    "res": "0.57%",
+    "res": "0.58%",
     "note": "整体 CPI 含食品和能源，所以这个数字才是一个家庭真正感受到的。"
    },
    {
     "lab": "比特币与它的 200 日均线",
-    "left": "$77,351",
+    "left": "$79,364",
     "op": "对比",
-    "right": "$68,982",
-    "res": "高出 12.1%",
+    "right": "$69,130",
+    "res": "高出 14.8%",
     "note": "200 日均线是这套框架给加密资产用的趋势过滤器。"
    },
    {
     "lab": "黄金与它的 200 日均线",
-    "left": "$4,681",
+    "left": "$4,709",
     "op": "对比",
-    "right": "$4,499",
-    "res": "高出 4.0%",
+    "right": "$4,506",
+    "res": "高出 4.5%",
     "note": "这轮周期里，黄金每一次上攻都卡在这条线上。"
    }
   ],
@@ -1061,35 +1102,36 @@
    "title": "最近五个交易日的涨跌，按资产",
    "sub": "最近五个交易日的百分比变化。零线把有效的和无效的分开。",
    "unit": "",
-   "min": -5,
-   "max": 20,
+   "min": -2,
+   "max": 10,
    "ticks": [
-    20,
-    15,
     10,
-    5,
+    8,
+    6,
+    4,
+    2,
     0,
-    -5
+    -2
    ],
-   "note": "同一段时间里，10 年期名义利率在 4.69%。",
+   "note": "同一段时间里，10 年期名义利率在 4.74%。",
    "itemHeader": "资产",
    "valueHeader": "涨跌，%",
    "data": [
     {
      "label": "标普 500",
-     "value": -1.4
+     "value": -0.3
     },
     {
      "label": "黄金",
-     "value": 6.9
+     "value": 7.9
     },
     {
      "label": "比特币",
-     "value": 19.9
+     "value": 8.7
     },
     {
      "label": "美元指数",
-     "value": -0.8
+     "value": -0.7
     }
    ]
   },
@@ -1219,7 +1261,7 @@
    ]
   ],
   "meta": {
-   "generatedAt": "2026-08-22T16:50:54.712Z",
+   "generatedAt": "2026-08-25T16:09:49.831Z",
    "model": "zai/glm-4.7",
    "missing": [],
    "lang": "zh"
