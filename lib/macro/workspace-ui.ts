@@ -211,21 +211,21 @@ export function workspaceCss(): string {
   .aw-verdict-zone .neutral .b-word, .aw-verdict-zone .neutral .b-arrow { color: var(--warning); }
   .aw-verdict-zone .b-line { min-height: 54px; }
   .aw-verdict-zone .banner { margin: 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: var(--aw-paper); }
-  .aw-scenario-zone { padding: 15px; min-height: 500px; display: flex; flex-direction: column; }
+  .aw-scenario-zone { padding: 15px; min-height: 532px; display: flex; flex-direction: column; }
   .aw-scenario-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
   .aw-scenario-head h3 { margin: 2px 0 4px; font-family: Georgia, "Noto Serif SC", serif; font-size: 21px; letter-spacing: -.025em; }
   .aw-scenario-head small { display: block; max-width: 310px; color: var(--text-muted); font-size: 12px; line-height: 1.45; }
   .aw-current-btn { flex: none; border: 1px solid var(--aw-navy); background: var(--aw-navy); color: #fff; border-radius: 999px; padding: 8px 11px; font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
   .aw-current-btn:disabled { opacity: .42; cursor: default; }
-  .aw-scenario-orbit { position: relative; width: min(100%, 490px); height: 352px; margin: 10px auto 4px; }
-  .aw-orbit-line { position: absolute; inset: 28px 70px; border: 1px dashed color-mix(in srgb, var(--axis) 58%, transparent); border-radius: 50%; pointer-events: none; }
+  .aw-scenario-orbit { position: relative; width: min(100%, 500px); height: 390px; margin: 10px auto 4px; }
+  .aw-orbit-line { position: absolute; inset: 34px 48px; border: 1px dashed color-mix(in srgb, var(--axis) 58%, transparent); border-radius: 50%; pointer-events: none; }
   .aw-scenario-circle { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; text-align: center; border-radius: 50%; font: inherit; cursor: pointer; transition: transform .42s cubic-bezier(.2,.8,.2,1), width .42s ease, height .42s ease, background .25s ease, color .25s ease, box-shadow .25s ease; }
   .aw-scenario-circle span, .aw-scenario-circle small { display: block; pointer-events: none; }
   .aw-scenario-circle span { font-weight: 700; line-height: 1.12; text-wrap: balance; }
   .aw-scenario-circle small { margin-top: 5px; font-size: 12px; line-height: 1.2; opacity: .72; }
-  .aw-scenario-circle.center { z-index: 3; width: 190px; height: 190px; transform: translate(-50%, -50%); border: 0; background: var(--aw-navy); color: #fff; box-shadow: 0 22px 48px -26px rgba(24,50,73,.88), inset 0 0 0 1px rgba(255,255,255,.16); cursor: default; }
+  .aw-scenario-circle.center { z-index: 3; width: 182px; height: 182px; transform: translate(-50%, -50%); border: 0; background: var(--aw-navy); color: #fff; box-shadow: 0 22px 48px -26px rgba(24,50,73,.88), inset 0 0 0 1px rgba(255,255,255,.16); cursor: default; }
   .aw-scenario-circle.center span { max-width: 135px; font-family: Georgia, "Noto Serif SC", serif; font-size: 24px; font-weight: 600; letter-spacing: -.03em; }
-  .aw-scenario-circle.orbit { z-index: 4; width: 104px; height: 104px; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))); border: 1px solid var(--border); background: var(--page); color: var(--text-primary); box-shadow: 0 12px 32px -28px rgba(24,50,73,.8); }
+  .aw-scenario-circle.orbit { z-index: 4; width: 92px; height: 92px; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))); border: 1px solid var(--border); background: var(--page); color: var(--text-primary); box-shadow: 0 12px 32px -28px rgba(24,50,73,.8); }
   .aw-scenario-circle.orbit:hover, .aw-scenario-circle.orbit:focus-visible { border-color: var(--aw-navy-2); background: color-mix(in srgb, var(--aw-mineral) 12%, var(--page)); transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.06); outline: none; }
   .aw-scenario-circle.orbit span { max-width: 78px; font-size: 12px; }
   .aw-scenario-circle.is-current { border-color: color-mix(in srgb, var(--aw-gold) 70%, var(--border)); }
@@ -333,7 +333,7 @@ export function workspaceCss(): string {
   :root[data-theme="dark"] .aw-tab[aria-selected="true"] { background: #e9e6df; }
   @media (max-width: 1040px) {
     .aw-overview-grid, .aw-portfolio-grid { grid-template-columns: 1fr; }
-    .aw-scenario-zone { min-height: 470px; }
+    .aw-scenario-zone { min-height: 515px; }
     .aw-signals .tiles { grid-template-columns: repeat(3,1fr); }
     .aw-portfolio-weather { min-height: 0; }
   }
@@ -350,8 +350,8 @@ export function workspaceCss(): string {
     .aw-header-meta > span { display: none; }
     .aw-content { padding: 16px 14px 20px; }
     .aw-panel-head { align-items: flex-start; flex-direction: column; }
-    .aw-scenario-zone { min-height: 450px; }
-    .aw-scenario-orbit { height: 330px; transform: scale(.9); transform-origin: center top; margin-bottom: -28px; }
+    .aw-scenario-zone { min-height: 485px; }
+    .aw-scenario-orbit { height: 390px; transform: scale(.88); transform-origin: center top; margin-bottom: -42px; }
     .aw-shock-zone .aw-controls { grid-template-columns: 1fr; }
     .aw-verdict-zone .board, .aw-analysis-content .cards { grid-template-columns: 1fr; }
     .aw-verdict-zone .bcard { border-right: 0; }
@@ -360,9 +360,9 @@ export function workspaceCss(): string {
     .aw-holdings-head, .aw-position { grid-template-columns: 72px 1fr 46px 32px; }
   }
   @media (max-width: 480px) {
-    .aw-scenario-zone { min-height: 420px; padding: 13px; }
+    .aw-scenario-zone { min-height: 455px; padding: 13px; }
     .aw-scenario-head { display: grid; grid-template-columns: 1fr auto; }
-    .aw-scenario-orbit { width: 380px; max-width: none; left: 50%; transform: translateX(-50%) scale(.78); margin-bottom: -58px; }
+    .aw-scenario-orbit { width: 430px; max-width: none; left: 50%; transform: translateX(-50%) scale(.72); margin-bottom: -84px; }
     .aw-scenario-circle.center { width: 176px; height: 176px; }
     .aw-results { grid-template-columns: repeat(2,1fr); }
     .aw-asset:nth-child(2) { border-right: 0; }
@@ -636,7 +636,7 @@ export function workspaceScript(): string {
     if (fromRect && typeof center.animate === "function") { const target = center.getBoundingClientRect(); const dx = fromRect.left + fromRect.width / 2 - (target.left + target.width / 2); const dy = fromRect.top + fromRect.height / 2 - (target.top + target.height / 2); center.animate([{ transform: "translate(calc(-50% + " + dx + "px), calc(-50% + " + dy + "px)) scale(.55)", opacity: .58 }, { transform: "translate(-50%, -50%) scale(1)", opacity: 1 }], { duration: 440, easing: "cubic-bezier(.2,.8,.2,1)" }); }
     const options = Object.keys(scenarioMeta).filter((key) => key !== "custom" && key !== activeScenario); const count = options.length;
     options.forEach((key, index) => {
-      const angle = -Math.PI / 2 + index * Math.PI * 2 / count; const button = document.createElement("button"); button.type = "button"; button.className = "aw-scenario-circle orbit" + (key === "current" ? " is-current" : ""); button.style.setProperty("--x", Math.round(Math.cos(angle) * 180) + "px"); button.style.setProperty("--y", Math.round(Math.sin(angle) * 140) + "px"); button.setAttribute("aria-label", (isZh ? "切换至 " : "Switch to ") + scenarioMeta[key].label);
+      const angle = -Math.PI / 2 + index * Math.PI * 2 / count; const button = document.createElement("button"); button.type = "button"; button.className = "aw-scenario-circle orbit" + (key === "current" ? " is-current" : ""); button.style.setProperty("--x", Math.round(Math.cos(angle) * 190) + "px"); button.style.setProperty("--y", Math.round(Math.sin(angle) * 154) + "px"); button.setAttribute("aria-label", (isZh ? "切换至 " : "Switch to ") + scenarioMeta[key].label);
       const label = document.createElement("span"); label.textContent = scenarioMeta[key].label; const sub = document.createElement("small"); sub.textContent = scenarioMeta[key].sub; button.append(label, sub); button.addEventListener("click", () => selectScenario(key, "User", button.getBoundingClientRect())); host.appendChild(button);
     });
     const currentButton = byId("aw-current"); currentButton.disabled = activeScenario === "current";

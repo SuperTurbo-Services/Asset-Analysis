@@ -4,6 +4,10 @@ User selection, recorded verbatim:
 
 > 我要a，但是点击中间就是current macro，然后四周变成圆圈，然后变成就是中间一个大圆，旁边先圆，如果点击旁边的小圆（scenario）就会挪到中间变成大圆，右上角有个按钮可以随时切换成current，然后下面一行字，提醒，ask codex to give you customzied scenario analysis
 
+Follow-up refinement, recorded verbatim:
+
+> dont make the circle around block the main circle
+
 Implementation interpretation:
 
 - Use Direction A's event compass.
