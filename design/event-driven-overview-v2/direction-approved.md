@@ -8,6 +8,10 @@ Follow-up refinement, recorded verbatim:
 
 > dont make the circle around block the main circle
 
+WebMCP naming refinement, recorded verbatim:
+
+> update the website, if user tell you a scenario, just put the short name of the scenario in the text of the centar circle
+
 Implementation interpretation:
 
 - Use Direction A's event compass.

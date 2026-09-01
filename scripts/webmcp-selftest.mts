@@ -63,6 +63,7 @@ for (const lang of ["en", "zh"] as const) {
   assert.match(html, /data-aw-tab="portfolio"/);
   assert.match(html, /id="aw-scenario-circles"/, "overview must render the circular scenario compass");
   assert.match(html, /id="aw-current"/, "scenario compass must provide an always-available return-to-current action");
+  assert.match(html, /scenario_name/, "WebMCP scenarios must support a short center-circle label");
   assert.match(html, /Ask Codex to give you a customized scenario analysis|让 Codex 为你生成自定义情景分析/);
   assert.doesNotMatch(html, /id="aw-atlas-results"/, "overview must not render the old ticker score strip");
   assert.match(html, /id="aw-verdict-slot"/, "overview must preserve the four-asset verdict board");
