@@ -20,6 +20,10 @@ Button placement correction, recorded verbatim:
 
 > 不要在底部return to current， 放在右上角
 
+Language control refinement, recorded verbatim:
+
+> OK，for the version of `127.0.0.1`, update a changing languange function in the top right and push it to the live website
+
 Implementation interpretation:
 
 - Use Direction A's event compass.

@@ -24,6 +24,7 @@ const TEXT = {
     codexScenarioHint: "Ask Codex to give you a customized scenario analysis.",
     scenarioNote: "Directional sensitivity, not a price forecast or investment advice.",
     returnCurrentScenario: "Return to current scenario",
+    language: "Language",
     soft: "Soft landing",
     flare: "Inflation flare",
     search: "Search",
@@ -105,6 +106,7 @@ const TEXT = {
     codexScenarioHint: "让 Codex 为你生成自定义情景分析。",
     scenarioNote: "仅表示方向性敏感度，不是价格预测或投资建议。",
     returnCurrentScenario: "返回当前宏观情景",
+    language: "语言",
     soft: "软着陆",
     flare: "通胀再起",
     search: "搜索",
@@ -195,6 +197,11 @@ export function workspaceCss(): string {
   .aw-eyebrow { color: var(--text-muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: .1em; margin: 0 0 2px; }
   .aw-title { margin: 0; font-family: Georgia, "Noto Serif SC", serif; font-size: 20px; letter-spacing: -.025em; }
   .aw-header-meta { display: flex; align-items: center; gap: 10px; flex: none; color: var(--text-muted); font-size: 12px; }
+  .aw-language { display: inline-flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-1); }
+  .aw-language a { min-width: 34px; padding: 6px 9px; border-radius: 999px; color: var(--text-muted); font-size: 12px; font-weight: 650; line-height: 1; text-align: center; text-decoration: none; }
+  .aw-language a:hover { color: var(--text); }
+  .aw-language a:focus-visible { outline: 2px solid var(--aw-mineral); outline-offset: 2px; }
+  .aw-language a[aria-current="page"] { color: #fff; background: var(--aw-navy); }
   .aw-content { padding: 20px 22px 24px; }
   .aw-panel[hidden] { display: none; }
   .aw-panel-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 16px; }
@@ -398,7 +405,7 @@ export function workspaceBody(lang: Lang): string {
       <main class="aw-main">
         <header class="aw-header">
           <div class="aw-header-copy"><p class="aw-eyebrow">${t.eyebrow}</p><h1 class="aw-title" id="aw-title"></h1></div>
-          <div class="aw-header-meta"><span id="aw-stamp"></span><span id="aw-theme-slot"></span></div>
+          <div class="aw-header-meta"><span id="aw-stamp"></span><nav class="aw-language" aria-label="${t.language}"><a href="/macro-dashboard" hreflang="en" lang="en"${lang === "en" ? ' aria-current="page"' : ""}>EN</a><a href="/macro-dashboard/zh" hreflang="zh-Hans" lang="zh-CN"${lang === "zh" ? ' aria-current="page"' : ""}>中文</a></nav><span id="aw-theme-slot"></span></div>
         </header>
         <div class="aw-content">
           <section class="aw-panel" id="aw-overview" data-aw-panel="overview">
