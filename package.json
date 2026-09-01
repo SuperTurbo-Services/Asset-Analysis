@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "macro:selftest": "tsx scripts/macro-selftest.mts",
+    "webmcp:selftest": "tsx scripts/webmcp-selftest.mts",
     "macro:refresh": "tsx scripts/macro-refresh.mts",
     "macro:models": "tsx scripts/macro-models.mts"
   },

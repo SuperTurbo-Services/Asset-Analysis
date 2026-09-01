@@ -1,6 +1,8 @@
 import { S, localizeTemplate, type Lang } from './i18n';
 import { readDashboard } from './store';
 import { embedPayload, templateParts } from './template';
+import { WORKSPACE_CONFIG } from './workspace';
+import { workspaceBody, workspaceCss, workspaceScript, workspaceText } from './workspace-ui';
 
 /**
  * 整份 HTML 文档，不是 React 页面。
@@ -50,7 +52,7 @@ export async function renderPage(lang: Lang): Promise<Response> {
       shell(
         lang,
         `${S.title[lang]} · SuperTurbo`,
-        css,
+        css + workspaceCss(),
         `<div class="wrap"><header class="top"><div><h1>${S.title[lang]}</h1>
          <p class="stamp">${S.waiting[lang]}</p></div></header></div>`,
       ),
@@ -63,10 +65,12 @@ export async function renderPage(lang: Lang): Promise<Response> {
     shell(
       lang,
       `${dashboard.title} · SuperTurbo`,
-      css,
-      `${body}
+      css + workspaceCss(),
+      `${body.replace('<section class="legal">', `${workspaceBody(lang)}<section class="legal">`)}
 <script id="payload" type="application/json">${embedPayload(dashboard)}</script>
-<script>${script}</script>`,
+<script id="workspace-config" type="application/json">${embedPayload(WORKSPACE_CONFIG)}</script>
+<script id="workspace-text" type="application/json">${embedPayload(workspaceText(lang))}</script>
+<script>${script}\n${workspaceScript()}</script>`,
     ),
     { headers: { 'content-type': 'text/html; charset=utf-8' } },
   );

@@ -136,6 +136,21 @@ MIT
 
 同一个仓库里的第二个工具。线上： https://superturbo.app/macro-dashboard
 
+## WebMCP 协作工作台
+
+原来的四资产每日结论保持不变，页面下方新增了一套人与 AI 共用的实时工作区：
+
+- **宏观冲击图谱**：同时比较 SPY、QQQ、TLT、现金、美元、黄金、原油和比特币对八个宏观冲击的方向性敏感度。
+- **单一资产透镜**：用 Yahoo 搜索任意代码，服务端无密钥聚合 Yahoo 价格、SEC Companyfacts（有覆盖时）与 GDELT 近期报道（不可用时回落 Yahoo 新闻）；Codex 基于返回的证据编号生成 3–8 个因子透镜。
+- **组合天气图**：最多 12 个只做多仓位，总权重必须为 100%。持仓和生成的透镜只写入浏览器 `localStorage`，不会上传，也不会执行交易。
+
+顶层页面通过 imperative `document.modelContext.registerTool` 注册 7 个站点工具：
+`get_macro_snapshot`、`apply_macro_scenario`、`reset_macro_workspace`、`search_assets`、
+`get_asset_context`、`render_asset_lens`、`set_portfolio`。没有 declarative API，也没有 iframe。
+普通浏览器仍能使用同一套可见控件；支持 WebMCP 的 Codex/ChatGPT 浏览器调用的也是同一套函数与状态。
+
+挑战赛架构、安全边界、90 秒演示脚本和测试提示词见 [`WEBMCP_CHALLENGE.md`](./WEBMCP_CHALLENGE.md)。
+
 每天自动重建一次，回答一个问题：当下的宏观环境，对美股、现金、黄金、加密这四类资产
 是看多还是看跌。来源是 `macro-dashboard` 这个 skill，把它变成了不需要人来跑的网站。
 
@@ -218,6 +233,7 @@ vercel.com/dashboard/ai-gateway/api-keys 取一把，或者新建一把。
 | 命令 | 做什么 |
 |---|---|
 | `npm run macro:selftest` | 抓真实数据跑完整条链路，中英两份都出，文案用占位符。**不需要 key，不花钱**，改完代码先跑这个 |
+| `npm run webmcp:selftest` | 不联网检查情景边界、资产透镜证据、组合校验、中英页面以及 7 个 imperative 站点工具 |
 | `npm run macro:refresh` | 真跑一次，写 `data/macro-dashboard.json`，另外写两份可以直接打开的 `.cache/macro-preview-en.html` 和 `-zh.html`。跑完记得 commit |
 | `npm run macro:models -- sonnet` | 列出 gateway 上能用的模型 |
 
