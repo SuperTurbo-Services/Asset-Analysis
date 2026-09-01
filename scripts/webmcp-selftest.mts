@@ -61,6 +61,10 @@ for (const lang of ["en", "zh"] as const) {
   assert.match(html, /data-aw-tab="overview"/);
   assert.match(html, /data-aw-tab="asset"/);
   assert.match(html, /data-aw-tab="portfolio"/);
+  assert.match(html, /id="aw-scenario-circles"/, "overview must render the circular scenario compass");
+  assert.match(html, /id="aw-current"/, "scenario compass must provide an always-available return-to-current action");
+  assert.match(html, /Ask Codex to give you a customized scenario analysis|让 Codex 为你生成自定义情景分析/);
+  assert.doesNotMatch(html, /id="aw-atlas-results"/, "overview must not render the old ticker score strip");
   assert.match(html, /id="aw-verdict-slot"/, "overview must preserve the four-asset verdict board");
   assert.match(html, /id="aw-analysis-slot"/, "asset analysis must preserve the four-asset factor view");
   assert.match(html, /id="aw-category-tabs"/);
@@ -70,4 +74,4 @@ for (const lang of ["en", "zh"] as const) {
   assert.equal((html.match(/range\.type = "range"/g) ?? []).length, 2, "portfolio and shock weights must use range controls");
 }
 
-console.log("  OK    Direction B UI, four-asset views, portfolio controls, bilingual page, and 7 imperative site tools");
+console.log("  OK    Direction A scenario compass, four-asset views, portfolio controls, bilingual page, and 7 imperative site tools");

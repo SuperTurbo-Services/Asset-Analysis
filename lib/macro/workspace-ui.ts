@@ -5,14 +5,24 @@ const TEXT = {
     eyebrow: "WEBMCP AGENT WORKSPACE",
     title: "One macro view, every asset",
     intro: "Stress eight cross-asset proxies at once, gather evidence for any ticker, or map a local-only portfolio. The visible controls and site tools share the same live workspace.",
-    atlas: "Shock Atlas",
-    atlasSub: "Move a macro variable and compare directional impact across eight asset proxies. Scores are sensitivities, not return forecasts.",
+    atlas: "Scenario Compass",
+    atlasSub: "Choose a future event, then see how the four core assets could respond.",
     lens: "Asset Lens",
     lensSub: "Search any ticker and assemble price, US issuer fundamentals, and recent coverage without an API key. Ask Codex to turn cited evidence into a factor lens.",
     portfolio: "Portfolio Weather",
     portfolioSub: "Enter up to 12 long-only positions. Holdings stay in this browser and are never sent to the server.",
     apply: "Apply scenario",
-    reset: "Reset workspace",
+    reset: "Return to current",
+    currentMacro: "Current macro",
+    currentMacroSub: "Today's observed setting",
+    customScenario: "Customized scenario",
+    customScenarioSub: "Set by you or Codex",
+    activeMacro: "ACTIVE MACRO",
+    activeScenario: "ACTIVE SCENARIO",
+    scenarioControls: "Fine-tune this scenario",
+    scenarioControlsSub: "Move any macro input to create a customized scenario.",
+    codexScenarioHint: "Ask Codex to give you a customized scenario analysis.",
+    scenarioNote: "Directional sensitivity, not a price forecast or investment advice.",
     soft: "Soft landing",
     flare: "Inflation flare",
     search: "Search",
@@ -73,14 +83,24 @@ const TEXT = {
     eyebrow: "WEBMCP AI 协作工作台",
     title: "一个宏观视角，看遍所有资产",
     intro: "同时对八类资产做宏观压力测试，为任意代码收集证据，或绘制仅保存在本地的组合天气图。页面控件与站点工具共享同一工作区。",
-    atlas: "宏观冲击图谱",
-    atlasSub: "调整宏观变量，对比八类资产的方向性影响。分数代表敏感度，不是收益预测。",
+    atlas: "情景罗盘",
+    atlasSub: "选择一个未来事件，立即查看四类核心资产可能受到的影响。",
     lens: "单一资产透镜",
     lensSub: "无需 API 密钥，搜索任意代码并聚合价格、美国公司基本面与近期报道。让 Codex 基于证据编号生成因子透镜。",
     portfolio: "组合天气图",
     portfolioSub: "最多输入 12 个只做多仓位。持仓只保存在此浏览器中，不会发送到服务器。",
     apply: "应用情景",
-    reset: "重置工作区",
+    reset: "回到当前",
+    currentMacro: "当前宏观",
+    currentMacroSub: "今天的实际环境",
+    customScenario: "自定义情景",
+    customScenarioSub: "由你或 Codex 设置",
+    activeMacro: "当前宏观环境",
+    activeScenario: "当前未来情景",
+    scenarioControls: "微调情景",
+    scenarioControlsSub: "调整任一宏观变量，即可创建自定义情景。",
+    codexScenarioHint: "让 Codex 为你生成自定义情景分析。",
+    scenarioNote: "仅表示方向性敏感度，不是价格预测或投资建议。",
     soft: "软着陆",
     flare: "通胀再起",
     search: "搜索",
@@ -175,8 +195,8 @@ export function workspaceCss(): string {
   .aw-panel-head h2 { margin: 2px 0 0; font-family: Georgia, "Noto Serif SC", serif; font-size: 28px; letter-spacing: -.035em; }
   .aw-panel-head p { color: var(--text-muted); font-size: 13px; margin: 5px 0 0; max-width: 720px; }
   .aw-local { color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 32%, transparent); border-radius: 999px; padding: 5px 9px; font-size: 12px; white-space: nowrap; }
-  .aw-overview-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(310px, .8fr); gap: 14px; align-items: start; }
-  .aw-verdict-zone, .aw-shock-zone, .aw-section-card, .aw-portfolio-catalog, .aw-holdings-card, .aw-portfolio-weather, .aw-selected-impact { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; }
+  .aw-overview-grid { display: grid; grid-template-columns: minmax(430px, .95fr) minmax(0, 1.25fr); gap: 14px; align-items: stretch; }
+  .aw-verdict-zone, .aw-scenario-zone, .aw-shock-zone, .aw-section-card, .aw-portfolio-catalog, .aw-holdings-card, .aw-portfolio-weather, .aw-selected-impact { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; }
   .aw-verdict-zone { overflow: hidden; }
   .aw-regime-line { padding: 14px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
   .aw-regime-line span { color: var(--text-muted); font-size: 12px; }
@@ -188,10 +208,33 @@ export function workspaceCss(): string {
   .aw-verdict-zone .b-emoji, .aw-analysis-content .card-emoji { display: none; }
   .aw-verdict-zone .b-top { margin-bottom: 8px; }
   .aw-verdict-zone .b-word { font-size: 20px; }
+  .aw-verdict-zone .neutral .b-word, .aw-verdict-zone .neutral .b-arrow { color: var(--warning); }
   .aw-verdict-zone .b-line { min-height: 54px; }
   .aw-verdict-zone .banner { margin: 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: var(--aw-paper); }
-  .aw-shock-zone { padding: 15px; }
-  .aw-shock-zone .aw-section-title { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .aw-scenario-zone { padding: 15px; min-height: 500px; display: flex; flex-direction: column; }
+  .aw-scenario-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+  .aw-scenario-head h3 { margin: 2px 0 4px; font-family: Georgia, "Noto Serif SC", serif; font-size: 21px; letter-spacing: -.025em; }
+  .aw-scenario-head small { display: block; max-width: 310px; color: var(--text-muted); font-size: 12px; line-height: 1.45; }
+  .aw-current-btn { flex: none; border: 1px solid var(--aw-navy); background: var(--aw-navy); color: #fff; border-radius: 999px; padding: 8px 11px; font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
+  .aw-current-btn:disabled { opacity: .42; cursor: default; }
+  .aw-scenario-orbit { position: relative; width: min(100%, 490px); height: 352px; margin: 10px auto 4px; }
+  .aw-orbit-line { position: absolute; inset: 28px 70px; border: 1px dashed color-mix(in srgb, var(--axis) 58%, transparent); border-radius: 50%; pointer-events: none; }
+  .aw-scenario-circle { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; text-align: center; border-radius: 50%; font: inherit; cursor: pointer; transition: transform .42s cubic-bezier(.2,.8,.2,1), width .42s ease, height .42s ease, background .25s ease, color .25s ease, box-shadow .25s ease; }
+  .aw-scenario-circle span, .aw-scenario-circle small { display: block; pointer-events: none; }
+  .aw-scenario-circle span { font-weight: 700; line-height: 1.12; text-wrap: balance; }
+  .aw-scenario-circle small { margin-top: 5px; font-size: 12px; line-height: 1.2; opacity: .72; }
+  .aw-scenario-circle.center { z-index: 3; width: 190px; height: 190px; transform: translate(-50%, -50%); border: 0; background: var(--aw-navy); color: #fff; box-shadow: 0 22px 48px -26px rgba(24,50,73,.88), inset 0 0 0 1px rgba(255,255,255,.16); cursor: default; }
+  .aw-scenario-circle.center span { max-width: 135px; font-family: Georgia, "Noto Serif SC", serif; font-size: 24px; font-weight: 600; letter-spacing: -.03em; }
+  .aw-scenario-circle.orbit { z-index: 4; width: 104px; height: 104px; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))); border: 1px solid var(--border); background: var(--page); color: var(--text-primary); box-shadow: 0 12px 32px -28px rgba(24,50,73,.8); }
+  .aw-scenario-circle.orbit:hover, .aw-scenario-circle.orbit:focus-visible { border-color: var(--aw-navy-2); background: color-mix(in srgb, var(--aw-mineral) 12%, var(--page)); transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.06); outline: none; }
+  .aw-scenario-circle.orbit span { max-width: 78px; font-size: 12px; }
+  .aw-scenario-circle.is-current { border-color: color-mix(in srgb, var(--aw-gold) 70%, var(--border)); }
+  .aw-codex-hint { margin: auto 0 0; padding: 11px 13px; border-radius: 9px; background: color-mix(in srgb, var(--aw-mineral) 12%, transparent); color: var(--text-secondary); font-size: 13px; text-align: center; }
+  .aw-codex-hint b { color: var(--aw-navy-2); }
+  .aw-shock-zone { margin-top: 14px; padding: 15px; }
+  .aw-shock-zone .aw-section-title { align-items: flex-start; }
+  .aw-shock-zone .aw-section-title small { display: block; margin-top: 3px; }
+  .aw-shock-zone .aw-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 22px; }
   .aw-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
   .aw-section-title h3 { margin: 0; font-size: 17px; }
   .aw-section-title small { color: var(--text-muted); font-size: 12px; }
@@ -290,6 +333,7 @@ export function workspaceCss(): string {
   :root[data-theme="dark"] .aw-tab[aria-selected="true"] { background: #e9e6df; }
   @media (max-width: 1040px) {
     .aw-overview-grid, .aw-portfolio-grid { grid-template-columns: 1fr; }
+    .aw-scenario-zone { min-height: 470px; }
     .aw-signals .tiles { grid-template-columns: repeat(3,1fr); }
     .aw-portfolio-weather { min-height: 0; }
   }
@@ -306,6 +350,9 @@ export function workspaceCss(): string {
     .aw-header-meta > span { display: none; }
     .aw-content { padding: 16px 14px 20px; }
     .aw-panel-head { align-items: flex-start; flex-direction: column; }
+    .aw-scenario-zone { min-height: 450px; }
+    .aw-scenario-orbit { height: 330px; transform: scale(.9); transform-origin: center top; margin-bottom: -28px; }
+    .aw-shock-zone .aw-controls { grid-template-columns: 1fr; }
     .aw-verdict-zone .board, .aw-analysis-content .cards { grid-template-columns: 1fr; }
     .aw-verdict-zone .bcard { border-right: 0; }
     .aw-signals .tiles { grid-template-columns: repeat(2,1fr); }
@@ -313,6 +360,10 @@ export function workspaceCss(): string {
     .aw-holdings-head, .aw-position { grid-template-columns: 72px 1fr 46px 32px; }
   }
   @media (max-width: 480px) {
+    .aw-scenario-zone { min-height: 420px; padding: 13px; }
+    .aw-scenario-head { display: grid; grid-template-columns: 1fr auto; }
+    .aw-scenario-orbit { width: 380px; max-width: none; left: 50%; transform: translateX(-50%) scale(.78); margin-bottom: -58px; }
+    .aw-scenario-circle.center { width: 176px; height: 176px; }
     .aw-results { grid-template-columns: repeat(2,1fr); }
     .aw-asset:nth-child(2) { border-right: 0; }
     .aw-control { grid-template-columns: 88px 1fr 54px; }
@@ -345,13 +396,16 @@ export function workspaceBody(lang: Lang): string {
           <section class="aw-panel" id="aw-overview" data-aw-panel="overview">
             <div class="aw-panel-head"><div><p class="aw-eyebrow">TOTAL MACRO VIEW</p><h2>${t.overview}</h2></div><span class="aw-local">4 core assets · live framework</span></div>
             <div class="aw-overview-grid">
-              <div class="aw-verdict-zone"><div class="aw-regime-line"><span>ACTIVE REGIME</span><b id="aw-regime"></b></div><div id="aw-verdict-slot"></div></div>
-              <div class="aw-shock-zone">
-                <div class="aw-section-title"><div><p class="aw-eyebrow">WHAT IF ENGINE</p><h3>${t.atlas}</h3></div><small>${t.atlasSub}</small></div>
-                <div class="aw-controls" id="aw-shocks"></div>
-                <div class="aw-actions"><button class="aw-btn" data-preset="soft" type="button">${t.soft}</button><button class="aw-btn" data-preset="flare" type="button">${t.flare}</button><button class="aw-btn" id="aw-reset" type="button">${t.reset}</button></div>
-                <div class="aw-results" id="aw-atlas-results"></div>
+              <div class="aw-scenario-zone">
+                <div class="aw-scenario-head"><div><p class="aw-eyebrow">FUTURE EVENT EXPLORER</p><h3>${t.atlas}</h3><small>${t.atlasSub}</small></div><button class="aw-current-btn" id="aw-current" type="button">${t.reset}</button></div>
+                <div class="aw-scenario-orbit" id="aw-scenario-orbit"><span class="aw-orbit-line" aria-hidden="true"></span><div id="aw-scenario-circles"></div></div>
+                <p class="aw-codex-hint"><b>Codex</b> · ${t.codexScenarioHint}</p>
               </div>
+              <div class="aw-verdict-zone"><div class="aw-regime-line"><span id="aw-regime-label">${t.activeMacro}</span><b id="aw-regime"></b></div><div id="aw-verdict-slot"></div></div>
+            </div>
+            <div class="aw-shock-zone">
+              <div class="aw-section-title"><div><p class="aw-eyebrow">SCENARIO SETTINGS</p><h3>${t.scenarioControls}</h3><small>${t.scenarioControlsSub}</small></div><span class="aw-local">8 macro inputs</span></div>
+              <div class="aw-controls" id="aw-shocks"></div>
             </div>
             <div class="aw-signals" id="aw-signals-slot"></div>
             <details class="aw-evidence"><summary>${t.current} · calculations, charts and sources</summary><div class="aw-evidence-body" id="aw-evidence-slot"></div></details>
@@ -397,8 +451,45 @@ export function workspaceScript(): string {
   const T = JSON.parse(document.getElementById("workspace-text").textContent);
   const KEY = "superturbo.macro.webmcp.v1";
   const presets = {
-    soft: { growth_pp: 0.8, inflation_bps: -35, policy_rate_bps: -50, credit_spread_bps: -25, vix_points: -5 },
-    flare: { inflation_bps: 100, policy_rate_bps: 75, real_yield_bps: 50, dollar_pct: 4, oil_pct: 20, vix_points: 8 }
+    fomc_hike: { policy_rate_bps: 50, real_yield_bps: 25, dollar_pct: 2, vix_points: 3 },
+    rates_decline: { policy_rate_bps: -75, real_yield_bps: -50, dollar_pct: -3, vix_points: -2 },
+    inflation_returns: { inflation_bps: 100, policy_rate_bps: 50, real_yield_bps: 25, oil_pct: 15, vix_points: 6 },
+    growth_shock: { growth_pp: -1.5, policy_rate_bps: -50, credit_spread_bps: 150, dollar_pct: 3, vix_points: 12 }
+  };
+  const isZh = document.documentElement.lang.startsWith("zh");
+  const scenarioMeta = {
+    current: { label: T.currentMacro, sub: T.currentMacroSub },
+    fomc_hike: { label: isZh ? "下次 FOMC 加息" : "Next FOMC hike", sub: isZh ? "政策再次收紧" : "Policy tightens again" },
+    rates_decline: { label: isZh ? "利率下降" : "Interest rates decline", sub: isZh ? "折现率走低" : "Lower discount rates" },
+    inflation_returns: { label: isZh ? "通胀回归" : "Inflation returns", sub: isZh ? "价格压力再起" : "Price pressure rebuilds" },
+    growth_shock: { label: isZh ? "增长冲击" : "Growth shock", sub: isZh ? "经济快速降温" : "The economy cools fast" },
+    custom: { label: T.customScenario, sub: T.customScenarioSub }
+  };
+  const scenarioCopy = {
+    fomc_hike: {
+      "SPY": isZh ? "融资成本与估值压力上升，通常不利于股票。" : "Higher financing costs and valuation pressure usually weigh on stocks.",
+      "CASH": isZh ? "短期利率上升，现金收益率通常改善。" : "Higher short rates can improve the income available on cash.",
+      "XAU": isZh ? "实际利率上升通常压制黄金需求。" : "Higher real yields usually create a headwind for gold.",
+      "BTC-USD": isZh ? "流动性收紧与美元走强通常压制加密资产。" : "Tighter liquidity and a firmer dollar usually weigh on crypto."
+    },
+    rates_decline: {
+      "SPY": isZh ? "较低折现率通常支持股票估值。" : "Lower discount rates usually support equity valuations.",
+      "CASH": isZh ? "短期利率下降，现金收益率通常回落。" : "Cash income usually falls as short-term rates decline.",
+      "XAU": isZh ? "实际利率与美元走低通常利好黄金。" : "Lower real yields and a softer dollar usually help gold.",
+      "BTC-USD": isZh ? "流动性条件放松通常支持加密资产。" : "Easier liquidity conditions usually support crypto."
+    },
+    inflation_returns: {
+      "SPY": isZh ? "成本与政策收紧风险上升，通常压制股票。" : "Rising costs and renewed tightening risk usually weigh on stocks.",
+      "CASH": isZh ? "更高政策利率预期通常支持现金收益。" : "Expectations for higher policy rates can support cash income.",
+      "XAU": isZh ? "通胀对冲需求上升，但实际利率会部分抵消。" : "Inflation hedging demand helps, partly offset by higher real yields.",
+      "BTC-USD": isZh ? "更紧政策与波动率上升通常不利于加密资产。" : "Tighter policy and higher volatility usually weigh on crypto."
+    },
+    growth_shock: {
+      "SPY": isZh ? "盈利预期下降、信用利差走阔，通常压制股票。" : "Weaker earnings expectations and wider spreads usually hurt stocks.",
+      "CASH": isZh ? "避险需求上升，但降息会削弱现金收益率。" : "Safety demand rises, although rate cuts can reduce cash income.",
+      "XAU": isZh ? "避险需求与实际利率下降通常支持黄金。" : "Safe-haven demand and lower real yields usually support gold.",
+      "BTC-USD": isZh ? "风险偏好与流动性恶化，通常压制加密资产。" : "Weaker risk appetite and liquidity usually weigh on crypto."
+    }
   };
   const categoryCatalog = {
     Stocks: [{ symbol: "SPY", name: "US market" }, { symbol: "QQQ", name: "Growth" }, { symbol: "AAPL", name: "Apple" }, { symbol: "MSFT", name: "Microsoft" }],
@@ -418,6 +509,9 @@ export function workspaceScript(): string {
   if (!Array.isArray(state.portfolio) || !state.portfolio.length || state.portfolio.length > 12) state.portfolio = [{ symbol: "SPY", weight_pct: 40 }, { symbol: "TLT", weight_pct: 30 }, { symbol: "XAU", weight_pct: 15 }, { symbol: "BTC-USD", weight_pct: 15 }];
   let selectedCategory = "Stocks";
   let selectedPortfolioSymbol = state.portfolio[0].symbol;
+  let activeScenario = Object.keys(state.shocks).length ? "custom" : "current";
+  let currentBoardHtml = "";
+  let currentBannerHtml = "";
   const byId = (id) => document.getElementById(id);
   const activity = (message) => { byId("aw-activity").textContent = message; };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {} };
@@ -432,6 +526,7 @@ export function workspaceScript(): string {
     byId("aw-stamp").textContent = D.stamp;
     byId("aw-regime").textContent = D.regime;
     const theme = byId("themebtn"); if (theme) byId("aw-theme-slot").appendChild(theme);
+    currentBoardHtml = byId("board").innerHTML; currentBannerHtml = byId("banner").innerHTML;
     const verdictSlot = byId("aw-verdict-slot"); verdictSlot.append(byId("board"), byId("banner"));
     const signals = byId("aw-signals-slot"); signals.append(makeHeading(T.signalsTitle, T.signalsSub), byId("tiles"));
     const analysis = byId("aw-analysis-slot");
@@ -501,39 +596,73 @@ export function workspaceScript(): string {
       const paint = () => { const value = Number(range.value); output.innerHTML = (value > 0 ? "+" : "") + value + "<small>" + def.unit + "</small>"; };
       range.addEventListener("input", () => {
         const next = Object.assign({}, state.shocks, { [def.id]: Number(range.value) });
-        try { state.shocks = validateShocks(next); save(); paint(); renderAtlas(); } catch (error) { activity(error.message); }
+        try { activeScenario = "custom"; state.shocks = validateShocks(next); save(); paint(); renderScenarioCircles(); renderAtlas(); } catch (error) { activity(error.message); }
       });
       paint(); box.append(label, range, output); host.appendChild(box);
     });
   };
-  const renderAtlas = () => {
-    const host = byId("aw-atlas-results"); host.replaceChildren();
-    const overviewSymbols = new Set(["SPY", "CASH", "XAU", "BTC-USD"]);
-    scenarioResults().filter((result) => overviewSymbols.has(result.symbol)).forEach((result) => {
-      const asset = C.assets.find((item) => item.symbol === result.symbol);
-      const card = document.createElement("div"); card.className = "aw-asset";
-      const top = document.createElement("div"); top.className = "aw-asset-top";
-      const symbol = document.createElement("span"); symbol.className = "aw-symbol"; symbol.textContent = asset.symbol;
-      const value = document.createElement("span"); value.className = "aw-score " + (result.score > 0 ? "pos" : result.score < 0 ? "neg" : ""); value.textContent = (result.score > 0 ? "+" : "") + result.score;
-      const name = document.createElement("div"); name.className = "aw-asset-name"; name.textContent = document.documentElement.lang.startsWith("zh") ? asset.nameZh : asset.name;
-      top.append(symbol, value); card.append(top, name); host.appendChild(card);
+  const overviewSymbols = ["SPY", "CASH", "XAU", "BTC-USD"];
+  const verdictFor = (scoreValue) => scoreValue > 0 ? { dir: "bull", arrow: "▲", word: isZh ? "偏多" : "BULLISH" } : scoreValue < 0 ? { dir: "bear", arrow: "▼", word: isZh ? "偏空" : "BEARISH" } : { dir: "neutral", arrow: "◆", word: isZh ? "中性" : "MIXED" };
+  const customExplanation = (result) => {
+    const strongest = [...result.contributions].sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))[0];
+    if (!strongest) return isZh ? "当前输入没有形成明确的方向性影响。" : "The current inputs do not create a clear directional impact.";
+    const def = shockDefinition(strongest.factor);
+    const factor = isZh ? def.labelZh : def.label;
+    if (result.score > 0) return isZh ? factor + " 是当前主要顺风。" : factor + " is the main tailwind in this custom scenario.";
+    if (result.score < 0) return isZh ? factor + " 是当前主要逆风。" : factor + " is the main headwind in this custom scenario.";
+    return isZh ? "顺风与逆风大致抵消。" : "Tailwinds and headwinds broadly offset each other.";
+  };
+  const renderScenarioVerdicts = () => {
+    const board = byId("board"); const banner = byId("banner");
+    byId("aw-regime-label").textContent = activeScenario === "current" ? T.activeMacro : T.activeScenario;
+    byId("aw-regime").textContent = activeScenario === "current" ? D.regime : scenarioMeta[activeScenario].label;
+    if (activeScenario === "current") { board.innerHTML = currentBoardHtml; banner.innerHTML = currentBannerHtml; return; }
+    board.replaceChildren();
+    scenarioResults().filter((result) => overviewSymbols.includes(result.symbol)).forEach((result, index) => {
+      const asset = C.assets.find((item) => item.symbol === result.symbol); const verdict = verdictFor(result.score);
+      const card = document.createElement("div"); card.className = "bcard " + verdict.dir;
+      const top = document.createElement("div"); top.className = "b-top"; const name = document.createElement("span"); name.className = "b-name"; name.textContent = isZh ? asset.nameZh : asset.name; top.appendChild(name);
+      const verdictRow = document.createElement("div"); verdictRow.className = "b-verdict"; const arrow = document.createElement("span"); arrow.className = "b-arrow"; arrow.setAttribute("aria-hidden", "true"); arrow.textContent = verdict.arrow; const word = document.createElement("span"); word.className = "b-word"; word.textContent = verdict.word; verdictRow.append(arrow, word);
+      const meta = document.createElement("div"); meta.className = "b-meta"; const qualifier = document.createElement("span"); qualifier.className = "b-qual"; qualifier.textContent = isZh ? "情景敏感度" : "scenario sensitivity"; meta.appendChild(qualifier);
+      const line = document.createElement("div"); line.className = "b-line"; line.textContent = scenarioCopy[activeScenario]?.[result.symbol] || customExplanation(result);
+      card.append(top, verdictRow, meta, line); board.appendChild(card);
     });
+    banner.textContent = scenarioMeta[activeScenario].label + " · " + T.scenarioNote;
+  };
+  const renderScenarioCircles = (fromRect) => {
+    const host = byId("aw-scenario-circles"); host.replaceChildren();
+    const center = document.createElement("button"); center.type = "button"; center.className = "aw-scenario-circle center"; center.disabled = true; center.setAttribute("aria-current", "true");
+    const centerLabel = document.createElement("span"); centerLabel.textContent = scenarioMeta[activeScenario].label; const centerSub = document.createElement("small"); centerSub.textContent = scenarioMeta[activeScenario].sub; center.append(centerLabel, centerSub); host.appendChild(center);
+    if (fromRect && typeof center.animate === "function") { const target = center.getBoundingClientRect(); const dx = fromRect.left + fromRect.width / 2 - (target.left + target.width / 2); const dy = fromRect.top + fromRect.height / 2 - (target.top + target.height / 2); center.animate([{ transform: "translate(calc(-50% + " + dx + "px), calc(-50% + " + dy + "px)) scale(.55)", opacity: .58 }, { transform: "translate(-50%, -50%) scale(1)", opacity: 1 }], { duration: 440, easing: "cubic-bezier(.2,.8,.2,1)" }); }
+    const options = Object.keys(scenarioMeta).filter((key) => key !== "custom" && key !== activeScenario); const count = options.length;
+    options.forEach((key, index) => {
+      const angle = -Math.PI / 2 + index * Math.PI * 2 / count; const button = document.createElement("button"); button.type = "button"; button.className = "aw-scenario-circle orbit" + (key === "current" ? " is-current" : ""); button.style.setProperty("--x", Math.round(Math.cos(angle) * 180) + "px"); button.style.setProperty("--y", Math.round(Math.sin(angle) * 140) + "px"); button.setAttribute("aria-label", (isZh ? "切换至 " : "Switch to ") + scenarioMeta[key].label);
+      const label = document.createElement("span"); label.textContent = scenarioMeta[key].label; const sub = document.createElement("small"); sub.textContent = scenarioMeta[key].sub; button.append(label, sub); button.addEventListener("click", () => selectScenario(key, "User", button.getBoundingClientRect())); host.appendChild(button);
+    });
+    const currentButton = byId("aw-current"); currentButton.disabled = activeScenario === "current";
+  };
+  const renderAtlas = () => {
+    renderScenarioVerdicts();
     renderPortfolioSummary();
   };
+  const selectScenario = (key, source, fromRect) => {
+    if (!scenarioMeta[key] || key === "custom") return;
+    activeScenario = key; state.shocks = key === "current" ? {} : validateShocks(presets[key]); save(); renderShockInputs(); renderScenarioCircles(fromRect); renderAtlas();
+    activity((source || "User") + " selected " + scenarioMeta[key].label + "."); showWorkspace("overview");
+  };
   const applyScenario = (input, source) => {
-    state.shocks = validateShocks(input || {}); save(); renderShockInputs(); renderAtlas();
+    state.shocks = validateShocks(input || {}); activeScenario = Object.keys(state.shocks).length ? "custom" : "current"; save(); renderShockInputs(); renderScenarioCircles(); renderAtlas();
     activity((source || "User") + " applied a macro scenario with " + Object.keys(state.shocks).length + " active shocks.");
     showWorkspace("overview");
     return { applied: true, shocks: state.shocks, atlas: scenarioResults(), note: "Directional sensitivity scores, not forecasts or investment advice." };
   };
-  document.querySelectorAll("[data-preset]").forEach((button) => button.addEventListener("click", () => applyScenario(presets[button.dataset.preset], "User preset")));
+  byId("aw-current").addEventListener("click", () => selectScenario("current", "User"));
   const resetWorkspace = (source) => {
     state.shocks = {}; state.contexts = {}; state.lenses = {}; state.portfolio = [{ symbol: "SPY", weight_pct: 40 }, { symbol: "TLT", weight_pct: 30 }, { symbol: "XAU", weight_pct: 15 }, { symbol: "BTC-USD", weight_pct: 15 }];
-    selectedPortfolioSymbol = state.portfolio[0].symbol;
-    save(); renderShockInputs(); renderAtlas(); renderPortfolioRows(); renderCatalog(); byId("aw-context").replaceChildren(); byId("aw-rendered-lens").replaceChildren();
+    activeScenario = "current"; selectedPortfolioSymbol = state.portfolio[0].symbol;
+    save(); renderShockInputs(); renderScenarioCircles(); renderAtlas(); renderPortfolioRows(); renderCatalog(); byId("aw-context").replaceChildren(); byId("aw-rendered-lens").replaceChildren();
     activity((source || "User") + " reset the workspace."); return { reset: true };
   };
-  byId("aw-reset").addEventListener("click", () => resetWorkspace("User"));
 
   const requestJson = async (url) => {
     const response = await fetch(url, { headers: { accept: "application/json" } });
@@ -757,7 +886,7 @@ export function workspaceScript(): string {
   const actions = { snapshot, applyScenario, resetWorkspace, searchAssets, getAssetContext, renderLens, setPortfolio };
   globalThis.__macroWorkspace = actions;
   try { state.portfolio = validatePortfolio(state.portfolio); } catch (_) { state.portfolio = [{ symbol: "SPY", weight_pct: 40 }, { symbol: "TLT", weight_pct: 30 }, { symbol: "XAU", weight_pct: 15 }, { symbol: "BTC-USD", weight_pct: 15 }]; }
-  hydrateLayout(); renderShockInputs(); renderAtlas(); renderPortfolioRows(); renderCatalog();
+  hydrateLayout(); renderShockInputs(); renderScenarioCircles(); renderAtlas(); renderPortfolioRows(); renderCatalog();
 
   const schema = {
     shocks: { type: "object", properties: Object.fromEntries(C.shocks.map((def) => [def.id, { type: "number", minimum: def.min, maximum: def.max, description: def.label + " shock in " + def.unit }])), additionalProperties: false },

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SuperTurbo Event Driven Overview — Three Directions</title>
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
+  <style>
+    :root { --paper:#f5f3ee; --surface:#fff; --navy:#183249; --ink:#191713; --muted:#716d66; --rule:#ddd9d1; --good:#177a50; --bad:#c13f48; --warn:#a06c13; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:#d8d5ce; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    .canvas { width:1440px; margin:0 auto; padding:44px 52px 72px; }
+    .canvas-intro { display:grid; grid-template-columns:1fr 460px; align-items:end; gap:48px; margin-bottom:36px; }
+    .canvas-kicker { margin:0 0 8px; font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.16em; color:var(--navy); }
+    .canvas h1 { margin:0; font:600 46px/1.03 Georgia,"Times New Roman",serif; letter-spacing:-.045em; }
+    .canvas-intro p { margin:0; color:#57534d; font-size:15px; line-height:1.65; }
+    .draft { margin:0 0 56px; }
+    .draft-label { display:grid; grid-template-columns:100px 1fr 440px; gap:18px; align-items:end; margin:0 0 14px; }
+    .draft-letter { width:72px; height:72px; display:grid; place-items:center; border:1px solid #aca79e; border-radius:50%; font:600 30px Georgia,serif; }
+    .draft-label h2 { margin:0 0 4px; font:600 28px Georgia,serif; letter-spacing:-.025em; }
+    .draft-label p { margin:0; color:#5c5851; font-size:14px; line-height:1.5; }
+    .draft-tag { justify-self:end; border:1px solid #aaa59b; padding:8px 12px; border-radius:999px; font:650 12px ui-monospace,monospace; letter-spacing:.06em; }
+    .app { min-height:790px; background:var(--paper); }
+    .shell { display:grid; grid-template-columns:100px 1fr; min-height:790px; }
+    .side { background:var(--navy); color:white; padding:18px 10px; display:flex; flex-direction:column; align-items:center; }
+    .st { width:38px; height:38px; background:#f7f5ef; color:var(--navy); border-radius:50%; display:grid; place-items:center; font-weight:750; font-size:12px; }
+    .side-nav { width:100%; margin-top:56px; display:grid; gap:8px; }
+    .side-nav span { min-height:74px; display:grid; place-items:center; border-radius:10px; text-align:center; color:#ccd5dc; font-size:12px; line-height:1.25; padding:8px 4px; }
+    .side-nav .on { background:#f7f5ef; color:var(--navy); }
+    .online { margin-top:auto; color:#c8d2d8; text-align:center; font-size:12px; }
+    .online i { display:block; width:8px; height:8px; background:#58b384; border-radius:50%; margin:0 auto 8px; box-shadow:0 0 0 4px rgba(88,179,132,.13); }
+    .main { min-width:0; }
+    .top { height:64px; padding:11px 22px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--rule); background:rgba(255,255,255,.62); }
+    .top small { display:block; color:var(--muted); font:650 12px ui-monospace,monospace; letter-spacing:.12em; }
+    .top b { display:block; margin-top:2px; font:600 20px Georgia,serif; }
+    .top-meta { color:var(--muted); font-size:12px; }
+    .content { padding:20px 22px 24px; }
+    .title-row { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:15px; }
+    .title-row small { display:block; color:var(--muted); font:650 12px ui-monospace,monospace; letter-spacing:.12em; }
+    .title-row h3 { margin:2px 0 0; font:600 29px Georgia,serif; letter-spacing:-.035em; }
+    .live-pill { color:var(--good); border:1px solid #9dd0b9; border-radius:999px; padding:5px 10px; font-size:12px; }
+    .section-eyebrow { color:var(--muted); font:650 12px ui-monospace,monospace; letter-spacing:.1em; }
+    .event-name { font:600 22px Georgia,serif; }
+    .scenario-note { color:var(--muted); font-size:13px; }
+    .asset-grid { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--rule); border-radius:12px; overflow:hidden; background:white; }
+    .asset { min-height:166px; padding:16px; border-right:1px solid var(--rule); position:relative; }
+    .asset:last-child { border-right:0; }
+    .asset-name { color:var(--muted); font-weight:650; font-size:13px; }
+    .asset-verdict { margin:13px 0 10px; font-size:22px; font-weight:730; }
+    .asset-verdict.good { color:var(--good); } .asset-verdict.bad { color:var(--bad); } .asset-verdict.neutral { color:var(--warn); }
+    .asset-copy { color:#595650; font-size:13px; line-height:1.45; }
+    .asset-strength { position:absolute; left:16px; bottom:14px; color:var(--muted); font:650 11px ui-monospace,monospace; letter-spacing:.06em; }
+    .controls { background:white; border:1px solid var(--rule); border-radius:12px; padding:14px; }
+    .control-head { display:flex; justify-content:space-between; align-items:start; margin-bottom:11px; }
+    .control-head h4 { margin:2px 0 0; font-size:17px; }
+    .reset { border:1px solid var(--rule); background:white; color:var(--navy); border-radius:8px; padding:7px 10px; font-size:12px; }
+    .slider-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px 16px; }
+    .slider-row { display:grid; grid-template-columns:88px 1fr 62px; align-items:center; gap:8px; }
+    .slider-row label { color:#56534d; font-size:12px; }
+    .slider-row input { width:100%; accent-color:var(--navy); }
+    .slider-row output { text-align:right; font:650 12px ui-monospace,monospace; }
+    .disclaimer { margin-top:10px; color:var(--muted); font-size:11px; }
+    .choice { border:1px solid var(--rule); background:white; color:var(--ink); }
+    .choice.active { color:white; background:var(--navy); border-color:var(--navy); }
+
+    /* A — geometric event compass */
+    .a-layout { display:grid; grid-template-columns:360px 1fr; gap:14px; }
+    .compass-card { min-height:420px; background:#fff; border:1px solid var(--rule); border-radius:12px; padding:15px; }
+    .compass { width:320px; height:320px; margin:11px auto 0; position:relative; border:1px solid #c9c4bb; border-radius:50%; background:radial-gradient(circle at center,#f1efe9 0 36%,transparent 36.5%),conic-gradient(from 18deg,rgba(24,50,73,.06),transparent 15%,rgba(24,50,73,.06) 30%,transparent 45%,rgba(24,50,73,.06) 60%,transparent 75%,rgba(24,50,73,.06) 90%); }
+    .compass:before,.compass:after { content:""; position:absolute; background:#d8d3ca; }
+    .compass:before { width:1px; height:100%; left:50%; top:0; } .compass:after { height:1px; width:100%; top:50%; left:0; }
+    .compass-center { position:absolute; inset:101px; border-radius:50%; background:var(--navy); color:#fff; display:grid; place-items:center; text-align:center; padding:16px; font:600 17px/1.25 Georgia,serif; z-index:2; }
+    .orbit { position:absolute; width:106px; min-height:48px; border-radius:999px; padding:7px 9px; font-size:11px; line-height:1.15; z-index:3; }
+    .o0 { left:107px; top:-7px; } .o1 { right:-15px; top:84px; } .o2 { right:10px; bottom:36px; } .o3 { left:34px; bottom:23px; } .o4 { left:-20px; top:91px; }
+    .a-results { display:grid; gap:14px; }
+    .a-results .asset-grid { grid-template-columns:repeat(2,1fr); }
+    .a-results .asset { min-height:192px; border-bottom:1px solid var(--rule); }
+    .a-results .asset:nth-child(2n) { border-right:0; }
+    .a-results .asset:nth-last-child(-n+2) { border-bottom:0; }
+    .a-controls { grid-column:1 / -1; margin-top:14px; }
+
+    /* B — total view event rail */
+    .event-rail { display:grid; grid-template-columns:repeat(5,1fr); border:1px solid var(--rule); border-radius:10px; overflow:hidden; margin-bottom:13px; background:white; }
+    .event-tab { min-height:72px; padding:10px 12px; border:0; border-right:1px solid var(--rule); background:white; text-align:left; }
+    .event-tab:last-child { border-right:0; }
+    .event-tab b,.event-tab small { display:block; }
+    .event-tab b { font-size:13px; } .event-tab small { color:var(--muted); font-size:11px; margin-top:4px; line-height:1.25; }
+    .event-tab.active { background:var(--navy); color:white; }
+    .event-tab.active small { color:#c8d4dc; }
+    .b-regime { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:13px 15px; background:#fff; border:1px solid var(--rule); border-bottom:0; border-radius:12px 12px 0 0; }
+    .b-regime div { display:flex; align-items:center; gap:12px; }
+    .b-grid { border-radius:0 0 12px 12px; }
+    .b-controls { margin-top:13px; }
+    .codex-prompt { margin-top:10px; padding:10px 13px; border:1px dashed #aab4bc; border-radius:9px; color:#4d5961; font-size:12px; background:#f6f8f8; }
+
+    /* C — question first */
+    .c-question { display:flex; align-items:center; justify-content:space-between; gap:20px; background:var(--navy); color:white; padding:18px 20px; border-radius:12px 12px 0 0; }
+    .c-question h4 { margin:2px 0 0; font:600 25px Georgia,serif; }
+    .c-question span { color:#c9d4dc; font-size:12px; }
+    .scenario-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; padding:12px; border:1px solid var(--rule); border-top:0; background:#eeeae3; }
+    .scenario-card { min-height:104px; border-radius:9px; padding:12px; text-align:left; }
+    .scenario-card b,.scenario-card small { display:block; }
+    .scenario-card b { font-size:14px; } .scenario-card small { margin-top:6px; font-size:12px; line-height:1.35; color:var(--muted); }
+    .scenario-card.active small { color:#c9d4dc; }
+    .c-selected { display:grid; grid-template-columns:1fr 380px; gap:12px; margin-top:12px; }
+    .c-outcome { background:#fff; border:1px solid var(--rule); border-radius:12px; padding:14px; }
+    .c-outcome-head { display:flex; justify-content:space-between; align-items:end; margin-bottom:10px; }
+    .c-outcome-head h4 { margin:2px 0 0; font:600 20px Georgia,serif; }
+    .c-outcome .asset-grid { grid-template-columns:repeat(2,1fr); }
+    .c-outcome .asset { min-height:154px; border-bottom:1px solid var(--rule); }
+    .c-outcome .asset:nth-child(2n) { border-right:0; }
+    .c-outcome .asset:nth-last-child(-n+2) { border-bottom:0; }
+    .c-controls .slider-grid { grid-template-columns:1fr; }
+    .current-link { border:0; background:transparent; color:#d4e1e9; text-decoration:underline; text-underline-offset:3px; font-size:12px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const browserWindowStyles = {
+      window:{display:'inline-block',background:'#fff',borderRadius:10,overflow:'hidden',boxShadow:'0 30px 80px rgba(0,0,0,.25),0 0 0 .5px rgba(0,0,0,.15)'},
+      chrome:{background:'#dee1e6',paddingTop:10,paddingLeft:10,paddingRight:10,userSelect:'none'},
+      tabRow:{display:'flex',alignItems:'flex-end',gap:6,position:'relative'},
+      trafficLights:{display:'flex',gap:8,alignItems:'center',paddingBottom:10,marginRight:8},
+      light:{width:12,height:12,borderRadius:'50%',border:'.5px solid rgba(0,0,0,.15)'}, close:{background:'#ff5f57'},minimize:{background:'#febc2e'},maximize:{background:'#28c840'},
+      tab:{background:'#fff',padding:'8px 30px 8px 14px',borderTopLeftRadius:10,borderTopRightRadius:10,fontSize:12,color:'#222',fontFamily:'-apple-system,sans-serif',maxWidth:220,display:'flex',alignItems:'center',gap:8,position:'relative',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'},
+      favicon:{width:14,height:14,borderRadius:2,background:'#183249',flexShrink:0},
+      navBar:{background:'#fff',padding:'8px 14px',display:'flex',alignItems:'center',gap:10,borderBottom:'1px solid #e5e7eb'}, navButtons:{display:'flex',gap:4,color:'#5f6368',fontSize:16}, navButton:{width:28,height:28,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'50%',cursor:'pointer'},
+      urlBar:{flex:1,background:'#f1f3f4',borderRadius:999,padding:'7px 14px',fontSize:13,color:'#333',display:'flex',alignItems:'center',gap:8,fontFamily:'-apple-system,sans-serif'},lockIcon:{color:'#5f6368',fontSize:12},content:{position:'relative',overflow:'auto',background:'#fff'}
+    };
+    function BrowserWindow({title='New Tab',url='https://example.com',width=1280,height=790,children}) {
+      return <div style={browserWindowStyles.window}><div style={browserWindowStyles.chrome}><div style={browserWindowStyles.tabRow}><div style={browserWindowStyles.trafficLights}><div style={{...browserWindowStyles.light,...browserWindowStyles.close}}/><div style={{...browserWindowStyles.light,...browserWindowStyles.minimize}}/><div style={{...browserWindowStyles.light,...browserWindowStyles.maximize}}/></div><div style={browserWindowStyles.tab}><div style={browserWindowStyles.favicon}/><span>{title}</span></div></div></div><div style={browserWindowStyles.navBar}><div style={browserWindowStyles.navButtons}><div style={browserWindowStyles.navButton}>←</div><div style={browserWindowStyles.navButton}>→</div><div style={browserWindowStyles.navButton}>↻</div></div><div style={browserWindowStyles.urlBar}><span style={browserWindowStyles.lockIcon}>●</span><span>{url}</span></div></div><div style={{...browserWindowStyles.content,width,height}}>{children}</div></div>;
+    }
+
+    const shockDefs = [
+      {id:'growth',label:'Growth',unit:'pp',min:-3,max:3,step:.5,large:1.5},
+      {id:'inflation',label:'Inflation',unit:'bps',min:-200,max:200,step:25,large:75},
+      {id:'policy',label:'Policy rate',unit:'bps',min:-200,max:200,step:25,large:75},
+      {id:'real',label:'Real yield',unit:'bps',min:-200,max:200,step:20,large:60},
+      {id:'credit',label:'Credit spreads',unit:'bps',min:-300,max:500,step:25,large:150},
+      {id:'dollar',label:'US dollar',unit:'%',min:-10,max:10,step:1,large:5},
+      {id:'oil',label:'Crude oil',unit:'%',min:-30,max:50,step:5,large:20},
+      {id:'vix',label:'VIX',unit:'pts',min:-15,max:40,step:1,large:10}
+    ];
+    const scenarios = {
+      current:{name:'Current setting',short:'Current macro',sub:'No added future shock',shocks:{}},
+      hike:{name:'Next FOMC hike',short:'FOMC hike',sub:'Policy stays tighter',shocks:{policy:25,real:20,dollar:2,vix:5}},
+      decline:{name:'Interest rates decline',short:'Rates decline',sub:'Easier financial conditions',shocks:{policy:-50,real:-40,dollar:-2,credit:-25,vix:-4}},
+      inflation:{name:'Inflation returns',short:'Inflation returns',sub:'Prices force a hawkish response',shocks:{inflation:100,policy:50,real:20,oil:20,vix:8}},
+      growth:{name:'Growth shock',short:'Growth shock',sub:'Demand weakens, stress rises',shocks:{growth:-1.5,credit:150,vix:15,policy:-25}}
+    };
+    const assets = [
+      {key:'stocks',name:'US Stocks',base:-2,s:{growth:2,inflation:-1,policy:-1,real:-1,credit:-2,dollar:-1,oil:-1,vix:-2}},
+      {key:'cash',name:'US Cash',base:1,s:{growth:-1,inflation:-1,policy:2,real:1,credit:1,dollar:1,oil:0,vix:1}},
+      {key:'gold',name:'Gold',base:-2,s:{growth:-1,inflation:2,policy:-1,real:-2,credit:1,dollar:-2,oil:1,vix:1}},
+      {key:'crypto',name:'Crypto',base:-1,s:{growth:1,inflation:0,policy:-2,real:-2,credit:-2,dollar:-2,oil:0,vix:-2}}
+    ];
+    const copies = {
+      stocks:{good:'Lower discount rates and easier conditions support equities.',bad:'Tighter conditions and weaker demand pressure equities.',neutral:'The event has offsetting effects on growth and valuation.'},
+      cash:{good:'Higher policy carry or risk aversion supports cash.',bad:'Falling short rates reduce the advantage of holding cash.',neutral:'Cash carry is broadly unchanged by this event.'},
+      gold:{good:'Lower real yields or higher uncertainty support gold.',bad:'Higher real yields and a firmer dollar weigh on gold.',neutral:'Inflation support is offset by the rates response.'},
+      crypto:{good:'Easier liquidity and lower real yields support crypto.',bad:'Tighter liquidity and rising stress pressure crypto.',neutral:'The event has no clear directional liquidity impulse.'}
+    };
+    function scoreAsset(asset,shocks,isCurrent){
+      if(isCurrent) return asset.base;
+      let total=0;
+      shockDefs.forEach(def=>{const value=Number(shocks[def.id]||0);if(!value||!asset.s[def.id])return;const magnitude=Math.abs(value)>=def.large?2:1;total+=Math.sign(value)*magnitude*asset.s[def.id];});
+      return Math.max(-5,Math.min(5,total));
+    }
+    function outcome(score){return score>0?{word:'BULLISH',tone:'good',strength:Math.abs(score)>=4?'STRONG TAILWIND':'TAILWIND'}:score<0?{word:'BEARISH',tone:'bad',strength:Math.abs(score)>=4?'STRONG HEADWIND':'HEADWIND'}:{word:'MIXED',tone:'neutral',strength:'BALANCED'};}
+    function useScenario(){
+      const [selected,setSelected]=React.useState('current');
+      const [shocks,setShocks]=React.useState({});
+      const choose=key=>{setSelected(key);setShocks({...scenarios[key].shocks});};
+      const change=(id,value)=>{setSelected('custom');setShocks({...shocks,[id]:Number(value)});};
+      const reset=()=>choose('current');
+      const name=selected==='custom'?'Custom scenario':scenarios[selected].name;
+      return {selected,shocks,choose,change,reset,name,isCurrent:selected==='current'};
+    }
+    function AppShell({children}){return <div className="app"><div className="shell"><aside className="side"><div className="st">ST</div><div className="side-nav"><span className="on">Market<br/>Overview</span><span>Asset<br/>Analysis</span><span>Portfolio</span></div><div className="online"><i/>WebMCP ready</div></aside><main className="main"><header className="top"><div><small>WEBMCP AGENT WORKSPACE</small><b>Macro Impact Dashboard</b></div><div className="top-meta">Sep 1 · English · Light</div></header><div className="content"><div className="title-row"><div><small>TOTAL MACRO VIEW</small><h3>Market Overview</h3></div><span className="live-pill">4 core assets · event framework</span></div>{children}</div></main></div></div>}
+    function AssetCards({model,className=''}){return <div className={'asset-grid '+className}>{assets.map(asset=>{const score=scoreAsset(asset,model.shocks,model.isCurrent);const o=outcome(score);return <article className="asset" key={asset.key}><div className="asset-name">{asset.name}</div><div className={'asset-verdict '+o.tone}>{o.word}</div><div className="asset-copy">{copies[asset.key][o.tone]}</div><div className="asset-strength">{o.strength}</div></article>})}</div>}
+    function Sliders({model,className=''}){return <section className={'controls '+className}><div className="control-head"><div><div className="section-eyebrow">CURRENT SETTING</div><h4>{model.name}</h4></div><button className="reset" onClick={model.reset}>Reset current</button></div><div className="slider-grid">{shockDefs.map(def=>{const value=model.shocks[def.id]||0;return <div className="slider-row" key={def.id}><label>{def.label}</label><input aria-label={def.label} type="range" min={def.min} max={def.max} step={def.step} value={value} onChange={e=>model.change(def.id,e.target.value)}/><output>{value>0?'+':''}{value}{def.unit}</output></div>})}</div><div className="disclaimer">Directional sensitivity only. The selected event is hypothetical, not a forecast.</div></section>}
+    function DirectionA(){const model=useScenario();const keys=['current','hike','decline','inflation','growth'];return <AppShell><div className="a-layout"><section className="compass-card"><div className="section-eyebrow">SELECT A FUTURE EVENT</div><div className="compass"><div className="compass-center">{model.name}</div>{keys.map((key,i)=><button key={key} className={'orbit o'+i+' choice '+(model.selected===key?'active':'')} onClick={()=>model.choose(key)}>{scenarios[key].short}</button>)}</div></section><section className="a-results"><div><div className="section-eyebrow">FOUR ASSET OUTCOME</div><div className="event-name">What changes if this happens?</div></div><AssetCards model={model}/></section><Sliders model={model} className="a-controls"/></div></AppShell>}
+    function DirectionB(){const model=useScenario();const keys=Object.keys(scenarios);return <AppShell><div className="event-rail">{keys.map(key=><button key={key} className={'event-tab '+(model.selected===key?'active':'')} onClick={()=>model.choose(key)}><b>{scenarios[key].short}</b><small>{scenarios[key].sub}</small></button>)}</div><div className="b-regime"><div><span className="section-eyebrow">SELECTED EVENT</span><strong className="event-name">{model.name}</strong></div><span className="scenario-note">Four directional outcomes · shared assumptions</span></div><AssetCards model={model} className="b-grid"/><Sliders model={model} className="b-controls"/><div className="codex-prompt">Ask Codex: “What happens to my four assets if the next FOMC surprises with a hike?” The selected event, sliders, and four cards update together.</div></AppShell>}
+    function DirectionC(){const model=useScenario();const keys=['hike','decline','inflation','growth'];return <AppShell><section className="c-question"><div><span>START WITH A QUESTION</span><h4>What happens to assets if…</h4></div><button className="current-link" onClick={()=>model.choose('current')}>Return to current setting</button></section><div className="scenario-cards">{keys.map(key=><button key={key} className={'scenario-card choice '+(model.selected===key?'active':'')} onClick={()=>model.choose(key)}><b>{scenarios[key].name}</b><small>{scenarios[key].sub}</small></button>)}</div><div className="c-selected"><section className="c-outcome"><div className="c-outcome-head"><div><div className="section-eyebrow">IMPACT OF</div><h4>{model.name}</h4></div><span className="scenario-note">Read across four assets</span></div><AssetCards model={model}/></section><Sliders model={model} className="c-controls"/></div></AppShell>}
+    function Draft({letter,title,description,tag,children}){return <section className="draft"><div className="draft-label"><div className="draft-letter">{letter}</div><div><h2>{title}</h2><p>{description}</p></div><div className="draft-tag">{tag}</div></div><BrowserWindow title="Macro Impact Dashboard" url="https://superturbo.app/macro-dashboard" width={1280} height={790}>{children}</BrowserWindow></section>}
+    function Prototype(){return <main className="canvas"><header className="canvas-intro"><div><p className="canvas-kicker">SUPERTURBO · EVENT DRIVEN OVERVIEW</p><h1>Three ways to turn a future event into four clear asset outcomes.</h1></div><p>每个方案都能点击事件、拖动八个滑轨、即时更新四张资产卡。三者使用相同真实框架，区别只在事件入口和结果层级。</p></header><Draft letter="A" title="Event Compass" description="事件围绕当前设置排列，选中后四资产结果在右侧变化。结构最具辨识度，也最偏探索型。" tag="ROULETTE · PURE CSS GEOMETRIC"><DirectionA/></Draft><Draft letter="B" title="Scenario Rail" description="把事件做成一条清晰的顶部选择轨，下方直接读取四资产结果，滑轨保留在同一屏。最接近现有 Total View。" tag="BENCHMARK · ALETA / ETOPS"><DirectionB/></Draft><Draft letter="C" title="Question First" description="先从用户能理解的问题卡片开始，再展开事件假设、四资产结果与手动调整。最适合 Codex 对话演示。" tag="STUDIO · IDEO SCENARIO CARDS"><DirectionC/></Draft></main>}
+    ReactDOM.createRoot(document.getElementById('root')).render(<Prototype/>);
+  </script>
+</body>
+</html>
