@@ -25,6 +25,49 @@ const TEXT = {
     activity: "Shared activity",
     idle: "Ready for you or an agent.",
     current: "Current dashboard snapshot",
+    overview: "Market Overview",
+    overviewZh: "Cross-asset regime",
+    assetAnalysis: "Asset Analysis",
+    assetAnalysisSub: "Compare the same four dashboard assets across every factor in the fixed framework.",
+    portfolioBuilder: "Portfolio",
+    portfolioBuilderSub: "Choose a category, find an asset, then adjust a 100 percent local allocation.",
+    addAsset: "Add asset",
+    removeAsset: "Remove asset",
+    equalWeight: "Equal weight",
+    portfolioImpact: "Selected asset macro impact",
+    researchLab: "Optional WebMCP research for another ticker",
+    searchCategory: "Search in category",
+    holdings: "Holdings and weights",
+    assetScope: "4 assets × factors",
+    localAllocation: "Local allocation",
+    signalsTitle: "Master signals",
+    signalsSub: "The shared macro inputs behind all four calls.",
+    driversTitle: "What is driving each call",
+    driversSub: "Three factors per asset, including the offset that argues against the verdict.",
+    factorGrid: "Factor grid",
+    factorGridSub: "One row per factor and one column for each of the four original dashboard assets.",
+    marketContext: "Cross-asset market context",
+    marketContextSub: "Recent price action around the four macro calls.",
+    calculations: "Calculation steps",
+    calculationsSub: "Every derived number used by the dashboard.",
+    sourcesTitle: "Sources",
+    sourcesSub: "Primary series first, price and flow reads second.",
+    assetHeader: "Asset",
+    sliderHeader: "Weight slider",
+    weightHeader: "Weight",
+    macroFactor: "Macro factor",
+    sensitivity: "Sensitivity",
+    activeShock: "Active shock",
+    contribution: "Contribution",
+    weatherTitle: "PORTFOLIO WEATHER",
+    weatherCopy: "Weighted directional impact from the active Shock Atlas scenario. It is sensitivity, not a return forecast.",
+    clickHolding: "click a holding to inspect its macro impact",
+    noProfile: "No factor profile is available yet. Use the optional WebMCP research panel in Asset Analysis, then ask Codex to render a cited lens for this ticker.",
+    strongTailwind: "Strong tailwind",
+    mildTailwind: "Mild tailwind",
+    strongHeadwind: "Strong headwind",
+    mildHeadwind: "Mild headwind",
+    balanced: "Balanced",
   },
   zh: {
     eyebrow: "WEBMCP AI 协作工作台",
@@ -50,65 +93,232 @@ const TEXT = {
     activity: "共享动态",
     idle: "等待你或 AI 操作。",
     current: "当前看板快照",
+    overview: "市场总览",
+    overviewZh: "跨资产宏观环境",
+    assetAnalysis: "资产分析",
+    assetAnalysisSub: "用同一套固定框架，对比原看板四类资产受各宏观因子的影响。",
+    portfolioBuilder: "投资组合",
+    portfolioBuilderSub: "先选资产类别，再搜索并加入资产，最后用滑轨调整本地组合至 100%。",
+    addAsset: "加入资产",
+    removeAsset: "移除资产",
+    equalWeight: "等权分配",
+    portfolioImpact: "所选资产的宏观影响",
+    researchLab: "可选：用 WebMCP 研究其他代码",
+    searchCategory: "在当前类别中搜索",
+    holdings: "持仓与权重",
+    assetScope: "4 类资产 × 宏观因子",
+    localAllocation: "本地配置",
+    signalsTitle: "主要指标",
+    signalsSub: "支撑四类资产判断的共同宏观输入。",
+    driversTitle: "每个判断由什么驱动",
+    driversSub: "每类资产三个因子，其中包括一个与结论相反的抵消因素。",
+    factorGrid: "因子网格",
+    factorGridSub: "一行一个因子，一列对应原看板的一类资产。",
+    marketContext: "跨资产市场背景",
+    marketContextSub: "围绕四类宏观判断的近期价格变化。",
+    calculations: "计算过程",
+    calculationsSub: "看板所用的每一个推导数字。",
+    sourcesTitle: "数据来源",
+    sourcesSub: "先列原始序列，再列价格与资金面读数。",
+    assetHeader: "资产",
+    sliderHeader: "权重滑轨",
+    weightHeader: "权重",
+    macroFactor: "宏观因子",
+    sensitivity: "敏感度",
+    activeShock: "当前冲击",
+    contribution: "贡献",
+    weatherTitle: "组合天气",
+    weatherCopy: "根据当前 Shock Atlas 情景加权计算的方向影响。它代表敏感度，不是收益率预测。",
+    clickHolding: "点击持仓查看该资产的宏观影响",
+    noProfile: "这个资产还没有因子画像。请在资产分析页打开可选的 WebMCP 研究区，再让 Codex 为该代码生成带引用的资产透镜。",
+    strongTailwind: "强顺风",
+    mildTailwind: "温和顺风",
+    strongHeadwind: "强逆风",
+    mildHeadwind: "温和逆风",
+    balanced: "平衡",
   },
 } as const;
 
 export function workspaceCss(): string {
   return String.raw`
-  .agent-workspace { margin-top: 38px; border-top: 1px solid var(--border); padding-top: 32px; }
-  .aw-eyebrow { color: var(--pos); font-size: 11px; font-weight: 750; letter-spacing: .11em; margin: 0 0 6px; }
-  .aw-title { font-size: 22px; letter-spacing: -.02em; margin: 0 0 6px; }
-  .aw-intro { color: var(--text-secondary); font-size: 13.5px; max-width: 760px; margin: 0 0 18px; }
-  .aw-status { display: flex; align-items: center; gap: 7px; width: fit-content; color: var(--text-secondary); background: var(--chip-bg); border-radius: 999px; padding: 5px 10px; font-size: 12px; margin-bottom: 18px; }
-  .aw-dot { width: 7px; height: 7px; border-radius: 99px; background: var(--good); }
-  .aw-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-  .aw-tab { border: 1px solid var(--border); color: var(--text-secondary); background: var(--surface-1); border-radius: 9px; padding: 8px 12px; font: inherit; font-size: 13px; cursor: pointer; }
-  .aw-tab[aria-selected="true"] { color: var(--surface-1); background: var(--text-primary); border-color: var(--text-primary); }
-  .aw-panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  :root {
+    --aw-navy: #183249;
+    --aw-navy-2: #244a67;
+    --aw-paper: #f5f3ee;
+    --aw-mineral: #7c9b87;
+    --aw-gold: #c49b52;
+  }
+  .wrap { max-width: 1320px; padding: 20px 20px 64px; }
+  body.aw-ready .wrap > header.top,
+  body.aw-ready .wrap > .tabs,
+  body.aw-ready .wrap > .panel { display: none; }
+  .agent-workspace { margin: 0; }
+  .aw-shell { display: grid; grid-template-columns: 104px minmax(0, 1fr); min-height: 760px; background: var(--aw-paper); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 70px -58px rgba(24,50,73,.65); }
+  .aw-side { background: var(--aw-navy); color: #fff; padding: 20px 10px 16px; display: flex; flex-direction: column; align-items: center; }
+  .aw-brand { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #f7f5ef; color: var(--aw-navy); font-weight: 760; font-size: 12px; letter-spacing: -.04em; }
+  .aw-tabs { width: 100%; display: grid; gap: 8px; margin-top: 54px; }
+  .aw-tab { min-height: 82px; border: 0; border-radius: 10px; color: #ccd6dd; background: transparent; padding: 10px 6px; font: inherit; font-size: 13px; cursor: pointer; text-align: center; line-height: 1.25; }
+  .aw-tab span { display: block; }
+  .aw-tab small { display: block; margin-top: 5px; color: inherit; opacity: .62; font-size: 12px; }
+  .aw-tab[aria-selected="true"] { color: var(--aw-navy); background: #f7f5ef; }
+  .aw-side-status { margin-top: auto; display: grid; justify-items: center; gap: 8px; color: #c5d0d7; font-size: 12px; text-align: center; }
+  .aw-dot { width: 8px; height: 8px; border-radius: 99px; background: #58b384; box-shadow: 0 0 0 4px rgba(88,179,132,.13); }
+  .aw-main { min-width: 0; }
+  .aw-header { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 12px 22px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--surface-1) 78%, var(--aw-paper)); }
+  .aw-header-copy { min-width: 0; }
+  .aw-eyebrow { color: var(--text-muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: .1em; margin: 0 0 2px; }
+  .aw-title { margin: 0; font-family: Georgia, "Noto Serif SC", serif; font-size: 20px; letter-spacing: -.025em; }
+  .aw-header-meta { display: flex; align-items: center; gap: 10px; flex: none; color: var(--text-muted); font-size: 12px; }
+  .aw-content { padding: 20px 22px 24px; }
   .aw-panel[hidden] { display: none; }
-  .aw-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
-  .aw-panel-head h3 { font-size: 16px; margin: 0 0 3px; }
-  .aw-panel-head p { color: var(--text-muted); font-size: 12.5px; margin: 0; max-width: 720px; }
-  .aw-controls { display: grid; grid-template-columns: repeat(4, minmax(130px, 1fr)); gap: 10px; }
-  .aw-control { border: 1px solid var(--grid); border-radius: 10px; padding: 9px 10px; }
-  .aw-control label { display: block; color: var(--text-muted); font-size: 11.5px; margin-bottom: 4px; }
-  .aw-control-row { display: flex; align-items: center; gap: 5px; }
-  .aw-control input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: inherit; font-variant-numeric: tabular-nums; }
-  .aw-unit { color: var(--text-muted); font-size: 11px; }
-  .aw-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
-  .aw-btn { border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); border-radius: 8px; padding: 8px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
-  .aw-btn.primary { background: var(--pos); color: white; border-color: var(--pos); }
-  .aw-results { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
-  .aw-asset { border: 1px solid var(--grid); border-radius: 11px; padding: 11px; }
+  .aw-panel-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 16px; }
+  .aw-panel-head h2 { margin: 2px 0 0; font-family: Georgia, "Noto Serif SC", serif; font-size: 28px; letter-spacing: -.035em; }
+  .aw-panel-head p { color: var(--text-muted); font-size: 13px; margin: 5px 0 0; max-width: 720px; }
+  .aw-local { color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 32%, transparent); border-radius: 999px; padding: 5px 9px; font-size: 12px; white-space: nowrap; }
+  .aw-overview-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(310px, .8fr); gap: 14px; align-items: start; }
+  .aw-verdict-zone, .aw-shock-zone, .aw-section-card, .aw-portfolio-catalog, .aw-holdings-card, .aw-portfolio-weather, .aw-selected-impact { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; }
+  .aw-verdict-zone { overflow: hidden; }
+  .aw-regime-line { padding: 14px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .aw-regime-line span { color: var(--text-muted); font-size: 12px; }
+  .aw-regime-line b { font-family: Georgia, "Noto Serif SC", serif; font-size: 18px; }
+  .aw-verdict-zone .board { grid-template-columns: repeat(2, 1fr); gap: 0; margin: 0; }
+  .aw-verdict-zone .bcard { border: 0; border-right: 1px solid var(--grid); border-bottom: 1px solid var(--grid); border-radius: 0; padding: 14px 16px; }
+  .aw-verdict-zone .bcard:nth-child(2n) { border-right: 0; }
+  .aw-verdict-zone .bcard:nth-last-child(-n+2) { border-bottom: 0; }
+  .aw-verdict-zone .b-emoji, .aw-analysis-content .card-emoji { display: none; }
+  .aw-verdict-zone .b-top { margin-bottom: 8px; }
+  .aw-verdict-zone .b-word { font-size: 20px; }
+  .aw-verdict-zone .b-line { min-height: 54px; }
+  .aw-verdict-zone .banner { margin: 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: var(--aw-paper); }
+  .aw-shock-zone { padding: 15px; }
+  .aw-shock-zone .aw-section-title { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .aw-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .aw-section-title h3 { margin: 0; font-size: 17px; }
+  .aw-section-title small { color: var(--text-muted); font-size: 12px; }
+  .aw-controls { display: grid; gap: 10px; }
+  .aw-control { display: grid; grid-template-columns: 104px minmax(90px, 1fr) 62px; align-items: center; gap: 8px; }
+  .aw-control label { color: var(--text-secondary); font-size: 12px; line-height: 1.25; }
+  .aw-control label small { display: block; color: var(--text-muted); font-size: 12px; }
+  .aw-control input[type="range"] { width: 100%; accent-color: var(--aw-navy-2); cursor: ew-resize; }
+  .aw-control output { text-align: right; font: 650 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .aw-control output small { margin-left: 2px; color: var(--text-muted); font-size: 12px; }
+  .aw-actions { display: flex; flex-wrap: wrap; gap: 7px; margin: 13px 0; }
+  .aw-btn { border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); border-radius: 8px; padding: 8px 11px; font: inherit; font-size: 12px; cursor: pointer; }
+  .aw-btn:hover { border-color: var(--axis); }
+  .aw-btn.primary { background: var(--aw-navy); color: white; border-color: var(--aw-navy); }
+  .aw-btn.danger { color: var(--critical); }
+  .aw-results { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
+  .aw-asset { padding: 9px; border-right: 1px solid var(--grid); }
+  .aw-asset:last-child { border-right: 0; }
   .aw-asset-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-  .aw-symbol { font-size: 12px; font-weight: 700; }
-  .aw-score { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .aw-score.pos { color: var(--pos); } .aw-score.neg { color: var(--neg); }
-  .aw-asset-name { color: var(--text-muted); font-size: 11.5px; margin-top: 3px; }
-  .aw-search { display: flex; gap: 8px; max-width: 600px; }
-  .aw-input { width: 100%; min-width: 0; border: 1px solid var(--border); background: var(--page); color: var(--text-primary); border-radius: 9px; padding: 9px 11px; font: inherit; }
-  .aw-search-results { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
+  .aw-symbol { font: 700 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .aw-score { font: 700 15px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .aw-score.pos { color: var(--good); } .aw-score.neg { color: var(--critical); }
+  .aw-asset-name { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+  .aw-signals { margin-top: 14px; }
+  .aw-signals > .section-h, .aw-signals > .section-s { display: none; }
+  .aw-signals .tiles { grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 0; }
+  .aw-signals .tile { padding: 12px; border-radius: 10px; }
+  .aw-signals .t-val { font-size: 21px; }
+  .aw-evidence { margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
+  .aw-evidence > summary, .aw-research-lab > summary { cursor: pointer; padding: 12px 14px; font-weight: 620; font-size: 13px; }
+  .aw-evidence-body { padding: 0 14px 14px; }
+  .aw-evidence-body > * { margin-bottom: 14px; }
+  .aw-analysis-content > .section-h:first-child, .aw-analysis-content > .section-s:nth-child(2) { display: none; }
+  .aw-analysis-content .cards { grid-template-columns: repeat(2, 1fr); margin-bottom: 18px; }
+  .aw-analysis-content .matrix-wrap { border-radius: 11px; }
+  .aw-analysis-content .chartcard { margin-top: 16px; }
+  .aw-research-lab { margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
+  .aw-research-body { padding: 0 14px 14px; }
+  .aw-search { display: flex; gap: 8px; max-width: 620px; }
+  .aw-input { width: 100%; min-width: 0; border: 1px solid var(--border); background: var(--page); color: var(--text-primary); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 13px; }
+  .aw-search-results { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0; }
   .aw-search-hit { border: 1px solid var(--grid); background: var(--page); color: var(--text-primary); border-radius: 8px; padding: 7px 9px; cursor: pointer; text-align: left; }
   .aw-search-hit b, .aw-search-hit small { display: block; }
-  .aw-search-hit small { color: var(--text-muted); margin-top: 2px; }
+  .aw-search-hit small { color: var(--text-muted); margin-top: 2px; font-size: 12px; }
   .aw-context { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
-  .aw-context-card { border: 1px solid var(--grid); border-radius: 10px; padding: 12px; min-width: 0; }
-  .aw-context-card h4 { margin: 0 0 8px; font-size: 12px; }
+  .aw-context-card { border: 1px solid var(--grid); border-radius: 9px; padding: 11px; min-width: 0; }
+  .aw-context-card h4 { margin: 0 0 8px; font-size: 13px; }
   .aw-context-card p { font-size: 12px; color: var(--text-secondary); margin: 5px 0; overflow-wrap: anywhere; }
-  .aw-context-card a { color: var(--pos); }
-  .aw-eid { color: var(--text-muted); font-family: ui-monospace, monospace; font-size: 10.5px; }
-  .aw-lens { margin-top: 12px; border-left: 3px solid var(--pos); background: var(--page); border-radius: 8px; padding: 13px; }
+  .aw-context-card a { color: var(--aw-navy-2); }
+  .aw-eid { color: var(--text-muted); font-family: ui-monospace, monospace; font-size: 12px; }
+  .aw-lens { margin-top: 12px; border-left: 3px solid var(--aw-navy-2); background: var(--page); padding: 13px; }
   .aw-lens h4 { margin: 0 0 5px; }
   .aw-lens p { font-size: 12.5px; color: var(--text-secondary); margin: 5px 0; }
-  .aw-portfolio-rows { display: grid; gap: 7px; max-width: 560px; }
-  .aw-position { display: grid; grid-template-columns: 1fr 120px 34px; gap: 7px; }
-  .aw-remove { border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-muted); cursor: pointer; }
-  .aw-portfolio-summary { margin-top: 15px; }
-  .aw-local { color: var(--good); font-size: 12px; }
+  .aw-allocation { display: flex; height: 42px; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; margin-bottom: 12px; background: var(--chip-bg); }
+  .aw-allocation span { min-width: 0; display: grid; place-items: center; color: white; font: 650 12px ui-monospace, SFMono-Regular, Menlo, monospace; border-right: 2px solid var(--surface-1); transition: width .2s ease; }
+  .aw-allocation span:last-child { border-right: 0; }
+  .aw-portfolio-grid { display: grid; grid-template-columns: minmax(240px,.85fr) minmax(390px,1.45fr) minmax(220px,.7fr); gap: 12px; align-items: start; }
+  .aw-portfolio-catalog, .aw-holdings-card, .aw-portfolio-weather { padding: 13px; }
+  .aw-category-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .aw-category { border: 1px solid var(--border); background: transparent; border-radius: 7px; padding: 6px 8px; font: inherit; font-size: 12px; cursor: pointer; }
+  .aw-category[aria-pressed="true"] { color: white; background: var(--aw-navy); border-color: var(--aw-navy); }
+  .aw-catalog-search { display: flex; gap: 6px; }
+  .aw-catalog-results { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px; margin-top: 9px; }
+  .aw-catalog-item { display: flex; align-items: center; justify-content: space-between; gap: 6px; border: 1px solid var(--grid); background: var(--page); border-radius: 7px; padding: 8px; text-align: left; cursor: pointer; }
+  .aw-catalog-item b { font: 650 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .aw-catalog-item small { color: var(--text-muted); font-size: 12px; }
+  .aw-holdings-head, .aw-position { display: grid; grid-template-columns: minmax(80px,.72fr) minmax(150px,1.5fr) 50px 34px; align-items: center; gap: 8px; }
+  .aw-holdings-head { padding: 0 7px 8px; color: var(--text-muted); font-size: 12px; }
+  .aw-position { padding: 9px 7px; border-top: 1px solid var(--grid); cursor: pointer; }
+  .aw-position[aria-selected="true"] { background: color-mix(in srgb, var(--aw-mineral) 14%, transparent); }
+  .aw-position-symbol { display: grid; border: 0; background: transparent; color: inherit; padding: 0; text-align: left; cursor: pointer; }
+  .aw-position-symbol b { font: 700 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .aw-position-symbol small { color: var(--text-muted); font-size: 12px; }
+  .aw-position input[type="range"] { width: 100%; accent-color: var(--aw-navy-2); }
+  .aw-position output { text-align: right; font: 650 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .aw-remove { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 7px; background: transparent; color: var(--critical); cursor: pointer; }
+  .aw-portfolio-weather { min-height: 225px; display: flex; flex-direction: column; }
+  .aw-weather-score { margin: 8px 0 0; font: 700 40px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .aw-weather-score.pos { color: var(--good); } .aw-weather-score.neg { color: var(--critical); }
+  .aw-weather-label { margin: 0 0 8px; font-family: Georgia, "Noto Serif SC", serif; font-size: 18px; }
+  .aw-weather-copy { color: var(--text-secondary); font-size: 12px; line-height: 1.55; }
+  .aw-weather-meta { margin-top: auto; color: var(--text-muted); font-size: 12px; }
+  .aw-selected-impact { margin-top: 12px; padding: 15px; }
+  .aw-impact-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding-bottom: 11px; border-bottom: 1px solid var(--grid); }
+  .aw-impact-head h3 { margin: 2px 0 0; font-size: 20px; }
+  .aw-impact-score { font: 700 28px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .aw-impact-score.pos { color: var(--good); } .aw-impact-score.neg { color: var(--critical); }
+  .aw-impact-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+  .aw-impact-table th, .aw-impact-table td { padding: 8px; border-bottom: 1px solid var(--grid); text-align: left; }
+  .aw-impact-table th { color: var(--text-muted); font-weight: 550; }
+  .aw-impact-table td:not(:first-child), .aw-impact-table th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  .aw-impact-empty { color: var(--text-secondary); font-size: 13px; }
   .aw-activity { margin-top: 12px; display: flex; align-items: center; gap: 7px; color: var(--text-muted); font-size: 12px; }
   .aw-activity b { color: var(--text-secondary); }
-  @media (max-width: 850px) { .aw-controls, .aw-results { grid-template-columns: repeat(2, 1fr); } .aw-context { grid-template-columns: 1fr; } }
-  @media (max-width: 520px) { .aw-controls, .aw-results { grid-template-columns: 1fr; } .aw-panel { padding: 15px; } .aw-position { grid-template-columns: 1fr 90px 34px; } }
+  :root[data-theme="dark"] .aw-shell { --aw-paper: #20231f; --aw-navy: #132638; --aw-navy-2: #8fb2d8; --aw-mineral: #698a77; }
+  :root[data-theme="dark"] .aw-tab[aria-selected="true"] { background: #e9e6df; }
+  @media (max-width: 1040px) {
+    .aw-overview-grid, .aw-portfolio-grid { grid-template-columns: 1fr; }
+    .aw-signals .tiles { grid-template-columns: repeat(3,1fr); }
+    .aw-portfolio-weather { min-height: 0; }
+  }
+  @media (max-width: 760px) {
+    .wrap { padding: 10px 10px 48px; }
+    .aw-shell { grid-template-columns: 1fr; }
+    .aw-side { padding: 10px; display: flex; flex-flow: row wrap; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 20; min-width: 0; overflow: hidden; }
+    .aw-brand { flex: 0 0 38px; }
+    .aw-tabs { order: 3; flex: 0 0 100%; width: 100%; min-width: 0; display: flex; gap: 5px; margin: 0; }
+    .aw-tab { flex: 1 1 0; width: 0; min-width: 0; min-height: 54px; padding: 6px 3px; font-size: 12px; }
+    .aw-tab small, .aw-side-status span { display: none; }
+    .aw-side-status { margin: 0 0 0 auto; }
+    .aw-header { padding: 10px 14px; }
+    .aw-header-meta > span { display: none; }
+    .aw-content { padding: 16px 14px 20px; }
+    .aw-panel-head { align-items: flex-start; flex-direction: column; }
+    .aw-verdict-zone .board, .aw-analysis-content .cards { grid-template-columns: 1fr; }
+    .aw-verdict-zone .bcard { border-right: 0; }
+    .aw-signals .tiles { grid-template-columns: repeat(2,1fr); }
+    .aw-context { grid-template-columns: 1fr; }
+    .aw-holdings-head, .aw-position { grid-template-columns: 72px 1fr 46px 32px; }
+  }
+  @media (max-width: 480px) {
+    .aw-results { grid-template-columns: repeat(2,1fr); }
+    .aw-asset:nth-child(2) { border-right: 0; }
+    .aw-control { grid-template-columns: 88px 1fr 54px; }
+    .aw-catalog-results { grid-template-columns: 1fr; }
+    .aw-signals .tiles { grid-template-columns: 1fr; }
+  }
   `;
 }
 
@@ -116,40 +326,62 @@ export function workspaceBody(lang: Lang): string {
   const t = TEXT[lang];
   return `
   <section class="agent-workspace" id="agent-workspace" aria-labelledby="aw-title">
-    <p class="aw-eyebrow">${t.eyebrow}</p>
-    <h2 class="aw-title" id="aw-title">${t.title}</h2>
-    <p class="aw-intro">${t.intro}</p>
-    <div class="aw-status"><span class="aw-dot"></span><span id="aw-webmcp-status">Browser controls ready</span></div>
-    <div class="aw-tabs" role="tablist">
-      <button class="aw-tab" type="button" role="tab" data-aw-tab="atlas" aria-selected="true">${t.atlas}</button>
-      <button class="aw-tab" type="button" role="tab" data-aw-tab="lens" aria-selected="false">${t.lens}</button>
-      <button class="aw-tab" type="button" role="tab" data-aw-tab="portfolio" aria-selected="false">${t.portfolio}</button>
+    <div class="aw-shell">
+      <aside class="aw-side">
+        <div class="aw-brand" aria-label="SuperTurbo">ST</div>
+        <div class="aw-tabs" role="tablist" aria-label="Macro workspace views">
+          <button class="aw-tab" type="button" role="tab" data-aw-tab="overview" aria-selected="true"><span>${t.overview}</span><small>${t.overviewZh}</small></button>
+          <button class="aw-tab" type="button" role="tab" data-aw-tab="asset" aria-selected="false"><span>${t.assetAnalysis}</span><small>${t.assetScope}</small></button>
+          <button class="aw-tab" type="button" role="tab" data-aw-tab="portfolio" aria-selected="false"><span>${t.portfolioBuilder}</span><small>${t.localAllocation}</small></button>
+        </div>
+        <div class="aw-side-status"><span class="aw-dot"></span><span id="aw-webmcp-status">Browser controls ready</span></div>
+      </aside>
+      <main class="aw-main">
+        <header class="aw-header">
+          <div class="aw-header-copy"><p class="aw-eyebrow">${t.eyebrow}</p><h1 class="aw-title" id="aw-title"></h1></div>
+          <div class="aw-header-meta"><span id="aw-stamp"></span><span id="aw-theme-slot"></span></div>
+        </header>
+        <div class="aw-content">
+          <section class="aw-panel" id="aw-overview" data-aw-panel="overview">
+            <div class="aw-panel-head"><div><p class="aw-eyebrow">TOTAL MACRO VIEW</p><h2>${t.overview}</h2></div><span class="aw-local">4 core assets · live framework</span></div>
+            <div class="aw-overview-grid">
+              <div class="aw-verdict-zone"><div class="aw-regime-line"><span>ACTIVE REGIME</span><b id="aw-regime"></b></div><div id="aw-verdict-slot"></div></div>
+              <div class="aw-shock-zone">
+                <div class="aw-section-title"><div><p class="aw-eyebrow">WHAT IF ENGINE</p><h3>${t.atlas}</h3></div><small>${t.atlasSub}</small></div>
+                <div class="aw-controls" id="aw-shocks"></div>
+                <div class="aw-actions"><button class="aw-btn" data-preset="soft" type="button">${t.soft}</button><button class="aw-btn" data-preset="flare" type="button">${t.flare}</button><button class="aw-btn" id="aw-reset" type="button">${t.reset}</button></div>
+                <div class="aw-results" id="aw-atlas-results"></div>
+              </div>
+            </div>
+            <div class="aw-signals" id="aw-signals-slot"></div>
+            <details class="aw-evidence"><summary>${t.current} · calculations, charts and sources</summary><div class="aw-evidence-body" id="aw-evidence-slot"></div></details>
+          </section>
+
+          <section class="aw-panel" id="aw-asset" data-aw-panel="asset" hidden>
+            <div class="aw-panel-head"><div><p class="aw-eyebrow">FOUR ASSET FACTOR MAP</p><h2>${t.assetAnalysis}</h2><p>${t.assetAnalysisSub}</p></div></div>
+            <div class="aw-analysis-content" id="aw-analysis-slot"></div>
+            <details class="aw-research-lab" id="aw-research-lab"><summary>${t.researchLab}</summary><div class="aw-research-body">
+              <p class="section-s">${t.lensSub}</p>
+              <form class="aw-search" id="aw-search-form"><input class="aw-input" id="aw-search-input" maxlength="80" placeholder="${t.ticker}" autocomplete="off"><button class="aw-btn primary" type="submit">${t.search}</button></form>
+              <div class="aw-search-results" id="aw-search-results"></div><p class="section-s" id="aw-lens-message">${t.ask}</p>
+              <div id="aw-context"></div><div id="aw-rendered-lens"></div>
+            </div></details>
+          </section>
+
+          <section class="aw-panel" id="aw-portfolio" data-aw-panel="portfolio" hidden>
+            <div class="aw-panel-head"><div><p class="aw-eyebrow">LOCAL ONLY SCENARIO</p><h2>${t.portfolioBuilder}</h2><p>${t.portfolioBuilderSub}</p></div><span class="aw-local">${t.privacy}</span></div>
+            <div class="aw-allocation" id="aw-allocation"></div>
+            <div class="aw-portfolio-grid">
+              <section class="aw-portfolio-catalog"><div class="aw-section-title"><h3>${t.addAsset}</h3><small id="aw-category-label"></small></div><div class="aw-category-tabs" id="aw-category-tabs"></div><form class="aw-catalog-search" id="aw-portfolio-search-form"><input class="aw-input" id="aw-portfolio-search" maxlength="80" placeholder="${t.searchCategory}" autocomplete="off"><button class="aw-btn primary" type="submit">${t.search}</button></form><div class="aw-catalog-results" id="aw-catalog-results"></div></section>
+              <section class="aw-holdings-card"><div class="aw-section-title"><h3>${t.holdings}</h3><button class="aw-btn" id="aw-equal-portfolio" type="button">${t.equalWeight}</button></div><div class="aw-holdings-head"><span>${t.assetHeader}</span><span>${t.sliderHeader}</span><span>${t.weightHeader}</span><span></span></div><div class="aw-portfolio-rows" id="aw-portfolio-rows"></div></section>
+              <aside class="aw-portfolio-weather" id="aw-portfolio-summary"></aside>
+            </div>
+            <section class="aw-selected-impact" id="aw-selected-impact"></section>
+          </section>
+          <div class="aw-activity"><span>${t.activity}:</span><b id="aw-activity">${t.idle}</b></div>
+        </div>
+      </main>
     </div>
-    <section class="aw-panel" id="aw-atlas" data-aw-panel="atlas">
-      <div class="aw-panel-head"><div><h3>${t.atlas}</h3><p>${t.atlasSub}</p></div></div>
-      <div class="aw-controls" id="aw-shocks"></div>
-      <div class="aw-actions">
-        <button class="aw-btn primary" id="aw-apply" type="button">${t.apply}</button>
-        <button class="aw-btn" data-preset="soft" type="button">${t.soft}</button>
-        <button class="aw-btn" data-preset="flare" type="button">${t.flare}</button>
-        <button class="aw-btn" id="aw-reset" type="button">${t.reset}</button>
-      </div>
-      <div class="aw-results" id="aw-atlas-results"></div>
-    </section>
-    <section class="aw-panel" id="aw-lens" data-aw-panel="lens" hidden>
-      <div class="aw-panel-head"><div><h3>${t.lens}</h3><p>${t.lensSub}</p></div></div>
-      <form class="aw-search" id="aw-search-form"><input class="aw-input" id="aw-search-input" maxlength="80" placeholder="${t.ticker}" autocomplete="off"><button class="aw-btn primary" type="submit">${t.search}</button></form>
-      <div class="aw-search-results" id="aw-search-results"></div>
-      <p class="section-s" id="aw-lens-message">${t.ask}</p>
-      <div id="aw-context"></div><div id="aw-rendered-lens"></div>
-    </section>
-    <section class="aw-panel" id="aw-portfolio" data-aw-panel="portfolio" hidden>
-      <div class="aw-panel-head"><div><h3>${t.portfolio}</h3><p>${t.portfolioSub}</p></div><span class="aw-local">${t.privacy}</span></div>
-      <div class="aw-portfolio-rows" id="aw-portfolio-rows"></div>
-      <div class="aw-actions"><button class="aw-btn" id="aw-add-position" type="button">${t.add}</button><button class="aw-btn primary" id="aw-save-portfolio" type="button">${t.portfolioApply}</button></div>
-      <div class="aw-portfolio-summary" id="aw-portfolio-summary"></div>
-    </section>
-    <div class="aw-activity"><span>${t.activity}:</span><b id="aw-activity">${t.idle}</b></div>
   </section>`;
 }
 
@@ -168,15 +400,50 @@ export function workspaceScript(): string {
     soft: { growth_pp: 0.8, inflation_bps: -35, policy_rate_bps: -50, credit_spread_bps: -25, vix_points: -5 },
     flare: { inflation_bps: 100, policy_rate_bps: 75, real_yield_bps: 50, dollar_pct: 4, oil_pct: 20, vix_points: 8 }
   };
+  const categoryCatalog = {
+    Stocks: [{ symbol: "SPY", name: "US market" }, { symbol: "QQQ", name: "Growth" }, { symbol: "AAPL", name: "Apple" }, { symbol: "MSFT", name: "Microsoft" }],
+    Bonds: [{ symbol: "TLT", name: "Long Treasuries" }, { symbol: "IEF", name: "Intermediate Treasuries" }, { symbol: "HYG", name: "High yield credit" }, { symbol: "LQD", name: "Investment grade credit" }],
+    Cash: [{ symbol: "CASH", name: "US cash proxy" }, { symbol: "BIL", name: "Treasury bills" }, { symbol: "SGOV", name: "Short Treasuries" }],
+    FX: [{ symbol: "DXY", name: "US dollar index" }, { symbol: "EURUSD=X", name: "Euro dollar" }, { symbol: "JPY=X", name: "Dollar yen" }],
+    Commodities: [{ symbol: "XAU", name: "Gold proxy" }, { symbol: "GC=F", name: "Gold futures" }, { symbol: "WTI", name: "Crude oil proxy" }, { symbol: "CL=F", name: "Crude futures" }],
+    Crypto: [{ symbol: "BTC-USD", name: "Bitcoin" }, { symbol: "ETH-USD", name: "Ethereum" }, { symbol: "SOL-USD", name: "Solana" }]
+  };
+  const categoryLabelsZh = { Stocks: "股票", Bonds: "债券", Cash: "现金", FX: "外汇", Commodities: "大宗商品", Crypto: "加密资产" };
+  const portfolioColors = ["#244a67", "#7c9b87", "#c49b52", "#ad4f57", "#747a9b", "#8d715c", "#477f78", "#946c86"];
   const state = { shocks: {}, contexts: {}, lenses: {}, portfolio: [{ symbol: "SPY", weight_pct: 40 }, { symbol: "TLT", weight_pct: 30 }, { symbol: "XAU", weight_pct: 15 }, { symbol: "BTC-USD", weight_pct: 15 }] };
   try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (_) {}
   if (!state.shocks || typeof state.shocks !== "object" || Array.isArray(state.shocks)) state.shocks = {};
   if (!state.contexts || typeof state.contexts !== "object" || Array.isArray(state.contexts)) state.contexts = {};
   if (!state.lenses || typeof state.lenses !== "object" || Array.isArray(state.lenses)) state.lenses = {};
   if (!Array.isArray(state.portfolio) || !state.portfolio.length || state.portfolio.length > 12) state.portfolio = [{ symbol: "SPY", weight_pct: 40 }, { symbol: "TLT", weight_pct: 30 }, { symbol: "XAU", weight_pct: 15 }, { symbol: "BTC-USD", weight_pct: 15 }];
+  let selectedCategory = "Stocks";
+  let selectedPortfolioSymbol = state.portfolio[0].symbol;
   const byId = (id) => document.getElementById(id);
   const activity = (message) => { byId("aw-activity").textContent = message; };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {} };
+  const makeHeading = (title, subtitle) => {
+    const wrap = document.createElement("div");
+    const h = document.createElement("p"); h.className = "section-h"; h.textContent = title; wrap.appendChild(h);
+    if (subtitle) { const p = document.createElement("p"); p.className = "section-s"; p.textContent = subtitle; wrap.appendChild(p); }
+    return wrap;
+  };
+  const hydrateLayout = () => {
+    byId("aw-title").textContent = D.title;
+    byId("aw-stamp").textContent = D.stamp;
+    byId("aw-regime").textContent = D.regime;
+    const theme = byId("themebtn"); if (theme) byId("aw-theme-slot").appendChild(theme);
+    const verdictSlot = byId("aw-verdict-slot"); verdictSlot.append(byId("board"), byId("banner"));
+    const signals = byId("aw-signals-slot"); signals.append(makeHeading(T.signalsTitle, T.signalsSub), byId("tiles"));
+    const analysis = byId("aw-analysis-slot");
+    analysis.append(makeHeading(T.driversTitle, T.driversSub), byId("cards"));
+    analysis.append(makeHeading(T.factorGrid, T.factorGridSub), byId("matrix").closest(".matrix-wrap"));
+    const evidence = byId("aw-evidence-slot");
+    const bar = byId("barcard"); if (bar) evidence.append(makeHeading(T.marketContext, T.marketContextSub), bar);
+    evidence.append(makeHeading(T.calculations, T.calculationsSub), byId("calc"));
+    const line = byId("linecard"); if (line) evidence.append(line);
+    evidence.append(makeHeading(T.sourcesTitle, T.sourcesSub), byId("srcbox"));
+    document.body.classList.add("aw-ready");
+  };
   const cleanSymbol = (value) => {
     const symbol = String(value || "").trim().toUpperCase();
     if (!/^[A-Z0-9.^=_-]{1,20}$/.test(symbol)) throw new Error("Invalid ticker symbol");
@@ -219,7 +486,8 @@ export function workspaceScript(): string {
   const showWorkspace = (name) => {
     document.querySelectorAll("[data-aw-tab]").forEach((button) => button.setAttribute("aria-selected", String(button.dataset.awTab === name)));
     document.querySelectorAll("[data-aw-panel]").forEach((panel) => { panel.hidden = panel.dataset.awPanel !== name; });
-    byId("agent-workspace").scrollIntoView({ block: "nearest" });
+    const top = byId("agent-workspace").offsetTop;
+    if (window.scrollY > top + 80) window.scrollTo({ top: Math.max(0, top - 12), behavior: "smooth" });
   };
   document.querySelectorAll("[data-aw-tab]").forEach((button) => button.addEventListener("click", () => showWorkspace(button.dataset.awTab)));
 
@@ -228,19 +496,24 @@ export function workspaceScript(): string {
     C.shocks.forEach((def) => {
       const box = document.createElement("div"); box.className = "aw-control";
       const label = document.createElement("label"); label.htmlFor = "aw-shock-" + def.id; label.textContent = document.documentElement.lang.startsWith("zh") ? def.labelZh : def.label;
-      const row = document.createElement("div"); row.className = "aw-control-row";
-      const input = document.createElement("input"); input.type = "number"; input.id = "aw-shock-" + def.id; input.min = def.min; input.max = def.max; input.step = def.unit === "bps" ? "25" : "0.5"; input.value = state.shocks[def.id] || "";
-      const unit = document.createElement("span"); unit.className = "aw-unit"; unit.textContent = def.unit;
-      row.append(input, unit); box.append(label, row); host.appendChild(box);
+      const range = document.createElement("input"); range.type = "range"; range.id = "aw-shock-" + def.id; range.min = def.min; range.max = def.max; range.step = def.unit === "bps" ? "5" : def.unit === "points" ? "1" : ".5"; range.value = state.shocks[def.id] || 0;
+      const output = document.createElement("output"); output.htmlFor = range.id;
+      const paint = () => { const value = Number(range.value); output.innerHTML = (value > 0 ? "+" : "") + value + "<small>" + def.unit + "</small>"; };
+      range.addEventListener("input", () => {
+        const next = Object.assign({}, state.shocks, { [def.id]: Number(range.value) });
+        try { state.shocks = validateShocks(next); save(); paint(); renderAtlas(); } catch (error) { activity(error.message); }
+      });
+      paint(); box.append(label, range, output); host.appendChild(box);
     });
   };
   const renderAtlas = () => {
     const host = byId("aw-atlas-results"); host.replaceChildren();
-    scenarioResults().forEach((result) => {
+    const overviewSymbols = new Set(["SPY", "CASH", "XAU", "BTC-USD"]);
+    scenarioResults().filter((result) => overviewSymbols.has(result.symbol)).forEach((result) => {
       const asset = C.assets.find((item) => item.symbol === result.symbol);
       const card = document.createElement("div"); card.className = "aw-asset";
       const top = document.createElement("div"); top.className = "aw-asset-top";
-      const symbol = document.createElement("span"); symbol.className = "aw-symbol"; symbol.textContent = asset.emoji + " " + asset.symbol;
+      const symbol = document.createElement("span"); symbol.className = "aw-symbol"; symbol.textContent = asset.symbol;
       const value = document.createElement("span"); value.className = "aw-score " + (result.score > 0 ? "pos" : result.score < 0 ? "neg" : ""); value.textContent = (result.score > 0 ? "+" : "") + result.score;
       const name = document.createElement("div"); name.className = "aw-asset-name"; name.textContent = document.documentElement.lang.startsWith("zh") ? asset.nameZh : asset.name;
       top.append(symbol, value); card.append(top, name); host.appendChild(card);
@@ -250,18 +523,14 @@ export function workspaceScript(): string {
   const applyScenario = (input, source) => {
     state.shocks = validateShocks(input || {}); save(); renderShockInputs(); renderAtlas();
     activity((source || "User") + " applied a macro scenario with " + Object.keys(state.shocks).length + " active shocks.");
-    showWorkspace("atlas");
+    showWorkspace("overview");
     return { applied: true, shocks: state.shocks, atlas: scenarioResults(), note: "Directional sensitivity scores, not forecasts or investment advice." };
   };
-  byId("aw-apply").addEventListener("click", () => {
-    try {
-      const input = {}; C.shocks.forEach((def) => { input[def.id] = byId("aw-shock-" + def.id).value; }); applyScenario(input, "User");
-    } catch (error) { activity(error.message); }
-  });
   document.querySelectorAll("[data-preset]").forEach((button) => button.addEventListener("click", () => applyScenario(presets[button.dataset.preset], "User preset")));
   const resetWorkspace = (source) => {
     state.shocks = {}; state.contexts = {}; state.lenses = {}; state.portfolio = [{ symbol: "SPY", weight_pct: 40 }, { symbol: "TLT", weight_pct: 30 }, { symbol: "XAU", weight_pct: 15 }, { symbol: "BTC-USD", weight_pct: 15 }];
-    save(); renderShockInputs(); renderAtlas(); renderPortfolioRows(); byId("aw-context").replaceChildren(); byId("aw-rendered-lens").replaceChildren();
+    selectedPortfolioSymbol = state.portfolio[0].symbol;
+    save(); renderShockInputs(); renderAtlas(); renderPortfolioRows(); renderCatalog(); byId("aw-context").replaceChildren(); byId("aw-rendered-lens").replaceChildren();
     activity((source || "User") + " reset the workspace."); return { reset: true };
   };
   byId("aw-reset").addEventListener("click", () => resetWorkspace("User"));
@@ -279,7 +548,7 @@ export function workspaceScript(): string {
   const getAssetContext = async (symbol, source) => {
     const normalized = cleanSymbol(symbol); activity(T.loading);
     const context = await requestJson("/api/macro-dashboard/assets/context?symbol=" + encodeURIComponent(normalized));
-    state.contexts[normalized] = context; save(); renderContext(context); showWorkspace("lens");
+    state.contexts[normalized] = context; save(); renderContext(context); byId("aw-research-lab")?.setAttribute("open", ""); showWorkspace("asset");
     activity((source || "User") + " loaded public context for " + normalized + "."); return context;
   };
   const appendText = (parent, tag, text, className) => { const node = document.createElement(tag); if (className) node.className = className; node.textContent = text; parent.appendChild(node); return node; };
@@ -334,7 +603,7 @@ export function workspaceScript(): string {
     const root = byId("aw-rendered-lens"); root.replaceChildren(); const card = document.createElement("div"); card.className = "aw-lens";
     appendText(card, "h4", lens.symbol + " macro lens"); appendText(card, "p", lens.summary);
     lens.exposures.forEach((row) => { const def = shockDefinition(row.factor); evidenceLine(card, def.label + " " + (row.sensitivity > 0 ? "+" : "") + row.sensitivity, row.rationale, row.evidence_ids.join(", "), null); });
-    root.appendChild(card); renderPortfolioSummary(); showWorkspace("lens"); activity((source || "Agent") + " rendered a cited lens for " + lens.symbol + ".");
+    root.appendChild(card); renderPortfolioSummary(); renderSelectedPortfolioImpact(); byId("aw-research-lab")?.setAttribute("open", ""); showWorkspace("asset"); activity((source || "Agent") + " rendered a cited lens for " + lens.symbol + ".");
     return { rendered: true, lens, scenario_impact: score(lens.symbol, profileFor(lens.symbol), state.shocks) };
   };
 
@@ -348,16 +617,26 @@ export function workspaceScript(): string {
     const total = output.reduce((sum, row) => sum + row.weight_pct, 0); if (Math.abs(total - 100) > .01) throw new Error("Portfolio weights must total 100, got " + total);
     return output;
   };
-  const renderPortfolioRows = () => {
-    const host = byId("aw-portfolio-rows"); host.replaceChildren(); state.portfolio.forEach((position) => addPositionRow(position)); renderPortfolioSummary();
+  const normalizeWeights = (positions) => {
+    if (!positions.length) return [];
+    const total = positions.reduce((sum, row) => sum + Math.max(.01, Number(row.weight_pct) || 0), 0);
+    let used = 0;
+    return positions.map((row, index) => {
+      const weight = index === positions.length - 1 ? Number((100 - used).toFixed(2)) : Number((Math.max(.01, Number(row.weight_pct) || 0) / total * 100).toFixed(2));
+      used += weight; return { symbol: cleanSymbol(row.symbol), weight_pct: weight };
+    });
   };
-  const addPositionRow = (position) => {
-    if (byId("aw-portfolio-rows").children.length >= 12) return;
-    const row = document.createElement("div"); row.className = "aw-position";
-    const symbol = document.createElement("input"); symbol.className = "aw-input aw-pos-symbol"; symbol.placeholder = "SPY"; symbol.maxLength = 20; symbol.value = position ? position.symbol : "";
-    const weight = document.createElement("input"); weight.className = "aw-input aw-pos-weight"; weight.type = "number"; weight.min = "0.01"; weight.max = "100"; weight.step = ".01"; weight.placeholder = "%"; weight.value = position ? position.weight_pct : "";
-    const remove = document.createElement("button"); remove.type = "button"; remove.className = "aw-remove"; remove.textContent = "×"; remove.setAttribute("aria-label", "Remove position"); remove.addEventListener("click", () => row.remove());
-    row.append(symbol, weight, remove); byId("aw-portfolio-rows").appendChild(row);
+  const equalWeights = (positions) => {
+    const base = Number((100 / positions.length).toFixed(2)); let used = 0;
+    return positions.map((row, index) => { const weight = index === positions.length - 1 ? Number((100 - used).toFixed(2)) : base; used += weight; return { symbol: cleanSymbol(row.symbol), weight_pct: weight }; });
+  };
+  const labelForSymbol = (symbol) => {
+    for (const [category, items] of Object.entries(categoryCatalog)) { const hit = items.find((item) => item.symbol === symbol); if (hit) return { category, name: hit.name }; }
+    const curated = C.assets.find((asset) => asset.symbol === symbol); return { category: curated ? curated.group : "Other", name: curated ? curated.name : "Custom asset" };
+  };
+  const renderAllocation = () => {
+    const root = byId("aw-allocation"); root.replaceChildren();
+    state.portfolio.forEach((position, index) => { const part = document.createElement("span"); part.style.width = position.weight_pct + "%"; part.style.background = portfolioColors[index % portfolioColors.length]; part.title = position.symbol + " " + position.weight_pct + "%"; part.textContent = position.weight_pct >= 10 ? position.symbol : ""; root.appendChild(part); });
   };
   const portfolioResult = () => {
     const positions = state.portfolio.map((position) => {
@@ -369,16 +648,106 @@ export function workspaceScript(): string {
   };
   const renderPortfolioSummary = () => {
     const root = byId("aw-portfolio-summary"); if (!root) return; root.replaceChildren(); const result = portfolioResult();
-    appendText(root, "p", "Scenario impact " + (result.portfolio_impact > 0 ? "+" : "") + result.portfolio_impact + " · covered weight " + result.covered_weight_pct + "%", "section-h");
-    result.positions.forEach((row) => appendText(root, "p", row.symbol + " · " + row.weight_pct + "% · " + (row.needs_lens ? "lens needed" : "impact " + (row.impact_score > 0 ? "+" : "") + row.impact_score), "section-s"));
+    appendText(root, "p", T.weatherTitle, "aw-eyebrow");
+    const scoreNode = appendText(root, "strong", (result.portfolio_impact > 0 ? "+" : "") + result.portfolio_impact.toFixed(2), "aw-weather-score " + (result.portfolio_impact > 0 ? "pos" : result.portfolio_impact < 0 ? "neg" : ""));
+    const label = result.portfolio_impact >= 2 ? T.strongTailwind : result.portfolio_impact > 0 ? T.mildTailwind : result.portfolio_impact <= -2 ? T.strongHeadwind : result.portfolio_impact < 0 ? T.mildHeadwind : T.balanced;
+    appendText(root, "h3", label, "aw-weather-label");
+    appendText(root, "p", T.weatherCopy, "aw-weather-copy");
+    appendText(root, "p", "Covered weight " + result.covered_weight_pct + "% · " + T.clickHolding, "aw-weather-meta");
+    return scoreNode;
   };
-  const setPortfolio = (positions, source) => {
-    state.portfolio = validatePortfolio(positions); save(); renderPortfolioRows(); showWorkspace("portfolio"); activity((source || "Agent") + " saved " + state.portfolio.length + " local positions."); return portfolioResult();
+  const renderSelectedPortfolioImpact = () => {
+    const root = byId("aw-selected-impact"); if (!root) return; root.replaceChildren();
+    const position = state.portfolio.find((row) => row.symbol === selectedPortfolioSymbol) || state.portfolio[0];
+    if (!position) return;
+    selectedPortfolioSymbol = position.symbol;
+    const profile = profileFor(position.symbol);
+    const head = document.createElement("div"); head.className = "aw-impact-head";
+    const copy = document.createElement("div"); appendText(copy, "p", T.portfolioImpact.toUpperCase(), "aw-eyebrow"); appendText(copy, "h3", position.symbol + " · " + labelForSymbol(position.symbol).name);
+    head.appendChild(copy);
+    if (!profile) {
+      root.appendChild(head); appendText(root, "p", T.noProfile, "aw-impact-empty"); return;
+    }
+    const result = score(position.symbol, profile, state.shocks);
+    const scoreNode = appendText(head, "strong", (result.score > 0 ? "+" : "") + result.score, "aw-impact-score " + (result.score > 0 ? "pos" : result.score < 0 ? "neg" : ""));
+    scoreNode.title = "Directional scenario score"; root.appendChild(head);
+    const contributions = new Map(result.contributions.map((row) => [row.factor, row]));
+    const table = document.createElement("table"); table.className = "aw-impact-table";
+    const thead = document.createElement("thead"); const headerRow = document.createElement("tr"); [T.macroFactor, T.sensitivity, T.activeShock, T.contribution].forEach((value) => appendText(headerRow, "th", value)); thead.appendChild(headerRow); table.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    C.shocks.forEach((def) => {
+      const row = document.createElement("tr"); const sensitivity = Number(profile[def.id] || 0); const shock = Number(state.shocks[def.id] || 0); const contribution = contributions.get(def.id)?.contribution || 0;
+      [document.documentElement.lang.startsWith("zh") ? def.labelZh : def.label, (sensitivity > 0 ? "+" : "") + sensitivity, (shock > 0 ? "+" : "") + shock + " " + def.unit, (contribution > 0 ? "+" : "") + contribution].forEach((value) => appendText(row, "td", value)); tbody.appendChild(row);
+    });
+    table.appendChild(tbody); root.appendChild(table);
   };
-  byId("aw-add-position").addEventListener("click", () => addPositionRow());
-  byId("aw-save-portfolio").addEventListener("click", () => {
-    try { setPortfolio(Array.from(document.querySelectorAll(".aw-position")).map((row) => ({ symbol: row.querySelector(".aw-pos-symbol").value, weight_pct: row.querySelector(".aw-pos-weight").value })), "User"); } catch (error) { activity(error.message); }
+  const rebalancePosition = (symbol, nextWeight) => {
+    const minOther = state.portfolio.length - 1; const target = Math.max(1, Math.min(100 - minOther, Number(nextWeight)));
+    const others = state.portfolio.filter((row) => row.symbol !== symbol); const otherTotal = others.reduce((sum, row) => sum + row.weight_pct, 0); let used = target;
+    state.portfolio = state.portfolio.map((row) => {
+      if (row.symbol === symbol) return { symbol: row.symbol, weight_pct: target };
+      const isLast = row.symbol === others[others.length - 1]?.symbol; const weight = isLast ? Number((100 - used).toFixed(2)) : Number(((row.weight_pct / otherTotal) * (100 - target)).toFixed(2)); used += weight; return { symbol: row.symbol, weight_pct: weight };
+    });
+    save(); renderPortfolioRows(); activity("User adjusted " + symbol + " to " + target + "%.");
+  };
+  const removePortfolioAsset = (symbol) => {
+    if (state.portfolio.length === 1) { activity("A portfolio needs at least one asset."); return; }
+    state.portfolio = normalizeWeights(state.portfolio.filter((row) => row.symbol !== symbol));
+    if (selectedPortfolioSymbol === symbol) selectedPortfolioSymbol = state.portfolio[0].symbol;
+    save(); renderPortfolioRows(); renderCatalog(); activity("User removed " + symbol + " from the local portfolio.");
+  };
+  const addPortfolioAsset = (symbol) => {
+    const normalized = cleanSymbol(symbol); const existing = state.portfolio.find((row) => row.symbol === normalized);
+    if (existing) { selectedPortfolioSymbol = normalized; renderPortfolioRows(); activity(normalized + " is already in the portfolio."); return; }
+    if (state.portfolio.length >= 12) { activity("Portfolio limit is 12 assets."); return; }
+    state.portfolio = equalWeights([...state.portfolio, { symbol: normalized, weight_pct: 1 }]); selectedPortfolioSymbol = normalized;
+    save(); renderPortfolioRows(); renderCatalog(); activity("User added " + normalized + " and rebalanced the portfolio equally.");
+  };
+  const renderPortfolioRows = () => {
+    const host = byId("aw-portfolio-rows"); host.replaceChildren();
+    state.portfolio.forEach((position) => {
+      const meta = labelForSymbol(position.symbol); const row = document.createElement("div"); row.className = "aw-position"; row.setAttribute("aria-selected", String(position.symbol === selectedPortfolioSymbol));
+      const symbol = document.createElement("button"); symbol.type = "button"; symbol.className = "aw-position-symbol"; symbol.setAttribute("aria-label", "Show macro impact for " + position.symbol); appendText(symbol, "b", position.symbol); appendText(symbol, "small", meta.category);
+      const range = document.createElement("input"); range.type = "range"; range.min = "1"; range.max = String(Math.max(1, 100 - (state.portfolio.length - 1))); range.step = "1"; range.value = String(position.weight_pct); range.setAttribute("aria-label", position.symbol + " portfolio weight");
+      const output = document.createElement("output"); output.textContent = position.weight_pct + "%";
+      const remove = document.createElement("button"); remove.type = "button"; remove.className = "aw-remove"; remove.textContent = "×"; remove.title = T.removeAsset; remove.setAttribute("aria-label", T.removeAsset + " " + position.symbol);
+      row.addEventListener("click", () => { selectedPortfolioSymbol = position.symbol; renderPortfolioRows(); });
+      symbol.addEventListener("click", (event) => { event.stopPropagation(); selectedPortfolioSymbol = position.symbol; renderPortfolioRows(); });
+      range.addEventListener("click", (event) => event.stopPropagation()); range.addEventListener("input", () => { output.textContent = range.value + "%"; }); range.addEventListener("change", (event) => { event.stopPropagation(); rebalancePosition(position.symbol, range.value); });
+      remove.addEventListener("click", (event) => { event.stopPropagation(); removePortfolioAsset(position.symbol); });
+      row.append(symbol, range, output, remove); host.appendChild(row);
+    });
+    renderAllocation(); renderPortfolioSummary(); renderSelectedPortfolioImpact();
+  };
+  const renderCatalogItems = (items) => {
+    const root = byId("aw-catalog-results"); root.replaceChildren();
+    items.forEach((item) => { const button = document.createElement("button"); button.type = "button"; button.className = "aw-catalog-item"; appendText(button, "b", item.symbol); appendText(button, "small", state.portfolio.some((row) => row.symbol === item.symbol) ? "Added" : "+ Add"); button.title = item.name || item.symbol; button.addEventListener("click", () => addPortfolioAsset(item.symbol)); root.appendChild(button); });
+  };
+  const renderCatalog = () => {
+    const tabs = byId("aw-category-tabs"); tabs.replaceChildren(); const isZh = document.documentElement.lang.startsWith("zh");
+    Object.keys(categoryCatalog).forEach((category) => { const button = document.createElement("button"); button.type = "button"; button.className = "aw-category"; button.setAttribute("aria-pressed", String(category === selectedCategory)); button.textContent = isZh ? categoryLabelsZh[category] : category; button.addEventListener("click", () => { selectedCategory = category; byId("aw-portfolio-search").value = ""; renderCatalog(); }); tabs.appendChild(button); });
+    byId("aw-category-label").textContent = isZh ? categoryLabelsZh[selectedCategory] : selectedCategory;
+    renderCatalogItems(categoryCatalog[selectedCategory]);
+  };
+  const matchesCategory = (result) => {
+    const type = String(result.asset_type || "").toLowerCase(); const name = String(result.name || "").toLowerCase();
+    if (selectedCategory === "Stocks") return type.includes("equity");
+    if (selectedCategory === "Bonds") return /bond|treasury|fixed income/.test(name) || type.includes("bond");
+    if (selectedCategory === "Cash") return /cash|treasury bill|short treasury/.test(name);
+    if (selectedCategory === "FX") return type.includes("currency") || /=x$/i.test(result.symbol || "");
+    if (selectedCategory === "Commodities") return type.includes("future") || /gold|silver|oil|copper|commodity/.test(name);
+    if (selectedCategory === "Crypto") return type.includes("crypto") || /-usd$/i.test(result.symbol || "");
+    return true;
+  };
+  byId("aw-portfolio-search-form").addEventListener("submit", async (event) => {
+    event.preventDefault(); const query = byId("aw-portfolio-search").value.trim(); if (!query) { renderCatalogItems(categoryCatalog[selectedCategory]); return; }
+    activity(T.loading);
+    try { const data = await searchAssets(query, 10); const matches = data.results.filter(matchesCategory).map((row) => ({ symbol: row.symbol, name: row.name })); renderCatalogItems(matches); activity("Found " + matches.length + " " + selectedCategory.toLowerCase() + " matches."); } catch (error) { activity(error.message); }
   });
+  byId("aw-equal-portfolio").addEventListener("click", () => { state.portfolio = equalWeights(state.portfolio); save(); renderPortfolioRows(); activity("User set the portfolio to equal weight."); });
+  const setPortfolio = (positions, source) => {
+    state.portfolio = validatePortfolio(positions); if (!state.portfolio.some((row) => row.symbol === selectedPortfolioSymbol)) selectedPortfolioSymbol = state.portfolio[0].symbol; save(); renderPortfolioRows(); renderCatalog(); showWorkspace("portfolio"); activity((source || "Agent") + " saved " + state.portfolio.length + " local positions."); return portfolioResult();
+  };
 
   const snapshot = () => ({
     generated_at: new Date().toISOString(), dashboard: { title: D.title, stamp: D.stamp, regime: D.regime, assets: D.assets.map((asset, index) => ({ name: asset.name, verdict: asset.verdict, net_factor_score: NET[index] })), sources: D.sources },
@@ -387,7 +756,8 @@ export function workspaceScript(): string {
   });
   const actions = { snapshot, applyScenario, resetWorkspace, searchAssets, getAssetContext, renderLens, setPortfolio };
   globalThis.__macroWorkspace = actions;
-  renderShockInputs(); renderAtlas(); renderPortfolioRows();
+  try { state.portfolio = validatePortfolio(state.portfolio); } catch (_) { state.portfolio = [{ symbol: "SPY", weight_pct: 40 }, { symbol: "TLT", weight_pct: 30 }, { symbol: "XAU", weight_pct: 15 }, { symbol: "BTC-USD", weight_pct: 15 }]; }
+  hydrateLayout(); renderShockInputs(); renderAtlas(); renderPortfolioRows(); renderCatalog();
 
   const schema = {
     shocks: { type: "object", properties: Object.fromEntries(C.shocks.map((def) => [def.id, { type: "number", minimum: def.min, maximum: def.max, description: def.label + " shock in " + def.unit }])), additionalProperties: false },

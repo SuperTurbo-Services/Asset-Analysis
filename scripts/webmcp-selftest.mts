@@ -58,6 +58,16 @@ for (const lang of ["en", "zh"] as const) {
   assert.doesNotMatch(html, /<iframe/i, "site tools must live in the top-level document");
   assert.match(html, /additionalProperties: false/);
   assert.match(html, /Not financial advice|不构成投资建议/);
+  assert.match(html, /data-aw-tab="overview"/);
+  assert.match(html, /data-aw-tab="asset"/);
+  assert.match(html, /data-aw-tab="portfolio"/);
+  assert.match(html, /id="aw-verdict-slot"/, "overview must preserve the four-asset verdict board");
+  assert.match(html, /id="aw-analysis-slot"/, "asset analysis must preserve the four-asset factor view");
+  assert.match(html, /id="aw-category-tabs"/);
+  assert.match(html, /id="aw-portfolio-search"/);
+  assert.match(html, /id="aw-portfolio-rows"/);
+  assert.match(html, /id="aw-selected-impact"/, "portfolio must expose selected-asset macro impact");
+  assert.equal((html.match(/range\.type = "range"/g) ?? []).length, 2, "portfolio and shock weights must use range controls");
 }
 
-console.log("  OK    scenario bounds, lenses, portfolios, bilingual page, and 7 imperative site tools");
+console.log("  OK    Direction B UI, four-asset views, portfolio controls, bilingual page, and 7 imperative site tools");
