@@ -1,5 +1,7 @@
 # 笔记涨粉诊断台
 
+> **WebMCP Challenge entry:** Macro Impact Dashboard is documented in English in [`WEBMCP_CHALLENGE.md`](./WEBMCP_CHALLENGE.md), with paste-ready Devpost copy and judge instructions in [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md). The WebMCP implementation was added during the August 25–September 3, 2026 submission period.
+
 把小红书创作者后台的导出表变成一份诊断看板。核心不是画图，是**把「为什么不涨粉」定位到具体环节**。
 
 线上： https://superturbo.app/xiaohongshu-growth-dashboard

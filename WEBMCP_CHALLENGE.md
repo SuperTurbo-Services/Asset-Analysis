@@ -2,6 +2,8 @@
 
 Submission URL: https://superturbo.app/macro-dashboard
 
+Paste-ready Devpost copy, testing instructions, prior-vs-new documentation, and the sub-three-minute video plan are in [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md).
+
 Macro Impact Dashboard turns a daily, fixed-factor macro report into a shared human-and-agent research surface. A visitor can see the current four-asset verdict grid, then use three connected workspaces:
 
 1. **Shock Atlas** — apply bounded growth, inflation, rates, credit, dollar, oil, and volatility shocks across SPY, QQQ, TLT, cash, DXY, gold, WTI, and Bitcoin.
@@ -48,6 +50,10 @@ Read tools use `readOnlyHint`. Open-web results are marked with `openWorldHint` 
 4. Ask: “Set a 50% SPY, 25% TLT, 15% XAU, 10% NVDA portfolio and show its weather map.”
 5. Point out that NVDA changes from “lens needed” to covered after the agent renders the lens, while the holdings remain local.
 6. Open the Chinese route and show the same site-tool workspace in Chinese.
+
+## Work added during the challenge window
+
+This is a meaningful WebMCP extension of a pre-existing read-only macro report. The original report covered four daily verdicts. Commit `490540e`, dated September 1, 2026, added the Shock Atlas, arbitrary-ticker data layer and Asset Lens, local Portfolio Weather Map, seven imperative tools, shared state, validation and safety controls, bilingual workspace, tests, MIT license, and challenge documentation. The full prior-vs-new breakdown is included in [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md).
 
 ## Test prompts
 
