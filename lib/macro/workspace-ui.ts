@@ -71,7 +71,9 @@ const TEXT = {
     contribution: "Contribution",
     weatherTitle: "PORTFOLIO WEATHER",
     weatherCopy: "Weighted directional impact from the active Shock Atlas scenario. It is sensitivity, not a return forecast.",
+    currentWeatherCopy: "Weighted impact from the current four asset factor grid. It is a macro regime read, not a return forecast.",
     clickHolding: "click a holding to inspect its macro impact",
+    currentImpactCopy: "Current dashboard factor grid score. Choose a future scenario to see shock-by-shock contributions.",
     noProfile: "No factor profile is available yet. Use the optional WebMCP research panel in Asset Analysis, then ask Codex to render a cited lens for this ticker.",
     strongTailwind: "Strong tailwind",
     mildTailwind: "Mild tailwind",
@@ -149,7 +151,9 @@ const TEXT = {
     contribution: "贡献",
     weatherTitle: "组合天气",
     weatherCopy: "根据当前 Shock Atlas 情景加权计算的方向影响。它代表敏感度，不是收益率预测。",
+    currentWeatherCopy: "根据当前四类资产因子网格加权计算的影响。它是宏观环境判断，不是收益率预测。",
     clickHolding: "点击持仓查看该资产的宏观影响",
+    currentImpactCopy: "这是当前看板因子网格的得分。选择未来情景后可查看每项冲击的贡献。",
     noProfile: "这个资产还没有因子画像。请在资产分析页打开可选的 WebMCP 研究区，再让 Codex 为该代码生成带引用的资产透镜。",
     strongTailwind: "强顺风",
     mildTailwind: "温和顺风",
@@ -492,7 +496,7 @@ export function workspaceScript(): string {
     }
   };
   const categoryCatalog = {
-    Stocks: [{ symbol: "SPY", name: "US market" }, { symbol: "QQQ", name: "Growth" }, { symbol: "AAPL", name: "Apple" }, { symbol: "MSFT", name: "Microsoft" }],
+    Stocks: [{ symbol: "SPY", name: "US market" }, { symbol: "VOO", name: "Vanguard S&P 500 ETF" }, { symbol: "IVV", name: "iShares Core S&P 500 ETF" }, { symbol: "QQQ", name: "Growth" }, { symbol: "AAPL", name: "Apple" }, { symbol: "MSFT", name: "Microsoft" }],
     Bonds: [{ symbol: "TLT", name: "Long Treasuries" }, { symbol: "IEF", name: "Intermediate Treasuries" }, { symbol: "HYG", name: "High yield credit" }, { symbol: "LQD", name: "Investment grade credit" }],
     Cash: [{ symbol: "CASH", name: "US cash proxy" }, { symbol: "BIL", name: "Treasury bills" }, { symbol: "SGOV", name: "Short Treasuries" }],
     FX: [{ symbol: "DXY", name: "US dollar index" }, { symbol: "EURUSD=X", name: "Euro dollar" }, { symbol: "JPY=X", name: "Dollar yen" }],
@@ -571,13 +575,25 @@ export function workspaceScript(): string {
     return { symbol, score: Math.max(-5, Math.min(5, raw)), contributions };
   };
   const profileFor = (symbol) => {
-    const curated = C.assets.find((asset) => asset.symbol === symbol);
+    const aliases = { VOO: "SPY", IVV: "SPY", BTC: "BTC-USD", GLD: "XAU" };
+    const normalized = aliases[symbol] || symbol;
+    const curated = C.assets.find((asset) => asset.symbol === normalized);
     if (curated) return curated.sensitivities;
     const lens = state.lenses[symbol];
     if (!lens) return null;
     const profile = {};
     lens.exposures.forEach((row) => { profile[row.factor] = row.sensitivity; });
     return profile;
+  };
+  const currentScoreForSymbol = (symbol) => {
+    const groups = [
+      new Set(["SPY", "VOO", "IVV", "QQQ", "AAPL", "MSFT"]),
+      new Set(["CASH", "BIL", "SGOV"]),
+      new Set(["XAU", "GLD", "GC=F"]),
+      new Set(["BTC", "BTC-USD", "ETH-USD", "SOL-USD"])
+    ];
+    const index = groups.findIndex((group) => group.has(symbol));
+    return index >= 0 ? NET[index] : null;
   };
   const scenarioResults = () => C.assets.map((asset) => score(asset.symbol, asset.sensitivities, state.shocks));
   const showWorkspace = (name) => {
@@ -773,8 +789,8 @@ export function workspaceScript(): string {
   };
   const portfolioResult = () => {
     const positions = state.portfolio.map((position) => {
-      const profile = profileFor(position.symbol); const result = profile ? score(position.symbol, profile, state.shocks) : null;
-      return Object.assign({}, position, { impact_score: result ? result.score : null, weighted_impact: result ? Number((result.score * position.weight_pct / 100).toFixed(3)) : null, needs_lens: !profile });
+      const profile = profileFor(position.symbol); const currentScore = activeScenario === "current" ? currentScoreForSymbol(position.symbol) : null; const result = activeScenario === "current" ? null : profile ? score(position.symbol, profile, state.shocks) : null; const impactScore = currentScore !== null ? currentScore : result ? result.score : null;
+      return Object.assign({}, position, { impact_score: impactScore, weighted_impact: impactScore !== null ? Number((impactScore * position.weight_pct / 100).toFixed(3)) : null, needs_lens: impactScore === null });
     });
     const covered = positions.filter((row) => row.weighted_impact !== null); const total = covered.reduce((sum, row) => sum + row.weighted_impact, 0);
     return { positions, portfolio_impact: Number(total.toFixed(3)), covered_weight_pct: covered.reduce((sum, row) => sum + row.weight_pct, 0), note: "Local directional sensitivity only; no trades, target prices, or personalized advice." };
@@ -785,7 +801,7 @@ export function workspaceScript(): string {
     const scoreNode = appendText(root, "strong", (result.portfolio_impact > 0 ? "+" : "") + result.portfolio_impact.toFixed(2), "aw-weather-score " + (result.portfolio_impact > 0 ? "pos" : result.portfolio_impact < 0 ? "neg" : ""));
     const label = result.portfolio_impact >= 2 ? T.strongTailwind : result.portfolio_impact > 0 ? T.mildTailwind : result.portfolio_impact <= -2 ? T.strongHeadwind : result.portfolio_impact < 0 ? T.mildHeadwind : T.balanced;
     appendText(root, "h3", label, "aw-weather-label");
-    appendText(root, "p", T.weatherCopy, "aw-weather-copy");
+    appendText(root, "p", activeScenario === "current" ? T.currentWeatherCopy : T.weatherCopy, "aw-weather-copy");
     appendText(root, "p", "Covered weight " + result.covered_weight_pct + "% · " + T.clickHolding, "aw-weather-meta");
     return scoreNode;
   };
@@ -801,9 +817,10 @@ export function workspaceScript(): string {
     if (!profile) {
       root.appendChild(head); appendText(root, "p", T.noProfile, "aw-impact-empty"); return;
     }
-    const result = score(position.symbol, profile, state.shocks);
+    const currentScore = activeScenario === "current" ? currentScoreForSymbol(position.symbol) : null; const result = currentScore === null ? score(position.symbol, profile, state.shocks) : { symbol: position.symbol, score: currentScore, contributions: [] };
     const scoreNode = appendText(head, "strong", (result.score > 0 ? "+" : "") + result.score, "aw-impact-score " + (result.score > 0 ? "pos" : result.score < 0 ? "neg" : ""));
-    scoreNode.title = "Directional scenario score"; root.appendChild(head);
+    scoreNode.title = activeScenario === "current" ? "Current factor grid score" : "Directional scenario score"; root.appendChild(head);
+    if (activeScenario === "current") { appendText(root, "p", T.currentImpactCopy, "aw-impact-empty"); return; }
     const contributions = new Map(result.contributions.map((row) => [row.factor, row]));
     const table = document.createElement("table"); table.className = "aw-impact-table";
     const thead = document.createElement("thead"); const headerRow = document.createElement("tr"); [T.macroFactor, T.sensitivity, T.activeShock, T.contribution].forEach((value) => appendText(headerRow, "th", value)); thead.appendChild(headerRow); table.appendChild(thead);
