@@ -12,6 +12,14 @@ WebMCP naming refinement, recorded verbatim:
 
 > update the website, if user tell you a scenario, just put the short name of the scenario in the text of the centar circle
 
+Cross-view synchronization refinement, recorded verbatim:
+
+> if the market over view change the scenario , also change the asset analysis  and porfolio too to the set scenario, add a bottom return to current scenario  to each three part
+
+Button placement correction, recorded verbatim:
+
+> 不要在底部return to current， 放在右上角
+
 Implementation interpretation:
 
 - Use Direction A's event compass.

@@ -23,6 +23,7 @@ const TEXT = {
     scenarioControlsSub: "Move any macro input to create a customized scenario.",
     codexScenarioHint: "Ask Codex to give you a customized scenario analysis.",
     scenarioNote: "Directional sensitivity, not a price forecast or investment advice.",
+    returnCurrentScenario: "Return to current scenario",
     soft: "Soft landing",
     flare: "Inflation flare",
     search: "Search",
@@ -103,6 +104,7 @@ const TEXT = {
     scenarioControlsSub: "调整任一宏观变量，即可创建自定义情景。",
     codexScenarioHint: "让 Codex 为你生成自定义情景分析。",
     scenarioNote: "仅表示方向性敏感度，不是价格预测或投资建议。",
+    returnCurrentScenario: "返回当前宏观情景",
     soft: "软着陆",
     flare: "通胀再起",
     search: "搜索",
@@ -333,6 +335,8 @@ export function workspaceCss(): string {
   .aw-impact-empty { color: var(--text-secondary); font-size: 13px; }
   .aw-activity { margin-top: 12px; display: flex; align-items: center; gap: 7px; color: var(--text-muted); font-size: 12px; }
   .aw-activity b { color: var(--text-secondary); }
+  .aw-panel-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 7px; }
+  .aw-panel-actions .aw-btn:disabled { opacity: .42; cursor: default; }
   :root[data-theme="dark"] .aw-shell { --aw-paper: #20231f; --aw-navy: #132638; --aw-navy-2: #8fb2d8; --aw-mineral: #698a77; }
   :root[data-theme="dark"] .aw-tab[aria-selected="true"] { background: #e9e6df; }
   @media (max-width: 1040px) {
@@ -416,7 +420,7 @@ export function workspaceBody(lang: Lang): string {
           </section>
 
           <section class="aw-panel" id="aw-asset" data-aw-panel="asset" hidden>
-            <div class="aw-panel-head"><div><p class="aw-eyebrow">FOUR ASSET FACTOR MAP</p><h2>${t.assetAnalysis}</h2><p>${t.assetAnalysisSub}</p></div></div>
+            <div class="aw-panel-head"><div><p class="aw-eyebrow">FOUR ASSET FACTOR MAP</p><h2>${t.assetAnalysis}</h2><p>${t.assetAnalysisSub}</p></div><div class="aw-panel-actions"><span class="aw-local" id="aw-asset-scenario"></span><button class="aw-btn" data-return-current="asset" type="button">${t.returnCurrentScenario}</button></div></div>
             <div class="aw-analysis-content" id="aw-analysis-slot"></div>
             <details class="aw-research-lab" id="aw-research-lab"><summary>${t.researchLab}</summary><div class="aw-research-body">
               <p class="section-s">${t.lensSub}</p>
@@ -427,7 +431,7 @@ export function workspaceBody(lang: Lang): string {
           </section>
 
           <section class="aw-panel" id="aw-portfolio" data-aw-panel="portfolio" hidden>
-            <div class="aw-panel-head"><div><p class="aw-eyebrow">LOCAL ONLY SCENARIO</p><h2>${t.portfolioBuilder}</h2><p>${t.portfolioBuilderSub}</p></div><span class="aw-local">${t.privacy}</span></div>
+            <div class="aw-panel-head"><div><p class="aw-eyebrow">LOCAL ONLY SCENARIO</p><h2>${t.portfolioBuilder}</h2><p>${t.portfolioBuilderSub}</p></div><div class="aw-panel-actions"><span class="aw-local" id="aw-portfolio-scenario"></span><span class="aw-local">${t.privacy}</span><button class="aw-btn" data-return-current="portfolio" type="button">${t.returnCurrentScenario}</button></div></div>
             <div class="aw-allocation" id="aw-allocation"></div>
             <div class="aw-portfolio-grid">
               <section class="aw-portfolio-catalog"><div class="aw-section-title"><h3>${t.addAsset}</h3><small id="aw-category-label"></small></div><div class="aw-category-tabs" id="aw-category-tabs"></div><form class="aw-catalog-search" id="aw-portfolio-search-form"><input class="aw-input" id="aw-portfolio-search" maxlength="80" placeholder="${t.searchCategory}" autocomplete="off"><button class="aw-btn primary" type="submit">${t.search}</button></form><div class="aw-catalog-results" id="aw-catalog-results"></div></section>
@@ -517,6 +521,8 @@ export function workspaceScript(): string {
   let activeScenario = Object.keys(state.shocks).length ? "custom" : "current";
   let currentBoardHtml = "";
   let currentBannerHtml = "";
+  let currentCardsHtml = "";
+  let currentMatrixHtml = "";
   const scenarioMetaFor = (key) => key === "custom" && state.scenario_name ? { label: state.scenario_name, sub: scenarioMeta.custom.sub } : scenarioMeta[key];
   const byId = (id) => document.getElementById(id);
   const activity = (message) => { byId("aw-activity").textContent = message; };
@@ -532,7 +538,7 @@ export function workspaceScript(): string {
     byId("aw-stamp").textContent = D.stamp;
     byId("aw-regime").textContent = D.regime;
     const theme = byId("themebtn"); if (theme) byId("aw-theme-slot").appendChild(theme);
-    currentBoardHtml = byId("board").innerHTML; currentBannerHtml = byId("banner").innerHTML;
+    currentBoardHtml = byId("board").innerHTML; currentBannerHtml = byId("banner").innerHTML; currentCardsHtml = byId("cards").innerHTML; currentMatrixHtml = byId("matrix").innerHTML;
     const verdictSlot = byId("aw-verdict-slot"); verdictSlot.append(byId("board"), byId("banner"));
     const signals = byId("aw-signals-slot"); signals.append(makeHeading(T.signalsTitle, T.signalsSub), byId("tiles"));
     const analysis = byId("aw-analysis-slot");
@@ -630,6 +636,38 @@ export function workspaceScript(): string {
     if (result.score < 0) return isZh ? factor + " 是当前主要逆风。" : factor + " is the main headwind in this custom scenario.";
     return isZh ? "顺风与逆风大致抵消。" : "Tailwinds and headwinds broadly offset each other.";
   };
+  const signedValue = (value) => value > 0 ? "+" + value : value < 0 ? "−" + Math.abs(value) : "0";
+  const renderScenarioContext = () => {
+    const label = activeScenario === "current" ? T.currentMacro : scenarioMetaFor(activeScenario).label;
+    byId("aw-asset-scenario").textContent = label; byId("aw-portfolio-scenario").textContent = label;
+    document.querySelectorAll("[data-return-current]").forEach((button) => { button.disabled = activeScenario === "current"; });
+  };
+  const renderAssetAnalysis = () => {
+    const cards = byId("cards"); const matrix = byId("matrix");
+    if (activeScenario === "current") { cards.innerHTML = currentCardsHtml; matrix.innerHTML = currentMatrixHtml; return; }
+    const results = overviewSymbols.map((symbol) => scenarioResults().find((result) => result.symbol === symbol));
+    cards.replaceChildren();
+    results.forEach((result) => {
+      const asset = C.assets.find((item) => item.symbol === result.symbol); const verdict = verdictFor(result.score); const card = document.createElement("div"); card.className = "card";
+      const head = document.createElement("div"); head.className = "card-head"; appendText(head, "span", isZh ? asset.nameZh : asset.name, "card-name"); const verdictNode = appendText(head, "span", verdict.arrow + " " + verdict.word, "verdict " + verdict.dir); card.appendChild(head);
+      appendText(card, "div", scenarioMetaFor(activeScenario).label + " · " + (isZh ? "方向性情景影响" : "directional scenario impact"), "qual");
+      const strongest = [...result.contributions].sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution)).slice(0, 3);
+      if (!strongest.length) appendText(card, "p", isZh ? "这个情景没有激活该资产的因子。" : "This scenario does not activate a factor for this asset.", "section-s");
+      strongest.forEach((row) => {
+        const def = shockDefinition(row.factor); const factor = document.createElement("div"); factor.className = "factor"; appendText(factor, "span", row.contribution > 0 ? "+" : "−", "fdot " + (row.contribution > 0 ? "up" : "down"));
+        const copy = document.createElement("span"); appendText(copy, "span", (isZh ? def.labelZh : def.label) + " " + signedValue(row.shock) + " " + def.unit, "fhead"); appendText(copy, "span", T.sensitivity + " " + signedValue(row.sensitivity) + " · " + T.contribution + " " + signedValue(row.contribution), "fbody"); factor.appendChild(copy); card.appendChild(factor);
+      });
+      cards.appendChild(card);
+    });
+    matrix.replaceChildren(); const thead = document.createElement("thead"); const header = document.createElement("tr"); appendText(header, "th", T.macroFactor, "rowh"); appendText(header, "th", T.activeShock, "readh"); results.forEach((result) => { const asset = C.assets.find((item) => item.symbol === result.symbol); appendText(header, "th", isZh ? asset.nameZh : asset.name); }); thead.appendChild(header); matrix.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    C.shocks.forEach((def) => {
+      const row = document.createElement("tr"); appendText(row, "td", isZh ? def.labelZh : def.label, "rowl"); const shock = Number(state.shocks[def.id] || 0); appendText(row, "td", signedValue(shock) + " " + def.unit, "readl");
+      results.forEach((result) => { const contribution = result.contributions.find((item) => item.factor === def.id)?.contribution || 0; const cell = document.createElement("td"); const marker = appendText(cell, "span", contribution > 0 ? "+" : contribution < 0 ? "−" : "·", "cell " + (contribution > 0 ? "p" : contribution < 0 ? "n" : "z")); marker.title = (isZh ? def.labelZh : def.label) + " · " + T.contribution + " " + signedValue(contribution); row.appendChild(cell); }); tbody.appendChild(row);
+    });
+    const scoreRow = document.createElement("tr"); scoreRow.className = "tally"; appendText(scoreRow, "td", isZh ? "净得分" : "Net score", "rowl"); appendText(scoreRow, "td", isZh ? "情景贡献之和" : "sum of scenario contributions", "readl"); results.forEach((result) => appendText(scoreRow, "td", signedValue(result.score))); tbody.appendChild(scoreRow);
+    const verdictRow = document.createElement("tr"); verdictRow.className = "tally"; appendText(verdictRow, "td", isZh ? "判断" : "Verdict", "rowl"); appendText(verdictRow, "td", scenarioMetaFor(activeScenario).label, "readl"); results.forEach((result) => { const verdict = verdictFor(result.score); const cell = document.createElement("td"); appendText(cell, "span", verdict.word, "verdict " + verdict.dir); verdictRow.appendChild(cell); }); tbody.appendChild(verdictRow); matrix.appendChild(tbody);
+  };
   const renderScenarioVerdicts = () => {
     const board = byId("board"); const banner = byId("banner");
     byId("aw-regime-label").textContent = activeScenario === "current" ? T.activeMacro : T.activeScenario;
@@ -660,13 +698,12 @@ export function workspaceScript(): string {
     const currentButton = byId("aw-current"); currentButton.disabled = activeScenario === "current";
   };
   const renderAtlas = () => {
-    renderScenarioVerdicts();
-    renderPortfolioSummary();
+    renderScenarioVerdicts(); renderAssetAnalysis(); renderScenarioContext(); renderPortfolioSummary(); renderSelectedPortfolioImpact();
   };
-  const selectScenario = (key, source, fromRect) => {
+  const selectScenario = (key, source, fromRect, workspaceName) => {
     if (!scenarioMeta[key] || key === "custom") return;
     activeScenario = key; state.scenario_name = ""; state.shocks = key === "current" ? {} : validateShocks(presets[key]); save(); renderShockInputs(); renderScenarioCircles(fromRect); renderAtlas();
-    activity((source || "User") + " selected " + scenarioMeta[key].label + "."); showWorkspace("overview");
+    activity((source || "User") + " selected " + scenarioMeta[key].label + "."); showWorkspace(workspaceName || "overview");
   };
   const applyScenario = (input, source) => {
     const scenarioName = input && input.scenario_name != null ? String(input.scenario_name).trim().replace(/\s+/g, " ") : "";
@@ -677,6 +714,7 @@ export function workspaceScript(): string {
     return { applied: true, scenario_name: state.scenario_name, shocks: state.shocks, atlas: scenarioResults(), note: "Directional sensitivity scores, not forecasts or investment advice." };
   };
   byId("aw-current").addEventListener("click", () => selectScenario("current", "User"));
+  document.querySelectorAll("[data-return-current]").forEach((button) => button.addEventListener("click", () => selectScenario("current", "User", null, button.dataset.returnCurrent)));
   const resetWorkspace = (source) => {
     state.shocks = {}; state.scenario_name = ""; state.contexts = {}; state.lenses = {}; state.portfolio = [{ symbol: "SPY", weight_pct: 40 }, { symbol: "TLT", weight_pct: 30 }, { symbol: "XAU", weight_pct: 15 }, { symbol: "BTC-USD", weight_pct: 15 }];
     activeScenario = "current"; selectedPortfolioSymbol = state.portfolio[0].symbol;
