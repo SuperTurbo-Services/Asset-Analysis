@@ -7,17 +7,33 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   // template/macro-dashboard.html 在运行时用 fs 读取，必须打进函数包里
   outputFileTracingIncludes: {
-    '/macro-dashboard': ['./template/**', './data/**'],
-    '/macro-dashboard/zh': ['./template/**', './data/**'],
+    '/asset-analysis': ['./template/**', './data/**'],
+    '/asset-analysis/zh': ['./template/**', './data/**'],
   },
-  // 分享出去过的 ?lang=zh 链接继续能用
+  // 新旧分享链接继续能用；旧名称永久跳到新的 Asset Analysis 地址。
   async redirects() {
     return [
       {
+        source: '/asset-analysis',
+        has: [{ type: 'query', key: 'lang', value: 'zh' }],
+        destination: '/asset-analysis/zh',
+        permanent: false,
+      },
+      {
         source: '/macro-dashboard',
         has: [{ type: 'query', key: 'lang', value: 'zh' }],
-        destination: '/macro-dashboard/zh',
-        permanent: false,
+        destination: '/asset-analysis/zh',
+        permanent: true,
+      },
+      {
+        source: '/macro-dashboard/zh',
+        destination: '/asset-analysis/zh',
+        permanent: true,
+      },
+      {
+        source: '/macro-dashboard',
+        destination: '/asset-analysis',
+        permanent: true,
       },
     ];
   },

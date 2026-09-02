@@ -1,10 +1,10 @@
-# Devpost Submission · Macro Impact Dashboard
+# Devpost Submission · Asset Analysis
 
 This file is paste-ready source material for the WebMCP Challenge submission form. Replace the video placeholder after recording and uploading the public YouTube demo.
 
 ## Project name
 
-Macro Impact Dashboard
+Asset Analysis
 
 ## Tagline
 
@@ -12,14 +12,14 @@ One live macro workspace where people and agents can stress every major asset cl
 
 ## Links
 
-- Live project: https://superturbo.app/macro-dashboard
-- Chinese interface: https://superturbo.app/macro-dashboard/zh
+- Live project: https://superturbo.app/asset-analysis
+- Chinese interface: https://superturbo.app/asset-analysis/zh
 - Public source: https://github.com/SuperTurbo-Services/xiaohongshu-growth-dashboard
 - Demo video: **TODO — add a public YouTube URL before submission**
 
 ## Short description
 
-Macro Impact Dashboard is a WebMCP-powered research surface for self-directed investors. Its daily fixed-factor report explains the current regime across US stocks, cash, gold, and crypto. The new shared workspace lets a person or agent apply bounded macro shocks across eight asset proxies, collect keyless public evidence for an arbitrary ticker, render an evidence-cited Asset Lens, and calculate a local-only Portfolio Weather Map. The same validated functions power both the visible controls and seven top-level WebMCP tools.
+Asset Analysis is a WebMCP-powered research surface for self-directed investors. Its daily fixed-factor report explains the current regime across US stocks, cash, gold, and crypto. The new shared workspace lets a person or agent apply bounded macro shocks across eight asset proxies, collect keyless public evidence for an arbitrary ticker, render an evidence-cited Asset Lens, and calculate a local-only Portfolio Weather Map. The same validated functions power both the visible controls and seven top-level WebMCP tools.
 
 The experience is informational and deterministic: it does not place trades, publish target prices, or produce personalized financial advice.
 
@@ -105,7 +105,7 @@ WebMCP works best when a site exposes cohesive domain operations rather than low
 
 ## Testing instructions for judges
 
-1. Open https://superturbo.app/macro-dashboard in the ChatGPT desktop built-in browser or a WebMCP-enabled Chrome build.
+1. Open https://superturbo.app/asset-analysis in the ChatGPT desktop built-in browser or a WebMCP-enabled Chrome build.
 2. Open the browser's Site tools panel and confirm that seven tools are available.
 3. Ask: “Apply an inflation flare scenario and tell me which atlas assets are most exposed.”
 4. Ask: “Search AAPL, load its public context, and render a macro lens using only evidence IDs the site returned.”

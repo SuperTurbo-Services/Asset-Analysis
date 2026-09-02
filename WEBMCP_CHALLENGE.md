@@ -1,10 +1,10 @@
-# Macro Impact Dashboard · WebMCP Challenge
+# Asset Analysis · WebMCP Challenge
 
-Submission URL: https://superturbo.app/macro-dashboard
+Submission URL: https://superturbo.app/asset-analysis
 
 Paste-ready Devpost copy, testing instructions, prior-vs-new documentation, and the sub-three-minute video plan are in [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md).
 
-Macro Impact Dashboard turns a daily, fixed-factor macro report into a shared human-and-agent research surface. A visitor can see the current four-asset verdict grid, then use three connected workspaces:
+Asset Analysis turns a daily, fixed-factor macro report into a shared human-and-agent research surface. A visitor can see the current four-asset verdict grid, then use three connected workspaces:
 
 1. **Shock Atlas** — apply bounded growth, inflation, rates, credit, dollar, oil, and volatility shocks across SPY, QQQ, TLT, cash, DXY, gold, WTI, and Bitcoin.
 2. **Asset Lens** — search any Yahoo-compatible ticker, retrieve keyless public evidence, and let an agent render a cited directional sensitivity lens into the page.
@@ -75,7 +75,7 @@ npm run build
 npm run dev
 ```
 
-Open `http://localhost:3000/macro-dashboard` or `/macro-dashboard/zh`. In a browser without WebMCP, the full human interface continues to work. In the ChatGPT desktop built-in browser, use the address-bar Site tools panel to inspect the seven tools.
+Open `http://localhost:3000/asset-analysis` or `/asset-analysis/zh`. In a browser without WebMCP, the full human interface continues to work. In the ChatGPT desktop built-in browser, use the address-bar Site tools panel to inspect the seven tools.
 
 ## License
 

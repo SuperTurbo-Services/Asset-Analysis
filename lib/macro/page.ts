@@ -17,8 +17,8 @@ const DESC = {
 };
 
 const CANONICAL = {
-  en: 'https://superturbo.app/macro-dashboard',
-  zh: 'https://superturbo.app/macro-dashboard/zh',
+  en: 'https://superturbo.app/asset-analysis',
+  zh: 'https://superturbo.app/asset-analysis/zh',
 };
 
 function shell(lang: Lang, title: string, css: string, inner: string) {

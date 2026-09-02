@@ -1,6 +1,6 @@
 # 笔记涨粉诊断台
 
-> **WebMCP Challenge entry:** Macro Impact Dashboard is documented in English in [`WEBMCP_CHALLENGE.md`](./WEBMCP_CHALLENGE.md), with paste-ready Devpost copy and judge instructions in [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md). The WebMCP implementation was added during the August 25–September 3, 2026 submission period.
+> **WebMCP Challenge entry:** Asset Analysis is documented in English in [`WEBMCP_CHALLENGE.md`](./WEBMCP_CHALLENGE.md), with paste-ready Devpost copy and judge instructions in [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md). The WebMCP implementation was added during the August 25–September 3, 2026 submission period.
 
 把小红书创作者后台的导出表变成一份诊断看板。核心不是画图，是**把「为什么不涨粉」定位到具体环节**。
 
@@ -134,9 +134,9 @@ MIT
 
 ---
 
-# 宏观影响看板 · macro-dashboard
+# 资产分析 · Asset Analysis
 
-同一个仓库里的第二个工具。线上： https://superturbo.app/macro-dashboard
+同一个仓库里的第二个工具。线上： https://superturbo.app/asset-analysis
 
 ## WebMCP 协作工作台
 
@@ -156,7 +156,7 @@ MIT
 每天自动重建一次，回答一个问题：当下的宏观环境，对美股、现金、黄金、加密这四类资产
 是看多还是看跌。来源是 `macro-dashboard` 这个 skill，把它变成了不需要人来跑的网站。
 
-中英双语，两个独立的静态路径：`/macro-dashboard` 英文，`/macro-dashboard/zh` 中文，
+中英双语，两个独立的静态路径：`/asset-analysis` 英文，`/asset-analysis/zh` 中文，
 右上角切换，在深色模式按钮旁边。首页的卡片直接指向中文版。老的 `?lang=zh` 链接
 由 `next.config.ts` 里的 redirect 接住。
 
@@ -205,7 +205,7 @@ MIT
 
 ## 为什么它是一份独立文档
 
-`app/macro-dashboard/route.ts` 返回的是完整 HTML，不是 React 页面。因为站点的
+`app/asset-analysis/route.ts` 返回的是完整 HTML，不是 React 页面。因为站点的
 `app/globals.css` 里有 `.wrap`、`.card`、`.tabs`、`.panel` 这些类名，和 skill 模板
 撞在一起，其中 `.panel` 是两栏 grid，同一份文档里会把看板挤成两列。独立文档既避开了
 样式冲突，也让模板保持原样。
@@ -297,8 +297,8 @@ URL 不变 —— route group 的括号目录不进路径。
 
 **文案只有一份。** `lib/site/home.ts` 里每条文案是一个 `{ zh, en }`，
 `components/HomePage.tsx` 按 lang 取。加工具就往 `TOOLS` 里加一条，两版一起有。
-工具卡的链接也是分语言的：宏观看板在英文首页指 `/macro-dashboard`，中文首页指
-`/macro-dashboard/zh`。界面只有中文的工具在 `TOOLS` 里标 `zhOnly`，英文首页会在
+工具卡的链接也是分语言的：资产分析在英文首页指 `/asset-analysis`，中文首页指
+`/asset-analysis/zh`。界面只有中文的工具在 `TOOLS` 里标 `zhOnly`，英文首页会在
 标题旁挂一枚 Chinese interface 的小标，点进去之前先知道。
 
 **小红书那页的标题**在 `app/(zh)/xiaohongshu-growth-dashboard/layout.tsx` 里。

@@ -62,12 +62,12 @@ export const TOOLS: Tool[] = [
   },
   {
     href: {
-      zh: '/macro-dashboard/zh',
-      en: '/macro-dashboard',
+      zh: '/asset-analysis/zh',
+      en: '/asset-analysis',
     },
     name: {
-      zh: '宏观影响看板',
-      en: 'Macro Impact Dashboard',
+      zh: '资产分析',
+      en: 'Asset Analysis',
     },
     blurb: {
       zh: '美股、现金、黄金、加密四类资产，在当下的宏观环境里是看多还是看跌。每天自动重建一次，数字全部来自 FRED 和市场行情，模型只负责打分和写判断。',

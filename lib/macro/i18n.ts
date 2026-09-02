@@ -32,7 +32,7 @@ export function formatStamp(
 
 /** Everything the deterministic half of the payload puts on the page. */
 export const S = {
-  title: { en: 'Macro Impact Dashboard', zh: '宏观影响看板' },
+  title: { en: 'Asset Analysis', zh: '资产分析' },
   assets: {
     'US Stocks': { en: 'US Stocks', zh: '美股' },
     'US Cash': { en: 'US Cash', zh: '美元现金' },
@@ -255,7 +255,7 @@ export function localizeTemplate(parts: TemplateParts, lang: Lang): TemplatePart
   }
 
   const other: Lang = lang === 'zh' ? 'en' : 'zh';
-  const href = other === 'zh' ? '/macro-dashboard/zh' : '/macro-dashboard';
+  const href = other === 'zh' ? '/asset-analysis/zh' : '/asset-analysis';
   const button = `<a class="themebtn" href="${href}" hreflang="${other}" style="text-decoration:none">${S.switchTo[lang]}</a>`;
   const anchor = '<button class="themebtn" id="themebtn"';
   if (!body.includes(anchor)) {

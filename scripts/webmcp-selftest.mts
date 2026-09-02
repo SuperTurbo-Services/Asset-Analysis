@@ -69,8 +69,9 @@ for (const lang of ["en", "zh"] as const) {
   assert.match(html, /renderAssetAnalysis/, "asset analysis must respond to the active scenario");
   assert.equal((html.match(/data-return-current=/g) ?? []).length, 2, "asset and portfolio views must expose top-right return-to-current actions");
   assert.match(html, /class="aw-language"/, "workspace header must expose the language switch");
-  assert.match(html, /href="\/macro-dashboard"/, "language switch must link to English");
-  assert.match(html, /href="\/macro-dashboard\/zh"/, "language switch must link to Chinese");
+  assert.match(html, /Asset Analysis|资产分析/, "page must use the new product name");
+  assert.match(html, /href="\/asset-analysis"/, "language switch must link to English");
+  assert.match(html, /href="\/asset-analysis\/zh"/, "language switch must link to Chinese");
   assert.match(html, /Ask Codex to give you a customized scenario analysis|让 Codex 为你生成自定义情景分析/);
   assert.doesNotMatch(html, /id="aw-atlas-results"/, "overview must not render the old ticker score strip");
   assert.match(html, /id="aw-verdict-slot"/, "overview must preserve the four-asset verdict board");

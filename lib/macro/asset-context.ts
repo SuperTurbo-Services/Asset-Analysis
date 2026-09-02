@@ -2,8 +2,8 @@ import { normalizeSymbol } from "./workspace";
 
 const YAHOO_BASE = "https://query1.finance.yahoo.com";
 const SEC_TICKERS = "https://www.sec.gov/files/company_tickers_exchange.json";
-const SEC_UA = "Macro Impact Dashboard research@superturbo.app";
-const DEFAULT_UA = "Macro Impact Dashboard (+https://superturbo.app/macro-dashboard)";
+const SEC_UA = "Asset Analysis research@superturbo.app";
+const DEFAULT_UA = "Asset Analysis (+https://superturbo.app/asset-analysis)";
 
 type CacheEntry<T> = { expiresAt: number; value: T };
 const memoryCache = new Map<string, CacheEntry<unknown>>();

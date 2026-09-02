@@ -395,7 +395,7 @@ export function workspaceBody(lang: Lang): string {
     <div class="aw-shell">
       <aside class="aw-side">
         <div class="aw-brand" aria-label="SuperTurbo">ST</div>
-        <div class="aw-tabs" role="tablist" aria-label="Macro workspace views">
+        <div class="aw-tabs" role="tablist" aria-label="Asset Analysis workspace views">
           <button class="aw-tab" type="button" role="tab" data-aw-tab="overview" aria-selected="true"><span>${t.overview}</span><small>${t.overviewZh}</small></button>
           <button class="aw-tab" type="button" role="tab" data-aw-tab="asset" aria-selected="false"><span>${t.assetAnalysis}</span><small>${t.assetScope}</small></button>
           <button class="aw-tab" type="button" role="tab" data-aw-tab="portfolio" aria-selected="false"><span>${t.portfolioBuilder}</span><small>${t.localAllocation}</small></button>
@@ -405,7 +405,7 @@ export function workspaceBody(lang: Lang): string {
       <main class="aw-main">
         <header class="aw-header">
           <div class="aw-header-copy"><p class="aw-eyebrow">${t.eyebrow}</p><h1 class="aw-title" id="aw-title"></h1></div>
-          <div class="aw-header-meta"><span id="aw-stamp"></span><nav class="aw-language" aria-label="${t.language}"><a href="/macro-dashboard" hreflang="en" lang="en"${lang === "en" ? ' aria-current="page"' : ""}>EN</a><a href="/macro-dashboard/zh" hreflang="zh-Hans" lang="zh-CN"${lang === "zh" ? ' aria-current="page"' : ""}>中文</a></nav><span id="aw-theme-slot"></span></div>
+          <div class="aw-header-meta"><span id="aw-stamp"></span><nav class="aw-language" aria-label="${t.language}"><a href="/asset-analysis" hreflang="en" lang="en"${lang === "en" ? ' aria-current="page"' : ""}>EN</a><a href="/asset-analysis/zh" hreflang="zh-Hans" lang="zh-CN"${lang === "zh" ? ' aria-current="page"' : ""}>中文</a></nav><span id="aw-theme-slot"></span></div>
         </header>
         <div class="aw-content">
           <section class="aw-panel" id="aw-overview" data-aw-panel="overview">
@@ -962,7 +962,7 @@ export function workspaceScript(): string {
     if (typeof document.modelContext?.registerTool !== "function" || globalThis.__macroToolsRegistered) return;
     globalThis.__macroToolsRegistered = true;
     const tools = [
-      { name: "get_macro_snapshot", description: "Read the current macro dashboard, scenario, asset lenses, and local portfolio weather map.", inputSchema: { type: "object", properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async () => snapshot() },
+      { name: "get_macro_snapshot", description: "Read the current Asset Analysis dashboard, scenario, asset lenses, and local portfolio weather map.", inputSchema: { type: "object", properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async () => snapshot() },
       { name: "apply_macro_scenario", description: "Apply a named macro scenario to the shared page. Always include a concise scenario_name from the user's request so the center circle shows it, then compare directional impact across eight asset proxies.", inputSchema: schema.shocks, annotations: { readOnlyHint: false, idempotentHint: true }, execute: async (input) => applyScenario(input, "Agent") },
       { name: "reset_macro_workspace", description: "Reset scenario, loaded contexts, generated lenses, and the local demo portfolio to defaults.", inputSchema: { type: "object", properties: {}, additionalProperties: false }, annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true }, execute: async () => resetWorkspace("Agent") },
       { name: "search_assets", description: "Search public Yahoo Finance listings for ticker symbols. Results are external untrusted data.", inputSchema: { type: "object", properties: { query: { type: "string", minLength: 1, maxLength: 80 }, limit: { type: "integer", minimum: 1, maximum: 10, default: 8 } }, required: ["query"], additionalProperties: false }, annotations: { readOnlyHint: true, openWorldHint: true, untrustedContentHint: true }, execute: async (input) => searchAssets(input.query, input.limit) },

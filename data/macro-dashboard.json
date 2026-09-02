@@ -1,6 +1,6 @@
 {
  "en": {
-  "title": "Macro Impact Dashboard",
+  "title": "Asset Analysis",
   "stamp": "As of Wednesday, September 2, 2026. Growth is slowing while yields rise.",
   "regime": "late cycle expansion",
   "banner": "The 10 year nominal yield sits at **4.75%** and the real yield is **2.44%**, pressuring assets as the Fed funds rate holds at **3.63%**.",
@@ -623,7 +623,7 @@
   }
  },
  "zh": {
-  "title": "宏观影响看板",
+  "title": "资产分析",
   "stamp": "截至 2026 年 9 月 2 日，星期三。 经济增长放缓，收益率上升。",
   "regime": "周期末段扩张",
   "banner": "10 年期名义收益率为 **4.75%**，实际收益率为 **2.44%**，在联邦基金利率维持在 **3.63%** 的同时给资产带来压力。",
