@@ -129,10 +129,10 @@ Record with spoken English audio, no copyrighted music, and upload publicly to Y
 
 ## Final submission checklist
 
-- [ ] Push commits to the public repository.
-- [ ] Confirm GitHub detects the root MIT `LICENSE` in the repository header.
-- [ ] Confirm the public Vercel URL serves the new build without authentication.
-- [ ] Repeat the judge workflow against production in the built-in browser.
+- [x] Push commits to the public repository.
+- [x] Confirm GitHub detects the root MIT `LICENSE` in the repository header.
+- [x] Confirm the public Vercel URL serves the new build without authentication.
+- [x] Repeat the judge workflow against production in the built-in browser.
 - [ ] Record and upload the public YouTube demo with English audio, under three minutes.
 - [ ] Replace the video placeholder above.
 - [ ] Join the hackathon and complete every required Devpost field.
