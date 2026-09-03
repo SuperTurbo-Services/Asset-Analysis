@@ -7,11 +7,23 @@
 
 **Live app:** https://superturbo.app/asset-analysis
 
-**Devpost project story:** [`DEVPOST_PROJECT_STORY.md`](./DEVPOST_PROJECT_STORY.md)
+## Product views
 
-**Judge and submission notes:** [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md)
+### Market overview and scenario compass
 
-![Asset Analysis dashboard](./design/webmcp-ui-rebuild/asset-analysis-demo.png)
+![Asset Analysis market overview and scenario compass](./docs/images/asset-analysis-market-overview.png)
+
+### Scenario settings and market signals
+
+![Asset Analysis scenario settings and market signals](./docs/images/asset-analysis-market-signals.png)
+
+### Four-asset factor analysis
+
+![Asset Analysis four-asset factor analysis](./docs/images/asset-analysis-factor-map.png)
+
+### Portfolio analysis
+
+![Asset Analysis portfolio analysis](./docs/images/asset-analysis-portfolio.png)
 
 ## Why this exists
 
@@ -80,7 +92,7 @@ The current macro report is generated offline from public market and economic so
 - GDELT supplies recent coverage, with Yahoo news as a keyless fallback.
 - Sources fail independently, and partial coverage is shown rather than invented.
 - Portfolio holdings and generated lenses stay in browser `localStorage`.
-- No account, API key, brokerage connection, or payment is required for judges.
+- No account, API key, brokerage connection, or payment is required to use the dashboard.
 
 ## Project structure
 
@@ -96,7 +108,7 @@ The current macro report is generated offline from public market and economic so
 | `template/macro-dashboard.html` | Base dashboard document. |
 | `data/macro-dashboard.json` | Latest validated static macro report. |
 
-This repository preserves the complete deployable SuperTurbo codebase because the production Vercel project serves multiple existing routes on `superturbo.app`. Asset Analysis is the WebMCP Challenge entry and the default focus of this repository.
+This repository preserves the complete deployable SuperTurbo codebase because the production Vercel project serves multiple existing routes on `superturbo.app`.
 
 ## Run locally
 
@@ -115,31 +127,6 @@ npm run dev
 Open http://localhost:3000/asset-analysis.
 
 The checked-in report and all WebMCP interactions run without credentials. `AI_GATEWAY_API_KEY` is needed only when regenerating the offline macro report with `npm run macro:refresh`; see [`.env.example`](./.env.example).
-
-## Judge quick test
-
-1. Open https://superturbo.app/asset-analysis in ChatGPT's in-app browser or Chrome 149+ with WebMCP enabled.
-2. Confirm that the browser discovers seven site tools.
-3. Ask: `Apply a major war shock and show the effect on the four core assets.`
-4. Ask: `Set my portfolio to 70% XAU, 20% VOO, and 10% BTC-USD.`
-5. Open the Portfolio view and confirm the allocation and weighted result are visible.
-6. Negative test: request `vix_points: 200`; the tool must reject the out-of-range input.
-
-For the complete judge workflow, security notes, and video plan, see [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md).
-
-## Work added during the challenge
-
-Asset Analysis extends a pre-existing read-only daily macro report. Commit [`490540e`](https://github.com/SuperTurbo-Services/Asset-Analysis/commit/490540e) added the WebMCP workspace on September 1, 2026, during the challenge window:
-
-- seven imperative WebMCP tools;
-- an eight-asset scenario engine with bounded inputs;
-- arbitrary-ticker search and public evidence aggregation;
-- evidence-cited Asset Lens rendering;
-- local-only portfolio analysis;
-- shared state between agents and visible controls;
-- runtime validation, privacy controls, bilingual support, and automated tests.
-
-Later commits refined the visible scenario compass, portfolio scoring, shared state, naming, and full-screen browser layout. The original commit history is preserved in this repository so judges can inspect the before-and-after work.
 
 ## Built with
 
