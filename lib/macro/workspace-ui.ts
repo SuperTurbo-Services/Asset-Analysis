@@ -176,12 +176,12 @@ export function workspaceCss(): string {
     --aw-mineral: #7c9b87;
     --aw-gold: #c49b52;
   }
-  .wrap { max-width: 1320px; padding: 20px 20px 64px; }
+  .wrap { width: 100%; max-width: none; padding: 8px 8px 48px; }
   body.aw-ready .wrap > header.top,
   body.aw-ready .wrap > .tabs,
   body.aw-ready .wrap > .panel { display: none; }
   .agent-workspace { margin: 0; }
-  .aw-shell { display: grid; grid-template-columns: 104px minmax(0, 1fr); min-height: 760px; background: var(--aw-paper); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 70px -58px rgba(24,50,73,.65); }
+  .aw-shell { display: grid; grid-template-columns: 104px minmax(0, 1fr); min-height: calc(100vh - 16px); background: var(--aw-paper); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 70px -58px rgba(24,50,73,.65); }
   .aw-side { background: var(--aw-navy); color: #fff; padding: 20px 10px 16px; display: flex; flex-direction: column; align-items: center; }
   .aw-brand { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #f7f5ef; color: var(--aw-navy); font-weight: 760; font-size: 12px; letter-spacing: -.04em; }
   .aw-tabs { width: 100%; display: grid; gap: 8px; margin-top: 54px; }

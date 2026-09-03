@@ -1,306 +1,150 @@
-# 笔记涨粉诊断台
+# Asset Analysis
 
-> **WebMCP Challenge entry:** Asset Analysis is documented in English in [`WEBMCP_CHALLENGE.md`](./WEBMCP_CHALLENGE.md), with paste-ready Devpost copy and judge instructions in [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md). The WebMCP implementation was added during the August 25–September 3, 2026 submission period.
+> A live, WebMCP-enabled asset analysis workspace that shows how current and hypothetical macro conditions affect U.S. stocks, cash, gold, and crypto, then identifies the tailwinds and headwinds facing a portfolio.
 
-把小红书创作者后台的导出表变成一份诊断看板。核心不是画图，是**把「为什么不涨粉」定位到具体环节**。
+[![Live app](https://img.shields.io/badge/live-superturbo.app-17324a)](https://superturbo.app/asset-analysis)
+[![License: MIT](https://img.shields.io/badge/license-MIT-c49b52.svg)](./LICENSE)
 
-线上： https://superturbo.app/xiaohongshu-growth-dashboard
+**Live app:** https://superturbo.app/asset-analysis
 
-## 它回答什么
+**Devpost project story:** [`DEVPOST_PROJECT_STORY.md`](./DEVPOST_PROJECT_STORY.md)
 
-一条恒等式撑起整个看板：
+**Judge and submission notes:** [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md)
 
+![Asset Analysis dashboard](./design/webmcp-ui-rebuild/asset-analysis-demo.png)
+
+## Why this exists
+
+Macro analysis is both conversational and visual. An agent can interpret an open-ended question, but unconstrained answers may vary from one conversation to another. A fixed dashboard is consistent and inspectable, but it is difficult to customize for every event and portfolio.
+
+Asset Analysis combines the two. The agent converts a user's request into validated, structured inputs. The dashboard applies the same factor framework every time and renders the result on the shared page, where the user can inspect the assumptions, evidence, and portfolio impact.
+
+## What people and agents can do together
+
+- Read the current fixed-factor regime across U.S. stocks, cash, gold, and crypto.
+- Apply bounded growth, inflation, policy-rate, real-yield, credit-spread, U.S.-dollar, oil, and VIX shocks.
+- Compare scenario sensitivity across SPY, QQQ, TLT, cash, DXY, gold, WTI, and Bitcoin.
+- Search a Yahoo-compatible ticker and load keyless price, SEC, and news context.
+- Render an evidence-cited macro lens for an asset.
+- Set a local-only portfolio of up to 12 long-only positions totaling exactly 100%.
+- See the portfolio's weighted tailwinds, headwinds, and evidence coverage on the same page.
+
+The application is a research tool. It does not place trades, publish target prices, or provide personalized financial advice.
+
+## WebMCP implementation
+
+The top-level page imperatively registers seven site tools with `document.modelContext.registerTool(...)`. The tools call the same state, validation, and rendering functions as the visible human interface.
+
+```js
+document.modelContext.registerTool({
+  name: "apply_macro_scenario",
+  description: "Apply a named macro scenario to the shared page.",
+  inputSchema: scenarioSchema,
+  execute: applyScenario,
+});
 ```
-粉丝转化率 = 标题封面吸引力 × 内容吸引力
-涨粉/曝光 = (观看/曝光)   × (涨粉/观看)
+
+| Tool | Purpose |
+|---|---|
+| `get_macro_snapshot` | Read the current report, scenario, asset lenses, and portfolio. |
+| `apply_macro_scenario` | Validate and apply a named macro scenario to the visible page. |
+| `reset_macro_workspace` | Reset the shared local workspace. |
+| `search_assets` | Search Yahoo Finance's public symbol directory. |
+| `get_asset_context` | Load keyless price, SEC fundamentals when covered, and recent news. |
+| `render_asset_lens` | Validate evidence IDs and render an agent-authored sensitivity lens. |
+| `set_portfolio` | Validate and replace the local-only portfolio. |
+
+Tool definitions use narrow JSON Schemas with `additionalProperties: false`. Read operations use `readOnlyHint`, while open-web results use `untrustedContentHint`. External text is rendered with `textContent`, not injected as HTML.
+
+## Human-agent workflow
+
+```text
+Natural-language request
+        ↓
+ChatGPT or Chrome agent
+        ↓ WebMCP tool call
+Schema and runtime validation
+        ↓
+Shared scenario and portfolio state
+        ↓
+Visible dashboard update for human review
 ```
 
-前半段负责骗到点击，后半段负责让人愿意关注。三个数字都换算成百分制并分成良好、中等、较弱三档，一眼能看出问题出在哪一段。
+## Data and privacy
 
-## 架构
+The current macro report is generated offline from public market and economic sources, then stored in `data/macro-dashboard.json`. Opening the dashboard does not call a model.
 
-```
-浏览器                          服务端                      模型服务商
-  │                               │                            │
-  ├─ 解析 xlsx（SheetJS）          │                            │
-  ├─ 算全部指标与评分               │                            │
-  ├─ 渲染看板  ← 秒出，零成本       │                            │
-  │                               │                            │
-  └─ 点「生成 AI 解读」──────────▶ ├─ 带服务端 key 调用 ────────▶│
-                                  │◀─ 逐篇诊断 + 综合建议 ──────┤
-                                  ├─ 机械校验，不过就退回重试     │
-```
+- FRED supplies rates, inflation, credit, growth, and fallback market series.
+- Yahoo Finance supplies market prices and ticker discovery.
+- SEC Companyfacts supplies normalized fundamentals for covered U.S. issuers.
+- GDELT supplies recent coverage, with Yahoo news as a keyless fallback.
+- Sources fail independently, and partial coverage is shown rather than invented.
+- Portfolio holdings and generated lenses stay in browser `localStorage`.
+- No account, API key, brokerage connection, or payment is required for judges.
 
-**原始导出文件不会离开用户的浏览器。** 解析和全部确定性计算都在客户端完成；只有当用户主动点「生成 AI 解读」时，才把已经算好的聚合指标发到服务端。
+## Project structure
 
-看板里绝大部分内容不需要模型：三项评分、四段漏斗、流量结构分类、逐篇表格与流失条、观察区、页脚口径，全是本地算的。模型只负责逐篇的九宫格诊断文字和 3–5 条综合建议。
+| Path | Purpose |
+|---|---|
+| `app/asset-analysis/` | English and Chinese Asset Analysis routes. |
+| `app/api/macro-dashboard/` | Public asset-search, asset-context, and dashboard endpoints. |
+| `lib/macro/workspace.ts` | Scenario engine, schemas, portfolio calculation, and validation. |
+| `lib/macro/workspace-ui.ts` | Visible workspace and imperative WebMCP registration. |
+| `lib/macro/asset-context.ts` | Keyless external data aggregation and normalization. |
+| `scripts/webmcp-selftest.mts` | Static WebMCP and validation test suite. |
+| `scripts/macro-selftest.mts` | Macro data and bilingual output verification. |
+| `template/macro-dashboard.html` | Base dashboard document. |
+| `data/macro-dashboard.json` | Latest validated static macro report. |
 
-## 三条口径闸门
+This repository preserves the complete deployable SuperTurbo codebase because the production Vercel project serves multiple existing routes on `superturbo.app`. Asset Analysis is the WebMCP Challenge entry and the default focus of this repository.
 
-这些是踩过坑之后定下的，改之前先读：
+## Run locally
 
-**1. 成熟度 —— 发布不足 3 天的笔记不打分**
-
-曝光的结算比观看慢。实测同一批笔记：8/14 发的那篇在 8/15 导出时曝光 4,758，8/19 再导出变成 13,781（+190%）。「观看 ÷ 曝光」在第 1 天会虚高到 1.61 倍，第 3–5 天才收敛到 1.0 附近。所以新笔记进「观察区」，只列原始数字。
-
-**2. 标题封面吸引力用平台的「封面点击率」列，不用 观看 ÷ 曝光**
-
-两者分母相同、分子不同：平台点击率只数发现页的封面点击，而观看量包含搜索、个人主页、被转发产生的观看。成熟笔记上两者比值中位数 0.988，但曝光 > 3,000 时平台点击率更稳定，且 5% / 11% / 25% 这套公开基准线本来就是平台点击率口径。
-
-恒等式那一行仍然用「观看 ÷ 曝光」——只有这个口径能让 `粉丝转化率 = 前半段 × 后半段` 严格成立。
-
-**3. 低曝光不判流量类型**
-
-曝光 < 600 且比值落在正常区间的标为「样本不足」。几十上百次点击的波动就能把比值推来推去。
-
-## 流量结构：四个类型
-
-比值 =（观看 ÷ 曝光）÷ 平台点击率。这是本项目相对原始 skill 新增的维度。
-
-| 类型 | 条件 | 含义 |
-|---|---|---|
-| 推荐依赖型 | 0.85 – 1.35 | 读者全部来自推荐页，没有第二条腿 |
-| 点击流失型 | < 0.85 | 点了封面但没等到内容展开就退了 |
-| 搜索分享型 | > 1.35 | 有大量观看不经过推荐页，有长尾价值 |
-| 样本不足 | 曝光 < 600 且比值正常 | 不判定 |
-
-## 便宜模型怎么用得放心
-
-`lib/validate.ts` 是一套机械校验，生成结果不过就把问题喂回去重试（最多 3 次）：
-
-- 篇目完整性：每篇都要有，不能多不能少
-- 九个字段齐全，每格 1–3 条，每条 ≤ 75 字
-- `*Fix` 的「保持：」/「修改：」前缀必须与该维度分数一致（≥ 40 保持，< 40 修改）
-- `*Algo` 整格必须至少出现一个真实数字
-- 算法视角与博主视角的字符二元组重叠度 > 55% 判为「说的是同一件事」
-- 综合建议 3–5 条，`h` 不带句号、`t` 必须有 `<b>`、`p` 2–4 条、`s` 以「算法依据：」开头且不允许出现 URL（防编造来源）
-
-还有三件事是**确定性修复而不是重试**，因为它们属于机械格式，让模型重试只会白白丢掉篇目：
-
-- 中文与数字之间的空格，服务端自己补
-- `保持：`/`修改：` 前缀，由分数唯一决定，漏写就补、写反就换
-- 模型照抄提示词装饰形式（把 `《标题》` 整个当成 JSON 键）或多包一层 `{"analysis": ...}`，解开即可
-
-**实测（DeepSeek V3.2，15 篇真实数据）**
-
-| | 覆盖 | 耗时 |
-|---|---|---|
-| 未分批（单次请求全部 15 篇） | 0/15，输出在 13,238 字符处截断 | 244 秒 |
-| 分批 2 篇 + 上述修复 | **14–15/15** | **17–19 秒** |
-
-关键约束：DeepSeek V3.2 的输出硬上限是 8,000 tokens，一次写不完 15 篇 × 9 格。分批之后每组约 1,300 tokens，且全部并行。
-
-## 开发
+Requirements: Node.js 22 or newer and npm.
 
 ```bash
+git clone https://github.com/SuperTurbo-Services/Asset-Analysis.git
+cd Asset-Analysis
 npm install
-cp .env.example .env.local   # 填入 DEEPSEEK_API_KEY
+npm run webmcp:selftest
+npm run macro:selftest
+npm run build
 npm run dev
 ```
 
-打开 http://localhost:3000/xiaohongshu-growth-dashboard
+Open http://localhost:3000/asset-analysis.
 
-## 环境变量
+The checked-in report and all WebMCP interactions run without credentials. `AI_GATEWAY_API_KEY` is needed only when regenerating the offline macro report with `npm run macro:refresh`; see [`.env.example`](./.env.example).
 
-推荐走 Vercel AI Gateway：**只需要设一个变量**，默认调 `deepseek/deepseek-v3.2`，
-而且一把 key 能到 DeepSeek、Qwen、GLM、Kimi、Claude 等 400+ 个模型，换模型只改 `AI_MODEL`。
+## Judge quick test
 
-| 变量 | 说明 |
-|---|---|
-| `AI_GATEWAY_API_KEY` | Vercel AI Gateway 的 key。设了它就够了 |
-| `AI_MODEL` | 可选，默认 `deepseek/deepseek-v3.2`。**注意分批大小是按这个模型的 8K 输出上限调的**，换成输出上限更大的模型可以调大 `BATCH` |
-| `AI_BASE_URL` | 可选，默认 `https://ai-gateway.vercel.sh/v1` |
+1. Open https://superturbo.app/asset-analysis in ChatGPT's in-app browser or Chrome 149+ with WebMCP enabled.
+2. Confirm that the browser discovers seven site tools.
+3. Ask: `Apply a major war shock and show the effect on the four core assets.`
+4. Ask: `Set my portfolio to 70% XAU, 20% VOO, and 10% BTC-USD.`
+5. Open the Portfolio view and confirm the allocation and weighted result are visible.
+6. Negative test: request `vix_points: 200`; the tool must reject the out-of-range input.
 
-不走 Gateway 时的直连备选：`DEEPSEEK_API_KEY` + 可选的 `DEEPSEEK_MODEL`（默认 `deepseek-chat`）。
+For the complete judge workflow, security notes, and video plan, see [`DEVPOST_SUBMISSION.md`](./DEVPOST_SUBMISSION.md).
 
-**key 的处理方式：**
+## Work added during the challenge
 
-- 只在 `app/api/analyze/route.ts` 一处读取，不会出现在返回体、日志或错误信息中
-- 上游报错只透出状态码，不回传服务商的响应体（可能带请求回显）
-- **绝不能加 `NEXT_PUBLIC_` 前缀** —— 那会把它内联进浏览器包
-- 线上用 `vercel env add <名字> production --sensitive`，加密存储且在后台看不回来
+Asset Analysis extends a pre-existing read-only daily macro report. Commit [`490540e`](https://github.com/SuperTurbo-Services/Asset-Analysis/commit/490540e) added the WebMCP workspace on September 1, 2026, during the challenge window:
 
-没有配置任何凭证时，基础报告照常工作，只有「生成 AI 解读」返回 503。
+- seven imperative WebMCP tools;
+- an eight-asset scenario engine with bounded inputs;
+- arbitrary-ticker search and public evidence aggregation;
+- evidence-cited Asset Lens rendering;
+- local-only portfolio analysis;
+- shared state between agents and visible controls;
+- runtime validation, privacy controls, bilingual support, and automated tests.
 
-## 数据来源与免责
+Later commits refined the visible scenario compass, portfolio scoring, shared state, naming, and full-screen browser layout. The original commit history is preserved in this repository so judges can inspect the before-and-after work.
 
-算法机制与基准线来自 2026 年的第三方运营分析与实测复盘，方向被多个来源交叉印证，**具体系数是行业通行值而非官方口径**。小红书没有公开官方算法文档。
+## Built with
 
-分档线与判定阈值目前基于单账号样本标定，多账号数据积累后需要重新校准。
+Next.js, TypeScript, React, WebMCP, Zod, Vercel, Yahoo Finance, FRED, SEC Companyfacts, GDELT, and Codex.
 
 ## License
 
-MIT
-
----
-
-# 资产分析 · Asset Analysis
-
-同一个仓库里的第二个工具。线上： https://superturbo.app/asset-analysis
-
-## WebMCP 协作工作台
-
-原来的四资产每日结论保持不变，页面下方新增了一套人与 AI 共用的实时工作区：
-
-- **宏观冲击图谱**：同时比较 SPY、QQQ、TLT、现金、美元、黄金、原油和比特币对八个宏观冲击的方向性敏感度。
-- **单一资产透镜**：用 Yahoo 搜索任意代码，服务端无密钥聚合 Yahoo 价格、SEC Companyfacts（有覆盖时）与 GDELT 近期报道（不可用时回落 Yahoo 新闻）；Codex 基于返回的证据编号生成 3–8 个因子透镜。
-- **组合天气图**：最多 12 个只做多仓位，总权重必须为 100%。持仓和生成的透镜只写入浏览器 `localStorage`，不会上传，也不会执行交易。
-
-顶层页面通过 imperative `document.modelContext.registerTool` 注册 7 个站点工具：
-`get_macro_snapshot`、`apply_macro_scenario`、`reset_macro_workspace`、`search_assets`、
-`get_asset_context`、`render_asset_lens`、`set_portfolio`。没有 declarative API，也没有 iframe。
-普通浏览器仍能使用同一套可见控件；支持 WebMCP 的 Codex/ChatGPT 浏览器调用的也是同一套函数与状态。
-
-挑战赛架构、安全边界、90 秒演示脚本和测试提示词见 [`WEBMCP_CHALLENGE.md`](./WEBMCP_CHALLENGE.md)。
-
-每天自动重建一次，回答一个问题：当下的宏观环境，对美股、现金、黄金、加密这四类资产
-是看多还是看跌。来源是 `macro-dashboard` 这个 skill，把它变成了不需要人来跑的网站。
-
-中英双语，两个独立的静态路径：`/asset-analysis` 英文，`/asset-analysis/zh` 中文，
-右上角切换，在深色模式按钮旁边。首页的卡片直接指向中文版。老的 `?lang=zh` 链接
-由 `next.config.ts` 里的 redirect 接住。
-
-## 它怎么跑
-
-页面是**纯静态**的，只负责显示 `data/macro-dashboard.json` 里的内容，请求里不生成
-任何东西，也不调模型。所以打开是毫秒级，运行时不需要任何 key。
-
-内容是离线更新的，想更新的时候在本地跑一次：
-
-```
-  npm run macro:refresh          ← 需要 AI_GATEWAY_API_KEY
-        │
-        ├─ 1. 抓数据      FRED + 行情，不需要 key，约 2 秒
-        ├─ 2. 算派生量    实际利率、现金实际收益、均线、同比
-        ├─ 3. 打分        一次模型调用，框架在 lib/macro/prompt.ts
-        ├─ 4. 翻译        再一次模型调用，只有散文过界
-        ├─ 5. 校验        净分与结论是否一致、连字符、每个数字能否回溯到数据
-        └─ 6. 写文件      data/macro-dashboard.json
-        │
-  git commit && git push  →  Vercel 重新构建  →  页面是新的
-```
-
-校验不过就不写文件，所以线上那份永远是通过校验的那一版。
-
-**模型不查任何数字。** 所有数据先抓好，作为 facts bundle 交给它，它只负责给因子打分和
-写判断。`lib/macro/validate.ts` 会把任何回溯不到数据的数字判为错误并让模型重写一次。
-结论也不是模型写的，是从因子网格算出来的：说 BULLISH 但那一列净分是负的，直接判错重来。
-
-用不到的数据在 prompt 里被明确禁止提及：ISM PMI（要授权）、现货 ETF 流入、联邦基金目标
-区间、降息概率、估值倍数。免费无 key 的源里没有这些，所以页面不会出现没抓过的数字。
-增长因子用 FRED 的工业产出同比代替 PMI。
-
-## 双语是怎么做的
-
-中文不是重新判断一遍，是把英文的判断翻过来。生成时先出英文，校验通过之后再调一次
-模型翻译，然后把结论、网格单元格、因子方向和所有数字从英文那份原样贴回去
-（`graft()` in `lib/macro/generate.ts`），只有散文过界。所以两个语言不可能对同一天
-给出不同的结论，中文那份也要过同一套校验。代价是每天两次模型调用。
-
-模板自带的那些英文（标签页、小标题、表头、净分行、免责声明）不在 payload 里，是写死
-在 HTML 里的。`lib/macro/i18n.ts` 里有一张替换表，中文版按表改写模板。**表里每一条都
-会断言命中**，所以哪天 skill 那边改了模板，这里会直接报错，而不是悄悄给出半份翻译。
-
-看板里的数字、代码、序列名（DFII10 这类）和来源链接两边完全一样，只有文字变。
-
-## 为什么它是一份独立文档
-
-`app/asset-analysis/route.ts` 返回的是完整 HTML，不是 React 页面。因为站点的
-`app/globals.css` 里有 `.wrap`、`.card`、`.tabs`、`.panel` 这些类名，和 skill 模板
-撞在一起，其中 `.panel` 是两栏 grid，同一份文档里会把看板挤成两列。独立文档既避开了
-样式冲突，也让模板保持原样。
-
-## 环境变量
-
-**运行时一个都不需要。** 页面是静态的，线上不调模型。
-
-只有跑 `npm run macro:refresh` 的那台机器需要 `AI_GATEWAY_API_KEY`，放在 `.env.local`。
-换模型改 `AI_GATEWAY_MODEL`，默认 `zai/glm-4.7`，一次跑完约 15 到 20 秒。
-
-**别用 `zai/glm-5.3` 或 `zai/glm-5.2-fast`。** 它们必然思考，网关没有开关能关掉
-（`thinking: {type:'disabled'}` 会被拒绝，说这个模型无法关闭思考；给 low 或
-`reasoning_effort` 也不生效），提示词一长就把全部输出预算花在思考上，
-实测 16000 token、278 秒，正文是空字符串。输出上限如果被服务商拒绝，用 `AI_GATEWAY_MAX_TOKENS` 调低。小红书那个工具看的是
-`AI_MODEL`，两个变量各管一个工具，不要合并。
-
-注意：Vercel 里那把 key 标了 **Sensitive**，所以 `vercel env pull` 拿不回来，
-它只会写一个 `[SENSITIVE]` 占位符。要在本地跑就去
-vercel.com/dashboard/ai-gateway/api-keys 取一把，或者新建一把。
-`macro:refresh` 会检查占位符并直接报错，不会让你在网关那边收到一个看不懂的 401。
-
-没有 cron，没有 Blob store，也没有对外的重建端点，这三样以前都有，现在都不需要了。
-
-## 命令
-
-| 命令 | 做什么 |
-|---|---|
-| `npm run macro:selftest` | 抓真实数据跑完整条链路，中英两份都出，文案用占位符。**不需要 key，不花钱**，改完代码先跑这个 |
-| `npm run webmcp:selftest` | 不联网检查情景边界、资产透镜证据、组合校验、中英页面以及 7 个 imperative 站点工具 |
-| `npm run macro:refresh` | 真跑一次，写 `data/macro-dashboard.json`，另外写两份可以直接打开的 `.cache/macro-preview-en.html` 和 `-zh.html`。跑完记得 commit |
-| `npm run macro:models -- sonnet` | 列出 gateway 上能用的模型 |
-
-`/api/macro-dashboard/dashboard` 返回当前这一版的原始数据，中英两份，也是静态的。
-
-## 数据来源
-
-| 数据 | 来源 |
-|---|---|
-| 10 年期实际利率、名义利率、盈亏平衡通胀 | FRED DFII10、DGS10、T10YIE |
-| 高收益债利差 | FRED BAMLH0A0HYM2 |
-| 3 个月国库券、联邦基金有效利率 | FRED DGS3MO、DFF |
-| 核心与整体 CPI | FRED CPILFESL、CPIAUCSL，换算成同比 |
-| 增长 | FRED INDPRO 同比 |
-| 标普、VIX、比特币、黄金、美元指数 | Yahoo Finance chart 接口 |
-
-Yahoo 会挡掉一些机房 IP，所以每个行情都有备用源，只在主源失败时才走：标普回落到
-FRED SP500，VIX 到 FRED VIXCLS，美元到 FRED DTWEXBGS，比特币到 CoinGecko，
-黄金到 api.gold-api.com。页面上标的是实际用到的那个源。
-
-## 模板改了一处
-
-`template/macro-dashboard.html` 是 skill 的模板，只改了一个地方：柱状图的分类标签原本
-永远画在零线上方，正值的柱子会盖住它。现在标签画在柱子的另一侧。skill 那边还是原样，
-因为它的示例数据全是负值，没暴露出来。
-
-## 成本
-
-访客不花钱，读的是静态文件。只有你跑 `macro:refresh` 时花钱，两次模型调用，
-大约 3k 输入 3k 输出，几美分。
-
-## 免责
-
-模板里内置了 not financial advice 区块，两个 tab 都会显示。那段文字没有经过律师，
-真要公开推广之前找人看一眼。
-
----
-
-# 首页 · superturbo.app
-
-工具集的落地页，中英两版，各自一个静态路径。
-
-| 路径 | 语言 | `<html lang>` |
-|---|---|---|
-| `/` | 中文 | `zh-CN` |
-| `/en` | English | `en` |
-
-`/` 保持中文，因为已经分享出去的链接和已被收录的都是它。英文加在 `/en`，
-不动根路径。
-
-**为什么不是一个按钮切文案。** 两个真实路径可以分享、可以被收录，两版都能预渲染成
-静态页，也不会有 hydration 之前先闪一下另一种语言。这和宏观看板的做法是同一套：
-一种语言一个路径，`canonical` 指自己，`hreflang` 指对方，`x-default` 指中文。
-
-**两个根布局。** `<html lang>` 必须跟着页面变，而布局本身看不见路由，所以用 route
-group 分成 `app/(zh)` 和 `app/(en)`，各带一个根布局。代价是中英之间跳转会整页刷新
-（切语言本来就该刷新），好处是 lang 属性在服务端就是对的。小红书那页在 `app/(zh)` 里，
-URL 不变 —— route group 的括号目录不进路径。
-
-**文案只有一份。** `lib/site/home.ts` 里每条文案是一个 `{ zh, en }`，
-`components/HomePage.tsx` 按 lang 取。加工具就往 `TOOLS` 里加一条，两版一起有。
-工具卡的链接也是分语言的：资产分析在英文首页指 `/asset-analysis`，中文首页指
-`/asset-analysis/zh`。界面只有中文的工具在 `TOOLS` 里标 `zhOnly`，英文首页会在
-标题旁挂一枚 Chinese interface 的小标，点进去之前先知道。
-
-**小红书那页的标题**在 `app/(zh)/xiaohongshu-growth-dashboard/layout.tsx` 里。
-那页是 `'use client'`，导不出 metadata，所以标题挂在它自己的 layout 上，
-不再借用根布局的。
+[MIT](./LICENSE) © 2026 SuperTurbo.

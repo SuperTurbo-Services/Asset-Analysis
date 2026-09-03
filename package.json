@@ -1,12 +1,12 @@
 {
-  "name": "xiaohongshu-growth-dashboard",
+  "name": "asset-analysis",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "macro:selftest": "tsx scripts/macro-selftest.mts",
     "webmcp:selftest": "tsx scripts/webmcp-selftest.mts",
     "macro:refresh": "tsx scripts/macro-refresh.mts",

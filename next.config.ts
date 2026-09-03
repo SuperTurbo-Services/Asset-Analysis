@@ -1,16 +1,18 @@
 import type { NextConfig } from 'next';
 import path from 'node:path';
 
-// 应用挂在 superturbo.app/xiaohongshu-growth-dashboard，用真实路由目录实现，
-// 不用 basePath —— 根路径留给 SuperTurbo 落地页和后续工具。
+// The production project serves several SuperTurbo routes from one Next.js app.
+// Asset Analysis uses real route directories rather than a basePath.
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
-  // template/macro-dashboard.html 在运行时用 fs 读取，必须打进函数包里
+  // The route reads the dashboard template at runtime, so include its template
+  // and generated data in the server function bundle.
   outputFileTracingIncludes: {
     '/asset-analysis': ['./template/**', './data/**'],
     '/asset-analysis/zh': ['./template/**', './data/**'],
   },
-  // 新旧分享链接继续能用；旧名称永久跳到新的 Asset Analysis 地址。
+  // Preserve existing shared links and redirect the former product name to
+  // Asset Analysis.
   async redirects() {
     return [
       {

@@ -8,13 +8,14 @@ Asset Analysis
 
 ## Tagline
 
-One live macro workspace where people and agents can stress every major asset class, research any ticker, and map a private portfolio together.
+A live asset analysis tool that shows how current and potential macroeconomic conditions affect U.S. stocks, cash, gold, and crypto, then identifies the tailwinds and headwinds facing your portfolio.
 
 ## Links
 
 - Live project: https://superturbo.app/asset-analysis
 - Chinese interface: https://superturbo.app/asset-analysis/zh
-- Public source: https://github.com/SuperTurbo-Services/xiaohongshu-growth-dashboard
+- Public source: https://github.com/SuperTurbo-Services/Asset-Analysis
+- Paste-ready project story: [`DEVPOST_PROJECT_STORY.md`](./DEVPOST_PROJECT_STORY.md)
 - Demo video: **TODO — add a public YouTube URL before submission**
 
 ## Short description
