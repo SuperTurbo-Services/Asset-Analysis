@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import {
   SYSTEM_NOTES, SYSTEM_SUGGESTIONS, buildNotesPrompt, buildSuggestionsPrompt,
 } from '@/lib/prompt';
@@ -10,62 +11,44 @@ import type { Note, NoteAnalysis, Report, Suggestion } from '@/lib/types';
 export const runtime = 'nodejs';
 export const maxDuration = 300;
 
-/**
- * AI 解读。API key 只存在于这个文件运行的服务端进程里：
- *  - 从环境变量读取，永远不会出现在返回体或客户端可见的错误信息里
- *  - 客户端只发送算好的指标，不发原始导出文件
- *
- * 凭证解析优先走 Vercel AI Gateway —— 一把 key 能到 DeepSeek、Qwen、GLM、
- * Kimi 和 Claude，换模型只改 AI_MODEL 一个变量，预算上限在 Vercel 后台统一管。
- */
-const GATEWAY = process.env.AI_GATEWAY_API_KEY;
-const API_KEY = GATEWAY || process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY;
-const BASE_URL =
-  process.env.AI_BASE_URL ||
-  process.env.DEEPSEEK_BASE_URL ||
-  (GATEWAY ? 'https://ai-gateway.vercel.sh/v1' : 'https://api.deepseek.com');
-const MODEL =
-  process.env.AI_MODEL ||
-  process.env.DEEPSEEK_MODEL ||
-  (GATEWAY ? 'deepseek/deepseek-v3.2' : 'deepseek-chat');
+/** The Worker binding authenticates to Workers AI and routes through our Cloudflare AI Gateway. */
+const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const GATEWAY_ID = 'superturbo-app';
 
-/**
- * DeepSeek V3.2 的输出硬上限是 8,000 tokens —— 15 篇 × 9 格根本装不下，
- * 实测会在半路截断成非法 JSON。所以按 BATCH 篇一组分批并行发出，
- * 4 篇一组实测仍会触发 finish_reason=length，所以收到 2 篇一组，
- * 单组输出约 1,300 tokens，留足余量；组数变多但全部并行，墙钟时间反而更短。
- */
+/** Each request covers two notes so the model has room for complete JSON. */
 const BATCH = 2;
 const MAX_ATTEMPTS = 3;
 const MAX_NOTES = 60;
 const MAX_TOKENS = 7500;
 
 interface ChatResponse {
-  choices?: { message?: { content?: string }; finish_reason?: string }[];
+  response?: unknown;
+  choices?: { message?: { content?: unknown }; finish_reason?: string }[];
 }
 
 type Msg = { role: string; content: string };
 
 async function callModel(messages: Msg[], signal: AbortSignal): Promise<string> {
-  if (!API_KEY) throw new Error('MISSING_KEY');
-
-  const res = await fetch(`${BASE_URL}/chat/completions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${API_KEY}` },
-    body: JSON.stringify({ model: MODEL, messages, temperature: 0.6, max_tokens: MAX_TOKENS }),
-    signal,
+  const env = getCloudflareContext().env as {
+    AI?: { run: (model: string, input: object, options: object) => Promise<unknown> };
+  };
+  if (!env.AI) throw new Error('MISSING_BINDING');
+  signal.throwIfAborted();
+  const json = await new Promise<ChatResponse>((resolve, reject) => {
+    const abort = () => reject(signal.reason ?? new Error('ABORTED'));
+    signal.addEventListener('abort', abort, { once: true });
+    env.AI!.run(
+      MODEL,
+      { messages, temperature: 0.6, max_tokens: MAX_TOKENS },
+      { gateway: { id: GATEWAY_ID, skipCache: true } },
+    ).then(
+      (result) => resolve(result as ChatResponse),
+      (error) => reject(error),
+    ).finally(() => signal.removeEventListener('abort', abort));
   });
-
-  if (!res.ok) {
-    // 上游错误只记进服务端日志供排查，绝不回传给客户端
-    const detail = await res.text().catch(() => '');
-    console.error(`[analyze] upstream ${res.status} model=${MODEL} body=${detail.slice(0, 400)}`);
-    throw new Error(`UPSTREAM_${res.status}`);
-  }
-
-  const json = (await res.json()) as ChatResponse;
   const choice = json.choices?.[0];
-  const text = choice?.message?.content ?? '';
+  const output = json.response ?? choice?.message?.content ?? '';
+  const text = typeof output === 'string' ? output : JSON.stringify(output);
   if (!text) throw new Error('EMPTY_RESPONSE');
   if (choice?.finish_reason === 'length') throw new Error('TRUNCATED');
   return text;
@@ -94,7 +77,7 @@ async function generate<T>(
       value = pick(raw);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'UNKNOWN';
-      if (msg === 'MISSING_KEY') throw e;
+      if (msg === 'MISSING_BINDING') throw e;
       last = [`生成失败：${msg}`];
       if (attempt === MAX_ATTEMPTS) return { failed: last };
       continue;
@@ -184,7 +167,7 @@ async function generateNotes(
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'UNKNOWN';
-      if (msg === 'MISSING_KEY') throw e;
+      if (msg === 'MISSING_BINDING') throw e;
       lastIssues = [`生成失败：${msg}`];
       console.error(`[analyze] 批次失败 attempt=${attempt} reason=${msg} notes=${pending.map((n) => n.title).join(',').slice(0, 120)}`);
       messages.pop();
@@ -257,7 +240,17 @@ export async function POST(req: NextRequest) {
         (p) => {
           const o = p as Record<string, unknown>;
           const v = o?.suggestions ?? o?.建议 ?? (Array.isArray(p) ? p : []);
-          return (Array.isArray(v) ? v : []) as Suggestion[];
+          return (Array.isArray(v) ? v : []).map((item) => {
+            const suggestion = item as Suggestion;
+            return {
+              ...suggestion,
+              p: Array.isArray(suggestion.p)
+                ? suggestion.p.map((step) => typeof step === 'string' && step.trim() && !step.trim().endsWith('。')
+                  ? `${step.trim()}。`
+                  : step)
+                : suggestion.p,
+            };
+          }) as Suggestion[];
         },
         validateSuggestions,
         controller.signal,
@@ -305,8 +298,8 @@ export async function POST(req: NextRequest) {
       issues: failures.slice(0, 30),
     });
   } catch (e) {
-    if (e instanceof Error && e.message === 'MISSING_KEY') {
-      return NextResponse.json({ error: 'AI 解读暂不可用：服务端未配置模型凭证。' }, { status: 503 });
+    if (e instanceof Error && e.message === 'MISSING_BINDING') {
+      return NextResponse.json({ error: 'AI 解读暂不可用：服务端未配置模型服务。' }, { status: 503 });
     }
     return NextResponse.json({ error: 'AI 解读遇到内部错误，基础报告不受影响。' }, { status: 500 });
   } finally {

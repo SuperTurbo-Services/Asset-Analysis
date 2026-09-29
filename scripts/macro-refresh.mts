@@ -2,18 +2,18 @@
  * 真跑一次：抓数据、打分、翻译、校验，然后把结果写进 data/macro-dashboard.json。
  *
  * 这是更新看板内容的唯一入口。定时 GitHub Action 会生成、校验、提交，
- * Cloudflare Builds 随后从仓库 main 分支部署。AI_GATEWAY_API_KEY 只从环境读取。
+ * Cloudflare Builds 随后从仓库 main 分支部署。CLOUDFLARE_API_TOKEN 只从环境读取。
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { loadEnv } from './env.mts';
 
 loadEnv();
 
-const key = process.env.AI_GATEWAY_API_KEY ?? '';
+const key = process.env.CLOUDFLARE_API_TOKEN ?? '';
 
 // 占位符不是有效凭证；不要把凭证或其前缀写入日志。
 if (!key || key.startsWith('[') || key.length < 20) {
-  console.error(key ? 'AI_GATEWAY_API_KEY looks like a placeholder, not a key.' : 'AI_GATEWAY_API_KEY is not set.');
+  console.error(key ? 'CLOUDFLARE_API_TOKEN looks like a placeholder, not a key.' : 'CLOUDFLARE_API_TOKEN is not set.');
   console.error('');
   console.error('Set a valid key privately in .env.local before running this script.');
   process.exit(1);

@@ -16,7 +16,6 @@
     "macro:models": "tsx scripts/macro-models.mts"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^4.0.56",
     "ai": "^7.0.70",
     "next": "^16.3.1",
     "react": "^19.1.0",

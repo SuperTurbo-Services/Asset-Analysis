@@ -126,7 +126,7 @@ npm run dev
 
 Open http://localhost:3000/asset-analysis.
 
-The checked-in report and WebMCP interactions run without credentials. `AI_GATEWAY_API_KEY` is needed to regenerate the offline macro report and to use the Xiaohongshu AI analysis API; see [`.env.example`](./.env.example).
+The checked-in report and WebMCP interactions run without credentials. Offline macro regeneration needs a Cloudflare token with Workers AI Read permission; see [`.env.example`](./.env.example). The deployed Xiaohongshu AI route uses the Worker AI binding through Cloudflare AI Gateway and needs no model-provider secret.
 
 ## Cloudflare release candidate
 
@@ -142,15 +142,15 @@ npx opennextjs-cloudflare preview --port 8788
 npx wrangler deploy --dry-run
 ```
 
-The Worker is named `superturbo-app` in `wrangler.jsonc`. Bind both `superturbo.app` and `www.superturbo.app` only after the preview and the AI route pass. The same `AI_GATEWAY_API_KEY` used on Vercel must be set privately as a Cloudflare Worker secret before switching DNS; the public asset dashboard works without it, but the Xiaohongshu AI endpoint does not. Do not put the key in Git or in a Raft message.
+The Worker is named `superturbo-app` in `wrangler.jsonc` and has a Workers AI binding. Both `superturbo.app` and `www.superturbo.app` are attached as Cloudflare Worker Custom Domains. Model requests use the `superturbo-app` Cloudflare AI Gateway. Do not put the offline refresh token in Git or in a Raft message.
 
 ## Daily Asset Analysis refresh
 
-`.github/workflows/asset-analysis-daily.yml` runs at 17:15 UTC each day and can also be dispatched manually. It calls the Vercel AI Gateway through a GitHub Actions repository secret named `AI_GATEWAY_API_KEY`, validates both languages, rejects a stale generation time or missing source facts, and commits only `data/macro-dashboard.json`. A Cloudflare Builds connection to this repository's `main` branch then deploys that commit. The scheduled workflow remains inactive until this file is merged to the default branch, the GitHub secret is set, and the Cloudflare Builds connection is established. A failed refresh leaves the previous published report untouched; monitor workflow failures because the page does not display a stale-data warning.
+`.github/workflows/asset-analysis-daily.yml` runs at 17:15 UTC each day and can also be dispatched manually. It calls Workers AI through Cloudflare AI Gateway using a GitHub Actions repository secret named `CLOUDFLARE_API_TOKEN` with Workers AI Read permission, validates both languages, rejects a stale generation time or missing source facts, and commits only `data/macro-dashboard.json`. Cloudflare Builds watches this repository's `main` branch and deploys that commit. The scheduled refresh needs the GitHub secret before it can succeed. A failed refresh leaves the previous published report untouched; monitor workflow failures because the page does not display a stale-data warning.
 
 ## Built with
 
-Next.js, TypeScript, React, WebMCP, Zod, Vercel, Yahoo Finance, FRED, SEC Companyfacts, GDELT, and Codex.
+Next.js, TypeScript, React, WebMCP, Zod, Cloudflare Workers AI, Yahoo Finance, FRED, SEC Companyfacts, GDELT, and Codex.
 
 ## License
 

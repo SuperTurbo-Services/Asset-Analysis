@@ -52,7 +52,7 @@ A factor that moves several assets at once gets ONE row with a cell in each colu
 BEFORE YOU ANSWER, COUNT. For each of the four columns, count its p cells and its n cells. p minus n must be positive for every asset you called BULLISH and negative for every asset you called BEARISH, and it must never be zero. If a count does not match the verdict, change one or the other until it does. This is checked mechanically and a mismatch fails the whole run.
 
 WRITING RULES, ENFORCED BY A VALIDATOR
-1. No hyphen character anywhere in any text you write. Write "10 year", "T bill", "risk on", "year over year", "non yielding", "late cycle". A hyphen fails the build.
+1. No hyphen character anywhere in any text you write. Write "10 year", "T bill", "risk on", "year over year", "non yielding", "late cycle". A hyphen fails the build. For a negative figure, use its positive magnitude with a direction word, such as "fell **1.2%**"; do not write a minus sign.
 2. Wrap every live number in double asterisks, like at **2.41%** the. This applies to the banner and to the factor sentences. The tile reads are plain text, so do not use asterisks there.
 3. One factor per bullet, exactly one sentence, and that sentence must carry a concrete number from the bundle. Never chain two data points into one sentence.
 4. Three factors per asset: usually two that confirm the verdict plus one that argues against it. Mark that one by ending its headline with " (offset)" and set its s value to the opposite of the verdict.

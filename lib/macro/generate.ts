@@ -1,5 +1,4 @@
-import { gateway } from '@ai-sdk/gateway';
-import { generateText, zodSchema } from 'ai';
+import { zodSchema } from 'ai';
 import { gatherFacts, type Facts } from './facts';
 import type { Lang } from './i18n';
 import { assemble } from './payload';
@@ -8,24 +7,10 @@ import { judgmentSchema, type Judgment, type RawJudgment } from './schema';
 import { validate } from './validate';
 import type { Dashboard } from './types';
 
-/**
- * Routed through the Vercel AI Gateway, so the only credential this app needs is
- * AI_GATEWAY_API_KEY. Run `npm run macro:models` to see what your gateway has.
- */
-/**
- * zai/glm-4.7, not glm-5.3.
- *
- * Turbo asked for glm-5.3 and it cannot do this job. It always reasons, the
- * gateway exposes no way to cap that (`thinking: {type:'disabled'}` is refused
- * with "this model always engages in thinking", and neither a bare level nor
- * reasoning_effort is accepted), and on a prompt this long it spends every
- * available output token thinking: 16000 tokens and 278 seconds produced an
- * empty text field. glm-5.2-fast behaves the same way.
- *
- * glm-4.7 returns the whole object in about 7 seconds. Override with
- * AI_GATEWAY_MODEL if the provider ever fixes the reasoning cap.
- */
-export const MODEL = process.env.AI_GATEWAY_MODEL || 'zai/glm-4.7';
+/** Scheduled generation runs outside Workers, using the Cloudflare AI REST API. */
+export const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const ACCOUNT_ID = '836cf1f9172ac577ef07b67206a768fe';
+const GATEWAY_ID = 'superturbo-app';
 
 function keyReads(raw: RawJudgment): Judgment {
   const reads: Record<string, string> = {};
@@ -38,13 +23,7 @@ function keyReads(raw: RawJudgment): Judgment {
   };
 }
 
-/**
- * Reasoning tokens count against the output budget on models that think, so a
- * tight cap truncates the JSON and surfaces as a schema mismatch rather than as
- * a length error. Providers cap this differently, so it is overridable: if the
- * gateway rejects the request outright, lower it.
- */
-const MAX_OUTPUT_TOKENS = Number(process.env.AI_GATEWAY_MAX_TOKENS) || 12_000;
+const MAX_OUTPUT_TOKENS = 12_000;
 
 /** The exact shape the model has to return, so the prompt cannot drift from the schema. */
 const SHAPE = JSON.stringify(zodSchema(judgmentSchema).jsonSchema);
@@ -74,32 +53,48 @@ function extractJson(text: string): string | null {
   return null;
 }
 
-/**
- * Deliberately not generateObject.
- *
- * Structured output through the gateway is provider dependent, and the model
- * Turbo picked fails it outright: a three field schema returned
- * NoObjectGeneratedError after 36 seconds, while the same model returns clean
- * JSON as plain text in 2. So the JSON Schema goes in the prompt, and parsing
- * and validation happen here, where a failure is a retryable attempt carrying
- * the exact reason rather than an exception with nothing to act on.
- */
-async function tryObject(args: { system: string; prompt: string }) {
-  const res = await generateText({
-    model: gateway(MODEL),
-    system: `${args.system}\n${JSON_RULES}`,
-    prompt: args.prompt,
-    maxOutputTokens: MAX_OUTPUT_TOKENS,
-    // one gateway level retry, not three, or a slow model turns a bad run into
-    // a ten minute one
-    maxRetries: 1,
-  });
+type AiResult = {
+  response?: unknown;
+  choices?: { message?: { content?: unknown }; finish_reason?: string }[];
+  usage?: { completion_tokens?: number };
+};
 
-  const raw = extractJson(res.text);
+async function callCloudflare(system: string, prompt: string): Promise<AiResult> {
+  const token = process.env.CLOUDFLARE_API_TOKEN;
+  if (!token) throw new Error('CLOUDFLARE_API_TOKEN is not set');
+  const response = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/ai/run/${MODEL}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'cf-aig-gateway-id': GATEWAY_ID,
+      },
+      body: JSON.stringify({
+        messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+        max_tokens: MAX_OUTPUT_TOKENS,
+        temperature: 0.4,
+      }),
+    },
+  );
+  if (!response.ok) throw new Error(`Cloudflare AI returned HTTP ${response.status}`);
+  const payload = await response.json() as { success?: boolean; result?: AiResult };
+  if (!payload.success || !payload.result) throw new Error('Cloudflare AI returned no result');
+  return payload.result;
+}
+
+async function tryObject(args: { system: string; prompt: string }) {
+  const res = await callCloudflare(`${args.system}\n${JSON_RULES}`, args.prompt);
+  const output = res.response ?? res.choices?.[0]?.message?.content ?? '';
+  const content = typeof output === 'string' ? output : JSON.stringify(output);
+  const finishReason = res.choices?.[0]?.finish_reason ?? 'unknown';
+
+  const raw = extractJson(content);
   if (!raw) {
     return {
       ok: false as const,
-      detail: `no JSON object found in the response. Finish reason ${res.finishReason}, ${res.usage?.outputTokens ?? 0} output tokens.`,
+      detail: `no JSON object found in the response. Finish reason ${finishReason}, ${res.usage?.completion_tokens ?? 0} output tokens.`,
     };
   }
 
@@ -109,7 +104,7 @@ async function tryObject(args: { system: string; prompt: string }) {
   } catch (err) {
     return {
       ok: false as const,
-      detail: `the JSON did not parse: ${(err as Error).message}. Finish reason ${res.finishReason}.`,
+      detail: `the JSON did not parse: ${(err as Error).message}. Finish reason ${finishReason}.`,
     };
   }
 
@@ -119,7 +114,7 @@ async function tryObject(args: { system: string; prompt: string }) {
       .slice(0, 12)
       .map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`);
     console.error('macro generate: schema mismatch', {
-      finishReason: res.finishReason,
+      finishReason,
       usage: res.usage,
       issues,
     });
