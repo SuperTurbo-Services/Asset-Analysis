@@ -8,7 +8,7 @@ import { validate } from './validate';
 import type { Dashboard } from './types';
 
 /** Scheduled generation runs outside Workers, using the Cloudflare AI REST API. */
-export const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+export const MODEL = '@cf/zai-org/glm-5.3';
 const ACCOUNT_ID = '836cf1f9172ac577ef07b67206a768fe';
 const GATEWAY_ID = 'superturbo-app';
 
@@ -53,6 +53,36 @@ function extractJson(text: string): string | null {
   return null;
 }
 
+/** Repair harmless format drift without changing the verdict or inventing prose. */
+function normalizeJudgment(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object') return raw;
+  const obj = raw as Record<string, unknown>;
+  if (!Array.isArray(obj.assets)) return raw;
+  return {
+    ...obj,
+    assets: obj.assets.map((item) => {
+      if (!item || typeof item !== 'object') return item;
+      const asset = item as Record<string, unknown>;
+      let factors = asset.factors;
+      if (Array.isArray(factors) && factors.length === 4) {
+        const aligned = asset.verdict === 'BULLISH' ? 'up' : 'down';
+        const alignedIndexes = factors.flatMap((factor, i) =>
+          factor?.s === aligned ? [i] : []);
+        const offsetIndex = factors.findIndex((factor) => factor?.s !== aligned);
+        if (alignedIndexes.length >= 2 && offsetIndex >= 0) {
+          const keep = new Set([...alignedIndexes.slice(0, 2), offsetIndex]);
+          factors = factors.filter((_, i) => keep.has(i));
+        }
+      }
+      return {
+        ...asset,
+        name: asset.name === 'US Crypto' ? 'Crypto' : asset.name,
+        factors,
+      };
+    }),
+  };
+}
+
 type AiResult = {
   response?: unknown;
   choices?: { message?: { content?: unknown }; finish_reason?: string }[];
@@ -73,6 +103,7 @@ async function callCloudflare(system: string, prompt: string): Promise<AiResult>
       },
       body: JSON.stringify({
         messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+        reasoning_effort: 'low',
         max_tokens: MAX_OUTPUT_TOKENS,
         temperature: 0.4,
       }),
@@ -100,7 +131,7 @@ async function tryObject(args: { system: string; prompt: string }) {
 
   let parsedJson: unknown;
   try {
-    parsedJson = JSON.parse(raw);
+    parsedJson = normalizeJudgment(JSON.parse(raw));
   } catch (err) {
     return {
       ok: false as const,

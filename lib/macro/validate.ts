@@ -160,13 +160,11 @@ export function validate(d: Dashboard, f: Facts): Report {
     for (const tok of text.match(NUM) ?? []) {
       const v = parseNum(tok);
       if (v == null) continue;
-      const strict = tok.includes(".") || Math.abs(v) >= 1000;
       if (isKnown(v, allowed)) continue;
-      if (!strict && STRUCTURAL.has(Math.abs(v))) continue;
+      if (STRUCTURAL.has(Math.abs(v))) continue;
       if (Number.isInteger(v) && v >= 1900 && v <= 2100) continue;
       const msg = `number ${tok} is not in the facts bundle: ${JSON.stringify(text.slice(0, 90))}`;
-      if (strict) errors.push(msg);
-      else warnings.push(msg);
+      errors.push(msg);
     }
   }
 

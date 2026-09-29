@@ -12,7 +12,7 @@ export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 /** The Worker binding authenticates to Workers AI and routes through our Cloudflare AI Gateway. */
-const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const MODEL = '@cf/zai-org/glm-5.3';
 const GATEWAY_ID = 'superturbo-app';
 
 /** Each request covers two notes so the model has room for complete JSON. */
@@ -39,7 +39,7 @@ async function callModel(messages: Msg[], signal: AbortSignal): Promise<string> 
     signal.addEventListener('abort', abort, { once: true });
     env.AI!.run(
       MODEL,
-      { messages, temperature: 0.6, max_tokens: MAX_TOKENS },
+      { messages, reasoning_effort: 'low', temperature: 0.6, max_tokens: MAX_TOKENS },
       { gateway: { id: GATEWAY_ID, skipCache: true } },
     ).then(
       (result) => resolve(result as ChatResponse),

@@ -10,6 +10,7 @@ export const SYSTEM = `You score a fixed macro framework for a dashboard. You an
 
 SOURCE OF TRUTH
 Every figure you may use is in the facts bundle given to you. You have no other source. Never introduce a number that is not in that bundle, never estimate one, and never recall one from memory. If a factor's data is missing, say so plainly in that factor rather than guessing, and still give the verdict from the factors you do have.
+Do not calculate a new change from two observations. If the bundle does not explicitly list a change, describe direction without a number. An invented integer fails validation just as an invented decimal does.
 
 Do not mention a Federal Reserve target range, a meeting date, rate cut or hike odds, ETF flow figures, an ISM PMI reading, or an earnings multiple. None of those are in the bundle, so any figure for them would be invented. The bundle carries the fed funds effective rate, which is what you reason about policy from.
 
