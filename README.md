@@ -108,7 +108,7 @@ The current macro report is generated offline from public market and economic so
 | `template/macro-dashboard.html` | Base dashboard document. |
 | `data/macro-dashboard.json` | Latest validated static macro report. |
 
-This repository preserves the complete deployable SuperTurbo codebase because the production Vercel project serves multiple existing routes on `superturbo.app`.
+This repository contains the complete deployable `superturbo.app` codebase. The Cloudflare Worker candidate is configured to serve the home pages, Xiaohongshu analysis, Asset Analysis, and the related API routes. The current Vercel site remains in place until the Cloudflare domain cutover is verified.
 
 ## Run locally
 
@@ -126,7 +126,27 @@ npm run dev
 
 Open http://localhost:3000/asset-analysis.
 
-The checked-in report and all WebMCP interactions run without credentials. `AI_GATEWAY_API_KEY` is needed only when regenerating the offline macro report with `npm run macro:refresh`; see [`.env.example`](./.env.example).
+The checked-in report and WebMCP interactions run without credentials. `AI_GATEWAY_API_KEY` is needed to regenerate the offline macro report and to use the Xiaohongshu AI analysis API; see [`.env.example`](./.env.example).
+
+## Cloudflare release candidate
+
+Build and check the Worker locally before deployment:
+
+```bash
+npm ci
+npm run typecheck
+npm run webmcp:selftest
+npm run macro:selftest
+npm run cf:build
+npx opennextjs-cloudflare preview --port 8788
+npx wrangler deploy --dry-run
+```
+
+The Worker is named `superturbo-app` in `wrangler.jsonc`. Bind both `superturbo.app` and `www.superturbo.app` only after the preview and the AI route pass. The same `AI_GATEWAY_API_KEY` used on Vercel must be set privately as a Cloudflare Worker secret before switching DNS; the public asset dashboard works without it, but the Xiaohongshu AI endpoint does not. Do not put the key in Git or in a Raft message.
+
+## Daily Asset Analysis refresh
+
+`.github/workflows/asset-analysis-daily.yml` runs at 17:15 UTC each day and can also be dispatched manually. It calls the Vercel AI Gateway through a GitHub Actions repository secret named `AI_GATEWAY_API_KEY`, validates both languages, rejects a stale generation time or missing source facts, and commits only `data/macro-dashboard.json`. A Cloudflare Builds connection to this repository's `main` branch then deploys that commit. The scheduled workflow remains inactive until this file is merged to the default branch, the GitHub secret is set, and the Cloudflare Builds connection is established. A failed refresh leaves the previous published report untouched; monitor workflow failures because the page does not display a stale-data warning.
 
 ## Built with
 

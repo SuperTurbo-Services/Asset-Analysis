@@ -4,10 +4,10 @@ import type { Bundle } from './generate';
  * 看板的数据就是仓库里的一个文件，`data/macro-dashboard.json`。
  *
  * 页面只负责显示它，不在请求里生成任何东西，所以是纯静态的，CDN 直接发，
- * 打开就是毫秒级。要更新内容就在本地跑 `npm run macro:refresh`，
- * 它会重写这个文件，然后 commit push，Vercel 重新构建。
+ * 打开就是毫秒级。每日 GitHub Action 运行 `npm run macro:refresh`，
+ * 校验后提交这个文件；Cloudflare Builds 从 main 分支部署新的 Worker。
  *
- * 这样运行时完全不需要 AI key，也不需要 Blob store 和 cron。
+ * 这样网页运行时不需要 AI key 或持久化数据库；定时生成在 GitHub Actions 中执行。
  */
 export const DATA_FILE = 'data/macro-dashboard.json';
 

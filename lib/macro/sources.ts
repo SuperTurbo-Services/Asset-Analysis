@@ -6,7 +6,7 @@
 
 export type Obs = { date: string; value: number };
 
-const UA = "macro-dashboard (+https://vercel.com)";
+const UA = "asset-analysis (+https://superturbo.app)";
 
 async function getText(url: string, timeoutMs = 12_000): Promise<string> {
   const ctl = new AbortController();

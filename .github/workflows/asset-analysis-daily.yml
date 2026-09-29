@@ -1,0 +1,45 @@
+name: Refresh Asset Analysis daily
+
+on:
+  schedule:
+    # 17:15 UTC is 10:15 PDT / 09:15 PST. Market facts may use the prior close.
+    - cron: "15 17 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: asset-analysis-daily
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Generate and validate the bilingual report
+        env:
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+        run: |
+          test -n "$AI_GATEWAY_API_KEY" || { echo 'AI_GATEWAY_API_KEY secret is missing' >&2; exit 1; }
+          npm run macro:refresh
+          npm run macro:selftest
+          node scripts/assert-fresh-report.mjs
+      - name: Publish the validated data file
+        run: |
+          changed="$(git status --porcelain --untracked-files=all)"
+          test "$changed" = ' M data/macro-dashboard.json' || { echo "Unexpected working-tree changes: $changed" >&2; exit 1; }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/macro-dashboard.json
+          git commit -m 'macro: daily refresh'
+          git push origin HEAD:main

@@ -1,8 +1,8 @@
 /**
  * 真跑一次：抓数据、打分、翻译、校验，然后把结果写进 data/macro-dashboard.json。
  *
- * 这是更新看板内容的唯一入口。跑完 commit push，Vercel 重新构建，页面就是新的。
- * 需要 AI_GATEWAY_API_KEY，放在 .env.local 里（vercel env pull 可以拉下来）。
+ * 这是更新看板内容的唯一入口。定时 GitHub Action 会生成、校验、提交，
+ * Cloudflare Builds 随后从仓库 main 分支部署。AI_GATEWAY_API_KEY 只从环境读取。
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { loadEnv } from './env.mts';
@@ -11,18 +11,11 @@ loadEnv();
 
 const key = process.env.AI_GATEWAY_API_KEY ?? '';
 
-// `vercel env pull` 对标了 Sensitive 的变量只会写一个占位符 [SENSITIVE]，
-// 它是有值的，所以光判断存在会过，然后在网关那边报一个看不懂的未认证错误
+// 占位符不是有效凭证；不要把凭证或其前缀写入日志。
 if (!key || key.startsWith('[') || key.length < 20) {
-  console.error(
-    key
-      ? `AI_GATEWAY_API_KEY looks like a placeholder, not a key (${JSON.stringify(key.slice(0, 12))}).`
-      : 'AI_GATEWAY_API_KEY is not set.',
-  );
+  console.error(key ? 'AI_GATEWAY_API_KEY looks like a placeholder, not a key.' : 'AI_GATEWAY_API_KEY is not set.');
   console.error('');
-  console.error('The key in Vercel is marked Sensitive, so `vercel env pull` cannot');
-  console.error('return it, it writes [SENSITIVE] instead. Put a real key in .env.local:');
-  console.error('  vercel.com/dashboard/ai-gateway/api-keys');
+  console.error('Set a valid key privately in .env.local before running this script.');
   process.exit(1);
 }
 
@@ -62,4 +55,4 @@ console.log('  read  ' + bundle.en.assets
 console.log(`  wrote ${where}`);
 console.log('  wrote .cache/macro-preview-en.html and .cache/macro-preview-zh.html');
 console.log('');
-console.log('  Next: git add data/macro-dashboard.json && git commit && git push');
+console.log('  Next: review data/macro-dashboard.json; a push to main deploys the approved Worker configuration');
