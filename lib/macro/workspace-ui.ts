@@ -22,7 +22,7 @@ const TEXT = {
     scenarioControls: "Fine-tune this scenario",
     scenarioControlsSub: "Move any macro input to create a customized scenario.",
     codexScenarioHint: "Ask Codex to give you a customized scenario analysis.",
-    scenarioNote: "Directional sensitivity, not a price forecast or investment advice.",
+    scenarioNote: "Illustrative assumptions · directional sensitivity, not a price forecast or investment advice.",
     returnCurrentScenario: "Return to current scenario",
     language: "Language",
     soft: "Soft landing",
@@ -47,14 +47,14 @@ const TEXT = {
     removeAsset: "Remove asset",
     equalWeight: "Equal weight",
     portfolioImpact: "Selected asset macro impact",
-    researchLab: "Optional WebMCP research for another ticker",
+    researchLab: "Enter an asset or tell Codex what you want to analyze",
     searchCategory: "Search in category",
     holdings: "Holdings and weights",
     assetScope: "4 assets × factors",
     localAllocation: "Local allocation",
     signalsTitle: "Master signals",
     signalsSub: "The shared macro inputs behind all four calls.",
-    driversTitle: "What is driving each call",
+    driversTitle: "Four asset classes analysis",
     driversSub: "Three factors per asset, including the offset that argues against the verdict.",
     factorGrid: "Factor grid",
     factorGridSub: "One row per factor and one column for each of the four original dashboard assets.",
@@ -87,7 +87,7 @@ const TEXT = {
     eyebrow: "WEBMCP AI 协作工作台",
     title: "一个宏观视角，看遍所有资产",
     intro: "同时对八类资产做宏观压力测试，为任意代码收集证据，或绘制仅保存在本地的组合天气图。页面控件与站点工具共享同一工作区。",
-    atlas: "情景罗盘",
+    atlas: "情景分析",
     atlasSub: "选择一个未来事件，立即查看四类核心资产可能受到的影响。",
     lens: "单一资产透镜",
     lensSub: "无需 API 密钥，搜索任意代码并聚合价格、美国公司基本面与近期报道。让 Codex 基于证据编号生成因子透镜。",
@@ -104,7 +104,7 @@ const TEXT = {
     scenarioControls: "微调情景",
     scenarioControlsSub: "调整任一宏观变量，即可创建自定义情景。",
     codexScenarioHint: "让 Codex 为你生成自定义情景分析。",
-    scenarioNote: "仅表示方向性敏感度，不是价格预测或投资建议。",
+    scenarioNote: "基于示例假设，仅表示方向性敏感度，不是价格预测或投资建议。",
     returnCurrentScenario: "返回当前宏观情景",
     language: "语言",
     soft: "软着陆",
@@ -129,14 +129,14 @@ const TEXT = {
     removeAsset: "移除资产",
     equalWeight: "等权分配",
     portfolioImpact: "所选资产的宏观影响",
-    researchLab: "可选：用 WebMCP 研究其他代码",
+    researchLab: "输入或告诉 Codex，你想分析什么资产",
     searchCategory: "在当前类别中搜索",
     holdings: "持仓与权重",
     assetScope: "4 类资产 × 宏观因子",
     localAllocation: "本地配置",
     signalsTitle: "主要指标",
     signalsSub: "支撑四类资产判断的共同宏观输入。",
-    driversTitle: "每个判断由什么驱动",
+    driversTitle: "4个资产类别分析",
     driversSub: "每类资产三个因子，其中包括一个与结论相反的抵消因素。",
     factorGrid: "因子网格",
     factorGridSub: "一行一个因子，一列对应原看板的一类资产。",
@@ -153,16 +153,16 @@ const TEXT = {
     sensitivity: "敏感度",
     activeShock: "当前冲击",
     contribution: "贡献",
-    weatherTitle: "组合天气",
+    weatherTitle: "投资组合分析",
     weatherCopy: "根据当前 Shock Atlas 情景加权计算的方向影响。它代表敏感度，不是收益率预测。",
     currentWeatherCopy: "根据当前四类资产因子网格加权计算的影响。它是宏观环境判断，不是收益率预测。",
     clickHolding: "点击持仓查看该资产的宏观影响",
     currentImpactCopy: "这是当前看板因子网格的得分。选择未来情景后可查看每项冲击的贡献。",
     noProfile: "这个资产还没有因子画像。请在资产分析页打开可选的 WebMCP 研究区，再让 Codex 为该代码生成带引用的资产透镜。",
-    strongTailwind: "强顺风",
-    mildTailwind: "温和顺风",
-    strongHeadwind: "强逆风",
-    mildHeadwind: "温和逆风",
+    strongTailwind: "强利好",
+    mildTailwind: "温和利好",
+    strongHeadwind: "强利空",
+    mildHeadwind: "温和利空",
     balanced: "平衡",
   },
 } as const;
@@ -249,6 +249,7 @@ export function workspaceCss(): string {
   .aw-shock-zone .aw-section-title small { display: block; margin-top: 3px; }
   .aw-shock-zone .aw-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 22px; }
   .aw-section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .aw-asset-classes-heading { margin: 24px 0 8px; font-family: Georgia, "Noto Serif SC", serif; font-size: clamp(24px, 2.5vw, 30px); font-weight: 600; line-height: 1.25; }
   .aw-section-title h3 { margin: 0; font-size: 17px; }
   .aw-section-title small { color: var(--text-muted); font-size: 12px; }
   .aw-controls { display: grid; gap: 10px; }
@@ -277,7 +278,8 @@ export function workspaceCss(): string {
   .aw-signals .tile { padding: 12px; border-radius: 10px; }
   .aw-signals .t-val { font-size: 21px; }
   .aw-evidence { margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
-  .aw-evidence > summary, .aw-research-lab > summary { cursor: pointer; padding: 12px 14px; font-weight: 620; font-size: 13px; }
+  .aw-evidence > h3 { margin: 0; padding: 12px 14px; font-weight: 620; font-size: 13px; }
+  .aw-research-lab > h3 { margin: 0; padding: 22px 24px 8px; font-family: Georgia, "Noto Serif SC", serif; font-weight: 600; font-size: clamp(24px, 2.5vw, 30px); line-height: 1.3; }
   .aw-evidence-body { padding: 0 14px 14px; }
   .aw-evidence-body > * { margin-bottom: 14px; }
   .aw-analysis-content > .section-h:first-child, .aw-analysis-content > .section-s:nth-child(2) { display: none; }
@@ -285,20 +287,42 @@ export function workspaceCss(): string {
   .aw-analysis-content .matrix-wrap { border-radius: 11px; }
   .aw-analysis-content .chartcard { margin-top: 16px; }
   .aw-research-lab { margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
-  .aw-research-body { padding: 0 14px 14px; }
+  .aw-research-body { padding: 0 24px 24px; }
+  .aw-research-lab .aw-search { max-width: 800px; margin-top: 16px; }
+  .aw-research-lab .aw-input { padding: 14px 16px; font-size: 16px; }
+  .aw-research-lab .aw-search > button { padding: 12px 22px; font-size: 16px; }
   .aw-search { display: flex; gap: 8px; max-width: 620px; }
   .aw-input { width: 100%; min-width: 0; border: 1px solid var(--border); background: var(--page); color: var(--text-primary); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 13px; }
   .aw-search-results { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0; }
   .aw-search-hit { border: 1px solid var(--grid); background: var(--page); color: var(--text-primary); border-radius: 8px; padding: 7px 9px; cursor: pointer; text-align: left; }
   .aw-search-hit b, .aw-search-hit small { display: block; }
   .aw-search-hit small { color: var(--text-muted); margin-top: 2px; font-size: 12px; }
-  .aw-context { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .aw-context { display: grid; grid-template-columns: minmax(220px,.8fr) minmax(0,1.5fr); gap: 16px; margin-top: 16px; }
   .aw-context-card { border: 1px solid var(--grid); border-radius: 9px; padding: 11px; min-width: 0; }
+  .aw-context-card { padding: 22px; }
+  .aw-context-price-value { margin: 16px 0 8px; font-size: clamp(38px, 5vw, 58px); font-weight: 650; letter-spacing: -.04em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .aw-context-change { font-size: 18px; font-weight: 650; }
+  .aw-context-positive { color: #168044; }
+  .aw-context-negative { color: #c83d46; }
+  .aw-context-metrics { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-top: 16px; }
+  .aw-context-metric { padding: 16px; background: var(--page); border: 1px solid var(--border); border-radius: 10px; }
+  .aw-context-metric-label { font-size: 13px; color: var(--text-secondary); }
+  .aw-context-metric-value { margin: 8px 0; font-size: clamp(25px, 3vw, 36px); font-weight: 650; color: #2877bc; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .aw-context-metric-value.aw-context-negative { color: #c83d46; }
+  .aw-context-metric-value.aw-context-positive { color: #168044; }
+  .aw-context-news { grid-column: 1 / -1; }
+  .aw-context-news-item { padding: 16px 0; border-top: 1px solid var(--border); }
+  .aw-context-news-item > a { font-size: 17px; font-weight: 600; line-height: 1.5; text-decoration: none; }
+  @media (max-width: 700px) { .aw-context { grid-template-columns: 1fr; } .aw-context-card { padding: 16px; } }
   .aw-context-card h4 { margin: 0 0 8px; font-size: 13px; }
   .aw-context-card p { font-size: 12px; color: var(--text-secondary); margin: 5px 0; overflow-wrap: anywhere; }
   .aw-context-card a { color: var(--aw-navy-2); }
   .aw-eid { color: var(--text-muted); font-family: ui-monospace, monospace; font-size: 12px; }
   .aw-lens { margin-top: 12px; border-left: 3px solid var(--aw-navy-2); background: var(--page); padding: 13px; }
+  .aw-stock-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+  .aw-stock-heading h3, .aw-stock-heading h4 { margin: 0; }
+  .aw-stock-heading .verdict, .aw-analysis-content .card-head .verdict { font-size: 24px; padding: 9px 14px; line-height: 1.2; border-radius: 10px; }
+  .aw-analysis-content .card-head { flex-wrap: wrap; }
   .aw-lens h4 { margin: 0 0 5px; }
   .aw-lens p { font-size: 12.5px; color: var(--text-secondary); margin: 5px 0; }
   .aw-allocation { display: flex; height: 42px; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; margin-bottom: 12px; background: var(--chip-bg); }
@@ -423,18 +447,18 @@ export function workspaceBody(lang: Lang): string {
               <div class="aw-controls" id="aw-shocks"></div>
             </div>
             <div class="aw-signals" id="aw-signals-slot"></div>
-            <details class="aw-evidence"><summary>${t.current} · calculations, charts and sources</summary><div class="aw-evidence-body" id="aw-evidence-slot"></div></details>
+            <section class="aw-evidence"><h3>${t.current} · ${lang === "zh" ? "计算过程、图表与来源" : "calculations, charts and sources"}</h3><div class="aw-evidence-body" id="aw-evidence-slot"></div></section>
           </section>
 
           <section class="aw-panel" id="aw-asset" data-aw-panel="asset" hidden>
             <div class="aw-panel-head"><div><p class="aw-eyebrow">FOUR ASSET FACTOR MAP</p><h2>${t.assetAnalysis}</h2><p>${t.assetAnalysisSub}</p></div><div class="aw-panel-actions"><span class="aw-local" id="aw-asset-scenario"></span><button class="aw-btn" data-return-current="asset" type="button">${t.returnCurrentScenario}</button></div></div>
             <div class="aw-analysis-content" id="aw-analysis-slot"></div>
-            <details class="aw-research-lab" id="aw-research-lab"><summary>${t.researchLab}</summary><div class="aw-research-body">
+            <section class="aw-research-lab" id="aw-research-lab"><h3>${t.researchLab}</h3><div class="aw-research-body">
               <p class="section-s">${t.lensSub}</p>
-              <form class="aw-search" id="aw-search-form"><input class="aw-input" id="aw-search-input" maxlength="80" placeholder="${t.ticker}" autocomplete="off"><button class="aw-btn primary" type="submit">${t.search}</button></form>
+              <form class="aw-search" id="aw-search-form"><input class="aw-input" id="aw-search-input" maxlength="80" aria-label="${t.ticker}" placeholder="${lang === "zh" ? "输入资产代码或公司名称，例如 AAPL、黄金、比特币" : "Enter a ticker or company, e.g. AAPL, gold, Bitcoin"}" autocomplete="off"><button class="aw-btn primary" type="submit">${t.search}</button></form>
               <div class="aw-search-results" id="aw-search-results"></div><p class="section-s" id="aw-lens-message">${t.ask}</p>
               <div id="aw-context"></div><div id="aw-rendered-lens"></div>
-            </div></details>
+            </div></section>
           </section>
 
           <section class="aw-panel" id="aw-portfolio" data-aw-panel="portfolio" hidden>
@@ -465,52 +489,54 @@ export function workspaceScript(): string {
   const C = JSON.parse(document.getElementById("workspace-config").textContent);
   const T = JSON.parse(document.getElementById("workspace-text").textContent);
   const KEY = "superturbo.macro.webmcp.v1";
+  // Illustrative event assumptions, not calibrated forecasts. AI risk is represented
+  // through broad growth and risk factors; this model has no AI-sector factor.
   const presets = {
-    fomc_hike: { policy_rate_bps: 50, real_yield_bps: 25, dollar_pct: 2, vix_points: 3 },
-    rates_decline: { policy_rate_bps: -75, real_yield_bps: -50, dollar_pct: -3, vix_points: -2 },
-    inflation_returns: { inflation_bps: 100, policy_rate_bps: 50, real_yield_bps: 25, oil_pct: 15, vix_points: 6 },
-    growth_shock: { growth_pp: -1.5, policy_rate_bps: -50, credit_spread_bps: 150, dollar_pct: 3, vix_points: 12 }
+    economic_boom: { growth_pp: 1.5, policy_rate_bps: 25, credit_spread_bps: -50, vix_points: -5 },
+    economic_contraction: { growth_pp: -1.5, policy_rate_bps: -50, credit_spread_bps: 150, dollar_pct: 3, vix_points: 12 },
+    ai_bubble_burst: { growth_pp: -1, policy_rate_bps: -25, credit_spread_bps: 100, vix_points: 15 },
+    war_ends: { growth_pp: 0.5, inflation_bps: -50, oil_pct: -20, credit_spread_bps: -50, vix_points: -8 }
   };
   const isZh = document.documentElement.lang.startsWith("zh");
   const scenarioMeta = {
     current: { label: T.currentMacro, sub: T.currentMacroSub },
-    fomc_hike: { label: isZh ? "下次 FOMC 加息" : "Next FOMC hike", sub: isZh ? "政策再次收紧" : "Policy tightens again" },
-    rates_decline: { label: isZh ? "利率下降" : "Interest rates decline", sub: isZh ? "折现率走低" : "Lower discount rates" },
-    inflation_returns: { label: isZh ? "通胀回归" : "Inflation returns", sub: isZh ? "价格压力再起" : "Price pressure rebuilds" },
-    growth_shock: { label: isZh ? "增长冲击" : "Growth shock", sub: isZh ? "经济快速降温" : "The economy cools fast" },
+    economic_boom: { label: isZh ? "经济高速增长" : "Economic boom", sub: isZh ? "消费和投资加速" : "Spending and investment rise" },
+    economic_contraction: { label: isZh ? "经济收缩" : "Economic contraction", sub: isZh ? "需求下降，企业承压" : "Demand falls, businesses struggle" },
+    ai_bubble_burst: { label: isZh ? "AI 泡沫破裂" : "AI bubble bursts", sub: isZh ? "投资热潮退去" : "The investment hype fades" },
+    war_ends: { label: isZh ? "战争停止" : "War ends", sub: isZh ? "冲突缓和，供应恢复" : "Conflict eases, supply recovers" },
     custom: { label: T.customScenario, sub: T.customScenarioSub }
   };
   const scenarioCopy = {
-    fomc_hike: {
-      "SPY": isZh ? "融资成本与估值压力上升，通常不利于股票。" : "Higher financing costs and valuation pressure usually weigh on stocks.",
-      "CASH": isZh ? "短期利率上升，现金收益率通常改善。" : "Higher short rates can improve the income available on cash.",
-      "XAU": isZh ? "实际利率上升通常压制黄金需求。" : "Higher real yields usually create a headwind for gold.",
-      "BTC-USD": isZh ? "流动性收紧与美元走强通常压制加密资产。" : "Tighter liquidity and a firmer dollar usually weigh on crypto."
+    economic_boom: {
+      "SPY": isZh ? "假设消费和投资加速、企业盈利改善，但利率可能上升。" : "Assumes stronger spending, investment and earnings, with potentially higher rates.",
+      "CASH": isZh ? "假设经济走强带动利率上升，现金利息增加。" : "Assumes stronger growth lifts rates and cash income.",
+      "XAU": isZh ? "假设避险需求减少、实际利率不变，黄金支持减弱。" : "Assumes less demand for safety and unchanged real yields, weakening support for gold.",
+      "BTC-USD": isZh ? "假设投资者更愿意承担风险，支持加密资产。" : "Assumes investors take more risk, supporting crypto."
     },
-    rates_decline: {
-      "SPY": isZh ? "较低折现率通常支持股票估值。" : "Lower discount rates usually support equity valuations.",
-      "CASH": isZh ? "短期利率下降，现金收益率通常回落。" : "Cash income usually falls as short-term rates decline.",
-      "XAU": isZh ? "实际利率与美元走低通常利好黄金。" : "Lower real yields and a softer dollar usually help gold.",
-      "BTC-USD": isZh ? "流动性条件放松通常支持加密资产。" : "Easier liquidity conditions usually support crypto."
+    economic_contraction: {
+      "SPY": isZh ? "假设需求和盈利下降、借钱更难，股票承压。" : "Assumes weaker demand and earnings and harder borrowing, weighing on stocks.",
+      "CASH": isZh ? "假设降息使现金利息减少。" : "Assumes rate cuts reduce cash income.",
+      "XAU": isZh ? "假设避险需求上升，但美元走强可能抵消部分支持。" : "Assumes greater demand for safety, partly offset by a stronger dollar.",
+      "BTC-USD": isZh ? "假设投资者减少冒险、资金趋紧，加密资产承压。" : "Assumes less risk-taking and tighter funding, weighing on crypto."
     },
-    inflation_returns: {
-      "SPY": isZh ? "成本与政策收紧风险上升，通常压制股票。" : "Rising costs and renewed tightening risk usually weigh on stocks.",
-      "CASH": isZh ? "更高政策利率预期通常支持现金收益。" : "Expectations for higher policy rates can support cash income.",
-      "XAU": isZh ? "通胀对冲需求上升，但实际利率会部分抵消。" : "Inflation hedging demand helps, partly offset by higher real yields.",
-      "BTC-USD": isZh ? "更紧政策与波动率上升通常不利于加密资产。" : "Tighter policy and higher volatility usually weigh on crypto."
+    ai_bubble_burst: {
+      "SPY": isZh ? "假设 AI 投资热潮退去，拖累增长和市场信心；模型仅模拟整体市场影响。" : "Assumes fading AI investment hurts growth and confidence; the model captures broad market effects only.",
+      "CASH": isZh ? "假设经济放缓引发降息，现金利息减少。" : "Assumes slower growth prompts rate cuts, reducing cash income.",
+      "XAU": isZh ? "假设市场波动加大，更多资金寻求避险。" : "Assumes greater market volatility increases demand for safety.",
+      "BTC-USD": isZh ? "假设投资者撤出高风险资产，加密资产也受到冲击。" : "Assumes investors retreat from risky assets, also hurting crypto."
     },
-    growth_shock: {
-      "SPY": isZh ? "盈利预期下降、信用利差走阔，通常压制股票。" : "Weaker earnings expectations and wider spreads usually hurt stocks.",
-      "CASH": isZh ? "避险需求上升，但降息会削弱现金收益率。" : "Safety demand rises, although rate cuts can reduce cash income.",
-      "XAU": isZh ? "避险需求与实际利率下降通常支持黄金。" : "Safe-haven demand and lower real yields usually support gold.",
-      "BTC-USD": isZh ? "风险偏好与流动性恶化，通常压制加密资产。" : "Weaker risk appetite and liquidity usually weigh on crypto."
+    war_ends: {
+      "SPY": isZh ? "假设供应恢复、能源成本下降，企业和消费受益。" : "Assumes recovering supply and cheaper energy help businesses and consumers.",
+      "CASH": isZh ? "此假设未调整政策利率，现金利息影响有限。" : "This assumption leaves policy rates unchanged, with limited impact on cash income.",
+      "XAU": isZh ? "假设冲突缓和使避险需求下降，黄金支持减弱。" : "Assumes easing conflict reduces demand for safety, weakening support for gold.",
+      "BTC-USD": isZh ? "假设市场信心恢复、波动下降，支持加密资产。" : "Assumes improving confidence and lower volatility support crypto."
     }
   };
   const categoryCatalog = {
     Stocks: [{ symbol: "SPY", name: "US market" }, { symbol: "VOO", name: "Vanguard S&P 500 ETF" }, { symbol: "IVV", name: "iShares Core S&P 500 ETF" }, { symbol: "QQQ", name: "Growth" }, { symbol: "AAPL", name: "Apple" }, { symbol: "MSFT", name: "Microsoft" }],
     Bonds: [{ symbol: "TLT", name: "Long Treasuries" }, { symbol: "IEF", name: "Intermediate Treasuries" }, { symbol: "HYG", name: "High yield credit" }, { symbol: "LQD", name: "Investment grade credit" }],
     Cash: [{ symbol: "CASH", name: "US cash proxy" }, { symbol: "BIL", name: "Treasury bills" }, { symbol: "SGOV", name: "Short Treasuries" }],
-    FX: [{ symbol: "DXY", name: "US dollar index" }, { symbol: "EURUSD=X", name: "Euro dollar" }, { symbol: "JPY=X", name: "Dollar yen" }],
+    FX: [{ symbol: "DXY", name: "US dollar index" }, { symbol: "EURUSD=X", name: "Euro dollar" }, { symbol: "JPY=X", name: "Dollar yen" }, { symbol: "CNY=X", name: "USD/CNY · Chinese yuan" }],
     Commodities: [{ symbol: "XAU", name: "Gold proxy" }, { symbol: "GC=F", name: "Gold futures" }, { symbol: "WTI", name: "Crude oil proxy" }, { symbol: "CL=F", name: "Crude futures" }],
     Crypto: [{ symbol: "BTC-USD", name: "Bitcoin" }, { symbol: "ETH-USD", name: "Ethereum" }, { symbol: "SOL-USD", name: "Solana" }]
   };
@@ -534,9 +560,9 @@ export function workspaceScript(): string {
   const byId = (id) => document.getElementById(id);
   const activity = (message) => { byId("aw-activity").textContent = message; };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {} };
-  const makeHeading = (title, subtitle) => {
+  const makeHeading = (title, subtitle, prominent = false) => {
     const wrap = document.createElement("div");
-    const h = document.createElement("p"); h.className = "section-h"; h.textContent = title; wrap.appendChild(h);
+    const h = document.createElement(prominent ? "h3" : "p"); h.className = prominent ? "aw-asset-classes-heading" : "section-h"; h.textContent = title; wrap.appendChild(h);
     if (subtitle) { const p = document.createElement("p"); p.className = "section-s"; p.textContent = subtitle; wrap.appendChild(p); }
     return wrap;
   };
@@ -549,7 +575,7 @@ export function workspaceScript(): string {
     const verdictSlot = byId("aw-verdict-slot"); verdictSlot.append(byId("board"), byId("banner"));
     const signals = byId("aw-signals-slot"); signals.append(makeHeading(T.signalsTitle, T.signalsSub), byId("tiles"));
     const analysis = byId("aw-analysis-slot");
-    analysis.append(makeHeading(T.driversTitle, T.driversSub), byId("cards"));
+    analysis.append(makeHeading(T.driversTitle, T.driversSub, true), byId("cards"));
     analysis.append(makeHeading(T.factorGrid, T.factorGridSub), byId("matrix").closest(".matrix-wrap"));
     const evidence = byId("aw-evidence-slot");
     const bar = byId("barcard"); if (bar) evidence.append(makeHeading(T.marketContext, T.marketContextSub), bar);
@@ -610,10 +636,11 @@ export function workspaceScript(): string {
   };
   const scenarioResults = () => C.assets.map((asset) => score(asset.symbol, asset.sensitivities, state.shocks));
   const showWorkspace = (name) => {
+    const alreadyVisible = !byId("aw-" + name).hidden;
     document.querySelectorAll("[data-aw-tab]").forEach((button) => button.setAttribute("aria-selected", String(button.dataset.awTab === name)));
     document.querySelectorAll("[data-aw-panel]").forEach((panel) => { panel.hidden = panel.dataset.awPanel !== name; });
     const top = byId("agent-workspace").offsetTop;
-    if (window.scrollY > top + 80) window.scrollTo({ top: Math.max(0, top - 12), behavior: "smooth" });
+    if (!alreadyVisible && window.scrollY > top + 80) window.scrollTo({ top: Math.max(0, top - 12), behavior: "smooth" });
   };
   document.querySelectorAll("[data-aw-tab]").forEach((button) => button.addEventListener("click", () => showWorkspace(button.dataset.awTab)));
 
@@ -635,13 +662,16 @@ export function workspaceScript(): string {
   const overviewSymbols = ["SPY", "CASH", "XAU", "BTC-USD"];
   const verdictFor = (scoreValue) => scoreValue > 0 ? { dir: "bull", arrow: "▲", word: isZh ? "偏多" : "BULLISH" } : scoreValue < 0 ? { dir: "bear", arrow: "▼", word: isZh ? "偏空" : "BEARISH" } : { dir: "neutral", arrow: "◆", word: isZh ? "中性" : "MIXED" };
   const customExplanation = (result) => {
-    const strongest = [...result.contributions].sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))[0];
-    if (!strongest) return isZh ? "当前输入没有形成明确的方向性影响。" : "The current inputs do not create a clear directional impact.";
-    const def = shockDefinition(strongest.factor);
-    const factor = isZh ? def.labelZh : def.label;
-    if (result.score > 0) return isZh ? factor + " 是当前主要顺风。" : factor + " is the main tailwind in this custom scenario.";
-    if (result.score < 0) return isZh ? factor + " 是当前主要逆风。" : factor + " is the main headwind in this custom scenario.";
-    return isZh ? "顺风与逆风大致抵消。" : "Tailwinds and headwinds broadly offset each other.";
+    const contributions = [...result.contributions].sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution));
+    const tailwind = contributions.find((item) => item.contribution > 0);
+    const headwind = contributions.find((item) => item.contribution < 0);
+    const factorName = (item) => { const def = shockDefinition(item.factor); return isZh ? def.labelZh : def.label; };
+    if (tailwind && headwind) return isZh
+      ? factorName(tailwind) + " 是主要利好；" + factorName(headwind) + " 是主要利空。"
+      : factorName(tailwind) + " is the main tailwind; " + factorName(headwind) + " is the main headwind.";
+    if (tailwind) return isZh ? factorName(tailwind) + " 是当前主要利好。" : factorName(tailwind) + " is the main tailwind in this custom scenario.";
+    if (headwind) return isZh ? factorName(headwind) + " 是当前主要利空。" : factorName(headwind) + " is the main headwind in this custom scenario.";
+    return isZh ? "当前输入没有形成明确的方向性影响。" : "The current inputs do not create a clear directional impact.";
   };
   const signedValue = (value) => value > 0 ? "+" + value : value < 0 ? "−" + Math.abs(value) : "0";
   const renderScenarioContext = () => {
@@ -704,8 +734,18 @@ export function workspaceScript(): string {
     });
     const currentButton = byId("aw-current"); currentButton.disabled = activeScenario === "current";
   };
+  const renderStockVerdicts = () => {
+    document.querySelectorAll("[data-stock-verdict]").forEach((badge) => {
+      const profile = profileFor(badge.dataset.stockVerdict); badge.className = "verdict neutral";
+      if (!profile) { badge.textContent = isZh ? "待分析" : "Analysis pending"; return; }
+      if (activeScenario === "current") { badge.textContent = isZh ? "未应用情景" : "No scenario applied"; return; }
+      const result = score(badge.dataset.stockVerdict, profile, state.shocks); const verdict = verdictFor(result.score);
+      badge.className = "verdict " + verdict.dir; badge.textContent = verdict.arrow + " " + verdict.word;
+      badge.title = scenarioMetaFor(activeScenario).label + " · " + result.score;
+    });
+  };
   const renderAtlas = () => {
-    renderScenarioVerdicts(); renderAssetAnalysis(); renderScenarioContext(); renderPortfolioSummary(); renderSelectedPortfolioImpact();
+    renderScenarioVerdicts(); renderAssetAnalysis(); renderScenarioContext(); renderPortfolioSummary(); renderSelectedPortfolioImpact(); renderStockVerdicts();
   };
   const selectScenario = (key, source, fromRect, workspaceName) => {
     if (!scenarioMeta[key] || key === "custom") return;
@@ -742,7 +782,7 @@ export function workspaceScript(): string {
   const getAssetContext = async (symbol, source) => {
     const normalized = cleanSymbol(symbol); activity(T.loading);
     const context = await requestJson("/api/macro-dashboard/assets/context?symbol=" + encodeURIComponent(normalized));
-    state.contexts[normalized] = context; save(); renderContext(context); byId("aw-research-lab")?.setAttribute("open", ""); showWorkspace("asset");
+    state.contexts[normalized] = context; save(); renderContext(context); showWorkspace("asset");
     activity((source || "User") + " loaded public context for " + normalized + "."); return context;
   };
   const appendText = (parent, tag, text, className) => { const node = document.createElement(tag); if (className) node.className = className; node.textContent = text; parent.appendChild(node); return node; };
@@ -752,17 +792,37 @@ export function workspaceScript(): string {
     card.appendChild(block); appendText(card, "div", id, "aw-eid");
   };
   const renderContext = (context) => {
-    const root = byId("aw-context"); root.replaceChildren(); appendText(root, "h3", context.symbol + " · " + context.name);
+    const root = byId("aw-context"); root.replaceChildren();
+    const heading = document.createElement("div"); heading.className = "aw-stock-heading";
+    appendText(heading, "h3", context.symbol + " · " + context.name);
+    const badge = appendText(heading, "span", "", "verdict neutral"); badge.dataset.stockVerdict = context.symbol; root.appendChild(heading);
     const grid = document.createElement("div"); grid.className = "aw-context";
-    const price = document.createElement("div"); price.className = "aw-context-card"; appendText(price, "h4", "Price · " + context.coverage.price.status);
-    if (context.price) evidenceLine(price, String(context.price.last) + (context.price.currency ? " " + context.price.currency : ""), "Daily " + context.price.change_pct + "% · as of " + context.price.as_of.slice(0, 10), context.price.id, context.price.url); else appendText(price, "p", context.coverage.price.note);
-    const facts = document.createElement("div"); facts.className = "aw-context-card"; appendText(facts, "h4", "Fundamentals · " + context.coverage.fundamentals.status);
-    context.fundamentals.forEach((fact) => evidenceLine(facts, fact.label, Number(fact.value).toLocaleString() + " " + fact.unit + " · " + fact.form + " " + fact.period_end, fact.id, fact.url));
-    if (!context.fundamentals.length) appendText(facts, "p", context.coverage.fundamentals.note);
-    const news = document.createElement("div"); news.className = "aw-context-card"; appendText(news, "h4", "Recent coverage · " + context.coverage.news.status);
-    context.news.forEach((item) => evidenceLine(news, item.title, item.domain + " · " + item.published_at, item.id, item.url));
+    const price = document.createElement("div"); price.className = "aw-context-card"; appendText(price, "h4", (isZh ? "价格" : "Price") + " · " + context.coverage.price.status);
+    if (context.price) {
+      appendText(price, "div", Number(context.price.last).toLocaleString(undefined, { maximumFractionDigits: 2 }) + (context.price.currency ? " " + context.price.currency : ""), "aw-context-price-value");
+      const change = Number(context.price.change_pct);
+      appendText(price, "div", (change > 0 ? "+" : "") + change + "%" + (isZh ? " 今日" : " today"), "aw-context-change" + (change > 0 ? " aw-context-positive" : change < 0 ? " aw-context-negative" : ""));
+      evidenceLine(price, isZh ? "截至" : "As of", context.price.as_of.slice(0, 10), context.price.id, context.price.url);
+    } else appendText(price, "p", context.coverage.price.note);
+    const facts = document.createElement("div"); facts.className = "aw-context-card"; appendText(facts, "h4", (isZh ? "基本面" : "Fundamentals") + " · " + context.coverage.fundamentals.status);
+    const metrics = document.createElement("div"); metrics.className = "aw-context-metrics";
+    context.fundamentals.forEach((fact) => {
+      const metric = document.createElement("div"); metric.className = "aw-context-metric";
+      appendText(metric, "div", fact.label, "aw-context-metric-label");
+      const value = Number(fact.value); const income = /income|profit/i.test(fact.label);
+      appendText(metric, "div", value.toLocaleString(undefined, { notation: "compact", maximumFractionDigits: 2 }) + " " + fact.unit, "aw-context-metric-value" + (value < 0 ? " aw-context-negative" : income && value > 0 ? " aw-context-positive" : ""));
+      metric.title = value.toLocaleString() + " " + fact.unit;
+      evidenceLine(metric, fact.form, fact.period_end, fact.id, fact.url); metrics.appendChild(metric);
+    });
+    facts.appendChild(metrics); if (!context.fundamentals.length) appendText(facts, "p", context.coverage.fundamentals.note);
+    const news = document.createElement("div"); news.className = "aw-context-card aw-context-news"; appendText(news, "h4", (isZh ? "近期报道" : "Recent coverage") + " · " + context.coverage.news.status);
+    context.news.forEach((item) => {
+      const article = document.createElement("div"); article.className = "aw-context-news-item";
+      const link = document.createElement("a"); link.href = item.url; link.target = "_blank"; link.rel = "noopener noreferrer"; link.textContent = item.title; article.appendChild(link);
+      appendText(article, "p", item.domain + " · " + item.published_at); appendText(article, "div", item.id, "aw-eid"); news.appendChild(article);
+    });
     if (!context.news.length) appendText(news, "p", context.coverage.news.note);
-    grid.append(price, facts, news); root.appendChild(grid);
+    grid.append(price, facts, news); root.appendChild(grid); renderStockVerdicts();
   };
   byId("aw-search-form").addEventListener("submit", async (event) => {
     event.preventDefault(); const host = byId("aw-search-results"); host.replaceChildren(); activity(T.loading);
@@ -795,9 +855,11 @@ export function workspaceScript(): string {
   const renderLens = (input, source) => {
     const lens = validateLens(input); state.lenses[lens.symbol] = lens; save();
     const root = byId("aw-rendered-lens"); root.replaceChildren(); const card = document.createElement("div"); card.className = "aw-lens";
-    appendText(card, "h4", lens.symbol + " macro lens"); appendText(card, "p", lens.summary);
+    const heading = document.createElement("div"); heading.className = "aw-stock-heading";
+    appendText(heading, "h4", lens.symbol + (isZh ? " · 情景分析" : " · Scenario analysis"));
+    const badge = appendText(heading, "span", "", "verdict neutral"); badge.dataset.stockVerdict = lens.symbol; card.appendChild(heading); appendText(card, "p", lens.summary);
     lens.exposures.forEach((row) => { const def = shockDefinition(row.factor); evidenceLine(card, def.label + " " + (row.sensitivity > 0 ? "+" : "") + row.sensitivity, row.rationale, row.evidence_ids.join(", "), null); });
-    root.appendChild(card); renderPortfolioSummary(); renderSelectedPortfolioImpact(); byId("aw-research-lab")?.setAttribute("open", ""); showWorkspace("asset"); activity((source || "Agent") + " rendered a cited lens for " + lens.symbol + ".");
+    root.appendChild(card); renderStockVerdicts(); renderPortfolioSummary(); renderSelectedPortfolioImpact(); showWorkspace("asset"); activity((source || "Agent") + " rendered a cited lens for " + lens.symbol + ".");
     return { rendered: true, lens, scenario_impact: score(lens.symbol, profileFor(lens.symbol), state.shocks) };
   };
 
@@ -824,13 +886,14 @@ export function workspaceScript(): string {
     const base = Number((100 / positions.length).toFixed(2)); let used = 0;
     return positions.map((row, index) => { const weight = index === positions.length - 1 ? Number((100 - used).toFixed(2)) : base; used += weight; return { symbol: cleanSymbol(row.symbol), weight_pct: weight }; });
   };
+  const displaySymbol = (symbol) => symbol === "XAU" ? "Gold" : symbol === "CNY=X" ? "CNY" : symbol;
   const labelForSymbol = (symbol) => {
     for (const [category, items] of Object.entries(categoryCatalog)) { const hit = items.find((item) => item.symbol === symbol); if (hit) return { category, name: hit.name }; }
     const curated = C.assets.find((asset) => asset.symbol === symbol); return { category: curated ? curated.group : "Other", name: curated ? curated.name : "Custom asset" };
   };
   const renderAllocation = () => {
     const root = byId("aw-allocation"); root.replaceChildren();
-    state.portfolio.forEach((position, index) => { const part = document.createElement("span"); part.style.width = position.weight_pct + "%"; part.style.background = portfolioColors[index % portfolioColors.length]; part.title = position.symbol + " " + position.weight_pct + "%"; part.textContent = position.weight_pct >= 10 ? position.symbol : ""; root.appendChild(part); });
+    state.portfolio.forEach((position, index) => { const part = document.createElement("span"); part.style.width = position.weight_pct + "%"; part.style.background = portfolioColors[index % portfolioColors.length]; part.title = displaySymbol(position.symbol) + " " + position.weight_pct + "%"; part.textContent = position.weight_pct >= 10 ? displaySymbol(position.symbol) : ""; root.appendChild(part); });
   };
   const portfolioResult = () => {
     const positions = state.portfolio.map((position) => {
@@ -857,7 +920,7 @@ export function workspaceScript(): string {
     selectedPortfolioSymbol = position.symbol;
     const profile = profileFor(position.symbol);
     const head = document.createElement("div"); head.className = "aw-impact-head";
-    const copy = document.createElement("div"); appendText(copy, "p", T.portfolioImpact.toUpperCase(), "aw-eyebrow"); appendText(copy, "h3", position.symbol + " · " + labelForSymbol(position.symbol).name);
+    const copy = document.createElement("div"); appendText(copy, "p", T.portfolioImpact.toUpperCase(), "aw-eyebrow"); appendText(copy, "h3", displaySymbol(position.symbol) + " · " + labelForSymbol(position.symbol).name);
     head.appendChild(copy);
     if (!profile) {
       root.appendChild(head); appendText(root, "p", T.noProfile, "aw-impact-empty"); return;
@@ -902,10 +965,10 @@ export function workspaceScript(): string {
     const host = byId("aw-portfolio-rows"); host.replaceChildren();
     state.portfolio.forEach((position) => {
       const meta = labelForSymbol(position.symbol); const row = document.createElement("div"); row.className = "aw-position"; row.setAttribute("aria-selected", String(position.symbol === selectedPortfolioSymbol));
-      const symbol = document.createElement("button"); symbol.type = "button"; symbol.className = "aw-position-symbol"; symbol.setAttribute("aria-label", "Show macro impact for " + position.symbol); appendText(symbol, "b", position.symbol); appendText(symbol, "small", meta.category);
-      const range = document.createElement("input"); range.type = "range"; range.min = "1"; range.max = String(Math.max(1, 100 - (state.portfolio.length - 1))); range.step = "1"; range.value = String(position.weight_pct); range.setAttribute("aria-label", position.symbol + " portfolio weight");
+      const symbol = document.createElement("button"); symbol.type = "button"; symbol.className = "aw-position-symbol"; symbol.setAttribute("aria-label", "Show macro impact for " + displaySymbol(position.symbol)); appendText(symbol, "b", displaySymbol(position.symbol)); appendText(symbol, "small", meta.category);
+      const range = document.createElement("input"); range.type = "range"; range.min = "1"; range.max = String(Math.max(1, 100 - (state.portfolio.length - 1))); range.step = "1"; range.value = String(position.weight_pct); range.setAttribute("aria-label", displaySymbol(position.symbol) + " portfolio weight");
       const output = document.createElement("output"); output.textContent = position.weight_pct + "%";
-      const remove = document.createElement("button"); remove.type = "button"; remove.className = "aw-remove"; remove.textContent = "×"; remove.title = T.removeAsset; remove.setAttribute("aria-label", T.removeAsset + " " + position.symbol);
+      const remove = document.createElement("button"); remove.type = "button"; remove.className = "aw-remove"; remove.textContent = "×"; remove.title = T.removeAsset; remove.setAttribute("aria-label", T.removeAsset + " " + displaySymbol(position.symbol));
       row.addEventListener("click", () => { selectedPortfolioSymbol = position.symbol; renderPortfolioRows(); });
       symbol.addEventListener("click", (event) => { event.stopPropagation(); selectedPortfolioSymbol = position.symbol; renderPortfolioRows(); });
       range.addEventListener("click", (event) => event.stopPropagation()); range.addEventListener("input", () => { output.textContent = range.value + "%"; }); range.addEventListener("change", (event) => { event.stopPropagation(); rebalancePosition(position.symbol, range.value); });
@@ -916,7 +979,7 @@ export function workspaceScript(): string {
   };
   const renderCatalogItems = (items) => {
     const root = byId("aw-catalog-results"); root.replaceChildren();
-    items.forEach((item) => { const button = document.createElement("button"); button.type = "button"; button.className = "aw-catalog-item"; appendText(button, "b", item.symbol); appendText(button, "small", state.portfolio.some((row) => row.symbol === item.symbol) ? "Added" : "+ Add"); button.title = item.name || item.symbol; button.addEventListener("click", () => addPortfolioAsset(item.symbol)); root.appendChild(button); });
+    items.forEach((item) => { const button = document.createElement("button"); button.type = "button"; button.className = "aw-catalog-item"; appendText(button, "b", displaySymbol(item.symbol)); appendText(button, "small", state.portfolio.some((row) => row.symbol === item.symbol) ? "Added" : "+ Add"); button.title = item.name || item.symbol; button.addEventListener("click", () => addPortfolioAsset(item.symbol)); root.appendChild(button); });
   };
   const renderCatalog = () => {
     const tabs = byId("aw-category-tabs"); tabs.replaceChildren(); const isZh = document.documentElement.lang.startsWith("zh");
